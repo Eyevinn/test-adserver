@@ -1,0 +1,25 @@
+{
+  "name": "test-adserver",
+  "version": "1.0.0",
+  "description": "An adserver implementation to verify ad tracking implementations",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Eyevinn/test-adserver.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Eyevinn/test-adserver/issues"
+  },
+  "homepage": "https://github.com/Eyevinn/test-adserver#readme",
+  "dependencies": {
+    "fastify": "^3.14.2",
+    "fastify-swagger": "^4.6.0",
+    "swagger-jsdoc": "^7.0.0-rc.6"
+  }
+}
