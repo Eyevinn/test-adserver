@@ -1,18 +1,14 @@
 const fastify = require("fastify")();
 
+fastify.register(require("./api/v1/index"), { prefix: "api/v1/" });
+
 fastify.get("/", async () => {
   return {
     Test: "This is working fine",
   };
 });
 
-fastify.get("/sessions/:sessionId", async (req, reply) => {
-  console.log(req.params.sessionId);
-  return {
-    Test: "This is working fine",
-  };
-});
-
+// MAKE IT LISTEN
 const start = async () => {
   try {
     await fastify.listen(process.env.PORT || 8080);
