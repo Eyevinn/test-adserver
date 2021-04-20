@@ -15,7 +15,7 @@ fastify.get("/sessions/:sessionId", async (req, reply) => {
 
 const start = async () => {
   try {
-    await fastify.listen(8080);
+    await fastify.listen(process.env.PORT || 8080);
     console.log(
       `Test Adserver API is listening at http://${
         fastify.server.address().address
