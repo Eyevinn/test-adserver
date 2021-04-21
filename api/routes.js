@@ -1,5 +1,14 @@
 const controller = require("../controllers/api-controller");
 
+const SessionSchema = () => ({
+  description: "Sessions description",
+  type: "object",
+  properties: {
+    id: { type: "string" },
+    data: { type: "string" },
+  },
+});
+
 const BadRequestSchema = () => ({
   description: "Bad request error description",
   type: "object",
@@ -24,6 +33,7 @@ const schemas = {
       200: {
         description: "On success returns an array of sessions",
         type: "array",
+        item: SessionSchema(),
       },
     },
     security: [{ apiKey: [] }],
@@ -37,10 +47,7 @@ const schemas = {
       },
     },
     response: {
-      200: {
-        description: "On success returns data about the session",
-        type: "array",
-      },
+      200: SessionSchema(),
       404: BadRequestSchema(),
     },
     security: [{ apiKey: [] }],
