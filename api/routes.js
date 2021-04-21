@@ -34,7 +34,7 @@ const schemas = {
       200: {
         description: "On success returns an array of sessions",
         type: "array",
-        item: SessionSchema(),
+        items: SessionSchema(),
       },
     },
     security: [{ apiKey: [] }],
