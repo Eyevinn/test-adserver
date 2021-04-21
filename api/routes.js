@@ -4,7 +4,8 @@ const SessionSchema = () => ({
   description: "Sessions description",
   type: "object",
   properties: {
-    id: { type: "string" },
+    sessionId: { type: "string" },
+    userId: { type: "string" },
     data: { type: "string" },
   },
 });
