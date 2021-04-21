@@ -1,5 +1,6 @@
+// :::SESSION ROUTES:::
 // Get a list of running test sessions.
-getSessions = async () => {
+getSessionsList = async () => {
   try {
     const list = []; // Logic to be used here.
     console.log(`I GET List of running Test Sessions`);
@@ -10,18 +11,35 @@ getSessions = async () => {
 };
 
 // Get information of a specific test session.
-get = async (sessionId) => {
-    try {
-      const sessionInfo = {}; // Logic to be used here.
-      console.log(`I GET information for test session->: ${sessionId}`);
-      return sessionInfo;
-    } catch (err) {
-      throw err;
-    }
-  };
+getSession = async (sessionId) => {
+  try {
+    const sessionInfo = {}; // Logic to be used here.
+    console.log(`I GET information for session->: ${sessionId}`);
+    return sessionInfo;
+  } catch (err) {
+    throw err;
+  }
+};
 
+deleteSession = async (sessionId) => {
+  try {
+    // Add and Use deletion-function Here.
+
+    console.log(`I DEL session->: ${sessionId}`);
+    return 1;
+  } catch (err) {
+    throw err;
+  }
+};
+
+// :::USER ROUTES:::
+// todo
+
+// :::VAST ROUTES:::
+// todo
 
 module.exports = {
-  getSessions,
-  get,
+  getSessionsList,
+  getSession,
+  deleteSession,
 };

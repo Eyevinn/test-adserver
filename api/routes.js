@@ -52,19 +52,43 @@ const schemas = {
     },
     security: [{ apiKey: [] }],
   },
-};
+  "DELETE/sessions/:sessionId": {
+    description: "Deletes the given session",
+    params: {
+      sessionId: { type: "string", description: "The id for the session" },
+    },
+    security: [{ apiKey: [] }],
+    response: {
+      204: {},
+      404: BadRequestSchema(),
+    },
+  },
+}; // End of dict
 
 module.exports = (fastify, opts, next) => {
+  fastify.get(
+    "/sessions",
+    { schema: schemas["GET/sessions"] },
+    async (req, reply) => {
+      try {
+        const sessionList = await controller.getSessionsList();
+        reply.send(sessionList);
+      } catch (exc) {
+        reply.code(500).send({ message: exc.message });
+      }
+    }
+  );
+
   fastify.get(
     "/sessions/:sessionId",
     { schema: schemas["GET/sessions/:sessionId"] },
     async (req, reply) => {
       try {
         const sessionId = req.params.sessionId;
-        const data = await controller.get(sessionId);
+        const data = await controller.getSession(sessionId);
         if (!data) {
           reply.code(404).send({
-            message: `Stream with ID ${request.params.sessionId} was not found`,
+            message: `Session with ID ${request.params.sessionId} was not found`,
           });
         } else {
           reply.send(data);
@@ -75,18 +99,24 @@ module.exports = (fastify, opts, next) => {
     }
   );
 
-  fastify.get(
-    "/sessions",
-    { schema: schemas["GET/sessions"] },
-    async (req, reply) => {
+  fastify.delete(
+    "/sessions/:sessionId",
+    { schema: schemas["DELETE/sessions/:sessionId"] },
+    async (request, reply) => {
       try {
-        const sessionList = await controller.getSessions();
-        reply.send(sessionList);
+        const sessionId = await controller.getSession(request.params.sessionId);
+        if (!sessionId) {
+          reply.code(404).send({
+            message: `Session with ID ${request.params.sessionId} was not found`,
+          });
+        } else {
+          await controller.deleteSession(sessionId);
+          reply.send(204);
+        }
       } catch (exc) {
         reply.code(500).send({ message: exc.message });
       }
     }
   );
-
   next();
 };
