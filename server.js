@@ -36,12 +36,8 @@ fastify.ready((err) => {
 // MAKE IT LISTEN
 const start = async () => {
   try {
-    await fastify.listen(process.env.PORT || 8080);
-    console.log(
-      `Test Adserver API is listening at http://${
-        fastify.server.address().address
-      }:${fastify.server.address().port}`
-    );
+    const address = await fastify.listen(process.env.PORT || 8080);
+    console.log(`Test Adserver API is listening at ${address}`);
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);
