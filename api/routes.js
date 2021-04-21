@@ -18,15 +18,6 @@ const BadRequestSchema = () => ({
   },
 });
 
-const ForbiddenSchema = () => ({
-  description:
-    "Request is not allowed either because not authorized or resource not ready",
-  type: "object",
-  properties: {
-    message: { type: "string", description: "Reason of refusal" },
-  },
-});
-
 const schemas = {
   "GET/sessions": {
     description: "Gets all sessions",
