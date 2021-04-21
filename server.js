@@ -28,7 +28,6 @@ fastify.register(require("fastify-swagger"), {
 fastify.register(require("./api/routes.js"), {
   prefix: "/api/v1",
 });
-fastify.register(require("fastify-cors"), {});
 fastify.ready((err) => {
   if (err) throw err;
   fastify.swagger();
