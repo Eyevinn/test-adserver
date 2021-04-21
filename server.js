@@ -1,11 +1,18 @@
+// IMPORT MODULES
 const fastify = require("fastify")({ ignoreTrailingSlash: true });
+// Read from local .env
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
 
+// Homepage route? Replace later.
 fastify.get("/", async () => {
   return {
     Test: "This is working fine",
   };
 });
 
+// SET UP Swagger
 fastify.register(require("fastify-swagger"), {
   routePrefix: "/api/docs",
   swagger: {
