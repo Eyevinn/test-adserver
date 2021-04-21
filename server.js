@@ -14,6 +14,11 @@ fastify.register(require("fastify-swagger"), {
       description: "This is for testing.",
       version: "0.1.0",
     },
+    tags: [
+      { name: "sessions", description: "Session related end-points" },
+      { name: "users", description: "User related end-points" },
+      { name: "vast", description: "Vast related end-points" },
+    ],
     securityDefinitions: {
       apiKey: {
         type: "apiKey",
@@ -36,7 +41,12 @@ fastify.ready((err) => {
 // MAKE IT LISTEN
 const start = async () => {
   try {
-    const address = await fastify.listen(process.env.PORT || 8080);
+    const address = await fastify.listen(
+      process.env.PORT || 8080,
+
+      process.env.HOST || "0.0.0.0"
+    );
+
     console.log(`Test Adserver API is listening at ${address}`);
   } catch (err) {
     fastify.log.error(err);

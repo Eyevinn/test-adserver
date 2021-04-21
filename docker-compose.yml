@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+  test-adserver-api:
+    build: .
+    image: adserver-api:local
+    environment:
+      - PORT=8080
+      - API_KEY=secret-key
+    ports:
+      - 8080:8080
