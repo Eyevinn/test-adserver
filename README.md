@@ -7,3 +7,15 @@ An adserver implementation to verify ad tracking implementations
 - `cd test-adserver`
 - `npm install`, then
 - `npm start` to run the server
+
+## Docker
+
+A `docker-compose` config file is provided that takes care of building the image.
+
+Start the service:
+
+- `docker-compose up`
+
+Stop the service:
+
+- `docker-compose down`
