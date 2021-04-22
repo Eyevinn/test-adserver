@@ -1,6 +1,11 @@
 "use strict";
 
 const fastifyServer = require("./app")({});
+// Read from local .env
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
+}
+
 // MAKE IT LISTEN
 const start = async () => {
   try {

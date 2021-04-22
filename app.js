@@ -1,9 +1,5 @@
 // IMPORT MODULES
 const Fastify = require("fastify");
-// Read from local .env
-if (process.env.NODE_ENV !== "production") {
-  require("dotenv").config();
-}
 
 function builder() {
   const fastify = Fastify({ ignoreTrailingSlash: true });
