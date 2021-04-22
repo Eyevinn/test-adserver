@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "tap test/**/*.test.js",
+    "test": "tap -Rspec test/**/*.test.js",
     "dev-2": "fastify start -w -l info -P app.js",
     "dev": "nodemon -L server.js"
   },

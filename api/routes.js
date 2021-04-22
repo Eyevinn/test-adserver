@@ -1,12 +1,30 @@
 const controller = require("../controllers/api-controller");
 
+/* === Dummy Session Object === */
+const dummySessionObj = {
+  sessionId: "session-123",
+  userId: "user-123",
+  created: "time-stamp-here",
+  request: {
+    c: "request.query.c",
+    dur: "request.query.dur",
+    uid: "request.query.uid",
+    os: "request.query.os",
+    dt: "request.query.dt",
+    ss: "request.query.ss",
+    uip: "request.query.uip",
+  },
+  response: "<VAST XML>",
+};
+/* ======= ========= ======= ========== ======= */
+
 const SessionSchema = () => ({
   description: "Sessions description",
   type: "object",
   properties: {
     sessionId: { type: "string" },
     userId: { type: "string" },
-    data: { type: "string" },
+    created: { type: "string" },
   },
 });
 
@@ -111,7 +129,7 @@ const schemas = {
       },
     },
     response: {
-      200: {
+      201: {
         description: "Status of Session creation attempt",
         type: "object",
         properties: {
@@ -131,6 +149,7 @@ module.exports = (fastify, opts, next) => {
     async (req, reply) => {
       try {
         const sessionList = await controller.getSessionsList();
+        // Send Array[{...},{...},{...}]
         reply.send(sessionList);
       } catch (exc) {
         reply.code(500).send({ message: exc.message });
@@ -147,13 +166,13 @@ module.exports = (fastify, opts, next) => {
         const data = await controller.getSession(sessionId);
         if (!data) {
           reply.code(404).send({
-            message: `Session with ID ${request.params.sessionId} was not found`,
+            message: `Session with ID ${sessionId} was not found`,
           });
         } else {
-          reply.send(data);
+          reply.send(dummySessionObj);
         }
       } catch (exc) {
-        reply.code(500).send({ message: exc.message });
+        reply.code(500).send({ message: exc.message }); // ex. when a reply comes with wrong schema
       }
     }
   );
@@ -189,12 +208,17 @@ module.exports = (fastify, opts, next) => {
           {
             sessionId: "1",
             userId: request.params.userId,
-            data: "I am data on a session",
+            created: "1999-01-11",
           },
           {
             sessionId: "2",
             userId: request.params.userId,
-            data: "I am data on another session",
+            created: "1999-01-12",
+          },
+          {
+            sessionId: "3",
+            userId: request.params.userId,
+            created: "1999-01-13",
           },
         ];
         if (!listOfTestSessions) {
@@ -240,7 +264,7 @@ module.exports = (fastify, opts, next) => {
           });
         } else {
           reply
-            .code(200)
+            .code(201)
             .send({ message: "Creation of New Session Succsessful." });
         }
       } catch (exc) {

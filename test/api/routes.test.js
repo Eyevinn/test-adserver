@@ -1,62 +1,112 @@
 "use strict";
 
 const { test } = require("tap");
-const { build } = require("../helper");
-const fastify = require("../../server").fastify;
+const builder = require("../../app");
 
+test("<GET /sessions, Should *Succeed*>", async (t) => {
+  t.plan(3);
+  const app = builder();
+  t.teardown(() => app.close());
 
-
-test("GET/sessions Always Return Array", (t) => {
-  t.plan(4);
-  (async function () {
-    console.warn("Gonna start listening.");
-    fastify.listen(0, async (err) => {
-      t.error(err);
-
-      // HTTP injection
-      const res = await fastify.inject({
-        method: "GET",
-        url: "/api/v1/sessions",
-      });
-      // Tests
-      t.equal(res.statusCode, 200);
-      t.equal(res.headers["content-type"], "application/json; charset=utf-8");
-      t.same(JSON.parse(res.payload), []);
-      // tear down our app after we are done
-      console.warn("Want to close app");
-      t.teardown(() => fastify.close());
-      process.exit(0);
-    });
-  })();
+  const res = await app.inject({
+    method: "GET",
+    url: "/api/v1/sessions",
+  });
+  // Tests
+  t.equal(res.statusCode, 200);
+  t.equal(res.headers["content-type"], "application/json; charset=utf-8");
+  t.same(JSON.parse(res.payload), []);
 });
 
-// test("GET/:sessionId Always Return Session Object", (t) => {
-//   t.plan(4);
-//   t.teardown(() => fastify.close());
-//   (async function () {
-//     console.warn("Gonna start listening.");
+test("<GET /session/:sessionId,  Should *Succeed*>", async (t) => {
+  t.plan(3);
+  const app = builder();
+  t.teardown(() => app.close());
 
-//       const res = await fastify.inject({
-//         method: "GET",
-//         url: "/api/v1/sessions/123",
-//       });
+  const sid = "the-best-id";
+  const res = await app.inject({
+    method: "GET",
+    url: "/api/v1/sessions/" + sid,
+  });
 
-//       t.equal(res.statusCode, 200);
-//       t.equal(res.headers["content-type"], "application/json; charset=utf-8");
-//       t.same(JSON.parse(res.payload), {});
-//       // tear down our app after we are done
-//       console.warn("Want to close app");
-//       process.exit(0);
-//   })();
-// });
+  t.equal(res.statusCode, 200);
+  t.equal(res.headers["content-type"], "application/json; charset=utf-8");
+  t.hasStrict(JSON.parse(res.payload), {
+    sessionId: "session-123",
+    userId: "user-123",
+    created: "time-stamp-here",
+  });
+});
 
-// test("routes is loaded", async (t) => {
-//   t.plan(1);
-//   const app = build(t);
+test("<DELETE /session/:sessionId, Should *Succeed*>", async (t) => {
+  t.plan(3);
+  const app = builder();
+  t.teardown(() => app.close());
 
+  const sid = "the-best-id";
+  const res = await app.inject({
+    method: "DELETE",
+    url: "/api/v1/sessions/" + sid,
+  });
+  t.equal(res.statusCode, 200);
+  t.equal(res.headers["content-type"], "application/json; charset=utf-8");
+  t.same(res.payload, 204);
+});
+
+test("<GET /users/:userId,  Should *Succeed*>", async (t) => {
+  const app = builder();
+  t.teardown(() => app.close());
+
+  const uid = "some-user-id";
+  const res = await app.inject({
+    method: "GET",
+    url: "/api/v1/users/" + uid,
+  });
+  const resArray = JSON.parse(res.payload);
+  t.equal(res.statusCode, 200);
+  t.equal(res.headers["content-type"], "application/json; charset=utf-8");
+  //t.equal(JSON.parse(res.payload).length, 2)
+  t.type(resArray, "Array");
+  for (var i = 0; i < resArray.length; i++) {
+    t.type(resArray[i], "object");
+    t.equal(resArray[i].hasOwnProperty("sessionId"), true);
+    t.equal(resArray[i].hasOwnProperty("userId"), true);
+    t.equal(resArray[i].hasOwnProperty("sessionId"), true);
+  }
+  t.end();
+});
+
+test("<GET /vast,  Should *Succeed*>", async (t) => {
+  t.plan(2);
+  const app = builder();
+  t.teardown(() => app.close());
+
+  const queryStr =
+    "?c=YES&dur=90&uid=some-user-id&os=android&dt=samsung&ss=1000x200&uip=123.123.123.123";
+  const res = await app.inject({
+    method: "GET",
+    url: "/api/v1/vast" + queryStr,
+  });
+  t.equal(res.statusCode, 201);
+  t.equal(res.headers["content-type"], "application/json; charset=utf-8");
+});
+
+/**
+ * Make More Fail/Error Test Later.?
+ */
+// test("<GET /session/:sessionId, Should *Fail*>", async (t) => {
+//   t.plan(3);
+//   const app = builder();
+//   t.teardown(() => app.close());
+
+//   const sid = "the-best-id";
 //   const res = await app.inject({
 //     method: "GET",
-//     url: "/api/v1/sessions/123",
+//     url: "/api/v1/sessions/" + sid,
 //   });
-//   t.same(JSON.parse(res.payload), {});
+//   t.equal(res.statusCode, 404);
+//   t.equal(res.headers["content-type"], "application/json; charset=utf-8");
+//   t.same(JSON.parse(res.payload), {
+//     message: `Session with ID ${sid} was not found`,
+//   });
 // });
