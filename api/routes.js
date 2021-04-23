@@ -16,6 +16,27 @@ const dummySessionObj = {
   },
   response: "<VAST XML>",
 };
+/* === Dummy Session Object Creator Func === */
+const dummy = (id) => {
+  const sessionObj = {
+    sessionId: "session-" + id,
+    userId: "user-" + id,
+    created: "time-stamp-here",
+    request: {
+      c: "Ok",
+      dur: "30",
+      uid: "abc-999",
+      os: "iOS",
+      dt: "iPhone",
+      ss: "750x1334",
+      uip: "123.123.123.123",
+    },
+    response: "<VAST XML>",
+  };
+  return sessionObj;
+};
+// Create fake list of sessions.
+const dummySessionList = [dummy("123"), dummy("456"), dummy("789")];
 /* ======= ========= ======= ========== ======= */
 
 const SessionSchema = () => ({
@@ -25,6 +46,19 @@ const SessionSchema = () => ({
     sessionId: { type: "string" },
     userId: { type: "string" },
     created: { type: "string" },
+    request: {
+      type: "object",
+      properties: {
+        c: { type: "string" },
+        dur: { type: "string" },
+        uid: { type: "string" },
+        os: { type: "string" },
+        dt: { type: "string" },
+        ss: { type: "string" },
+        uip: { type: "string" },
+      },
+    },
+    response: { type: "string" },
   },
 });
 
@@ -68,7 +102,7 @@ const schemas = {
     description: "Deletes the given session",
     tags: ["sessions"],
     params: {
-      sessionId: { type: "string", description: "The id for the session" },
+      sessionId: { type: "string", description: "The id for the session to delete" },
     },
     security: [{ apiKey: [] }],
     response: {
@@ -150,7 +184,8 @@ module.exports = (fastify, opts, next) => {
       try {
         const sessionList = await controller.getSessionsList();
         // Send Array[{...},{...},{...}]
-        reply.send(sessionList);
+        //reply.send(sessionList);
+        reply.send(dummySessionList);
       } catch (exc) {
         reply.code(500).send({ message: exc.message });
       }
@@ -169,6 +204,8 @@ module.exports = (fastify, opts, next) => {
             message: `Session with ID ${sessionId} was not found`,
           });
         } else {
+          // Temp Dummy response.
+          dummySessionObj.sessionId = req.params.sessionId;
           reply.send(dummySessionObj);
         }
       } catch (exc) {
@@ -182,14 +219,16 @@ module.exports = (fastify, opts, next) => {
     { schema: schemas["DELETE/sessions/:sessionId"] },
     async (request, reply) => {
       try {
-        const sessionId = await controller.getSession(request.params.sessionId);
-        if (!sessionId) {
+        let sessionObj = await controller.getSession(request.params.sessionId);
+        // Give dummy response object - so the session in question is "always found" atm.
+        sessionObj = dummy("1337");
+        if (!sessionObj) {
           reply.code(404).send({
             message: `Session with ID ${request.params.sessionId} was not found`,
           });
         } else {
-          await controller.deleteSession(sessionId);
-          reply.send(204);
+          await controller.deleteSession(request.params.sessionId);
+          reply.code(204).send({});
         }
       } catch (exc) {
         reply.code(500).send({ message: exc.message });
@@ -206,19 +245,34 @@ module.exports = (fastify, opts, next) => {
         // GET via api-controller function. This is dummy reply
         const listOfTestSessions = [
           {
-            sessionId: "1",
+            sessionId: "session-888",
             userId: request.params.userId,
-            created: "1999-01-11",
+            created: "2021-04-23",
+            request: {
+              c: "Ok",
+              dur: "30",
+              uid: "abc-999",
+              os: "iOS",
+              dt: "iPhone",
+              ss: "750x1334",
+              uip: "123.123.123.123",
+            },
+            response: "<VAST XML>",
           },
           {
-            sessionId: "2",
+            sessionId: "session-999",
             userId: request.params.userId,
-            created: "1999-01-12",
-          },
-          {
-            sessionId: "3",
-            userId: request.params.userId,
-            created: "1999-01-13",
+            created: "2021-04-23",
+            request: {
+              c: "Ok",
+              dur: "30",
+              uid: "abc-999",
+              os: "iOS",
+              dt: "iPhone",
+              ss: "750x1334",
+              uip: "123.123.123.123",
+            },
+            response: "<VAST XML>",
           },
         ];
         if (!listOfTestSessions) {
@@ -242,9 +296,9 @@ module.exports = (fastify, opts, next) => {
     async (request, reply) => {
       try {
         // Create a new test session.
-        const dummySession = {
-          sessionId: "session-123",
-          userId: "user-123",
+        const newDummySession = {
+          sessionId: "session-XXX",
+          userId: "user-XXX",
           created: "time-stamp-here",
           request: {
             c: request.query.c,
