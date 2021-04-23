@@ -8,7 +8,7 @@ An adserver implementation to verify ad tracking implementations
 - `npm install`, then
 - `npm start` to run the server.
 - `npm run dev` to run the server in dev mode with nodemon listening to updates.
-- `npm run test` to run the unittests.
+- `npm run test` to run the unittests with Node-Tap.
 
 ## Docker
 
