@@ -3,6 +3,14 @@
 const { test } = require("tap");
 const builder = require("../../app");
 
+let TEST_SESSION = {
+    sessionId: "session-123",
+    userId: "user-123",
+    created: "time-stamp-here",
+  };
+
+
+
 test("<GET /sessions, Should *Succeed*>", async (t) => {
   t.plan(3);
   const app = builder();
@@ -31,11 +39,7 @@ test("<GET /session/:sessionId,  Should *Succeed*>", async (t) => {
 
   t.equal(res.statusCode, 200);
   t.equal(res.headers["content-type"], "application/json; charset=utf-8");
-  t.hasStrict(JSON.parse(res.payload), {
-    sessionId: "session-123",
-    userId: "user-123",
-    created: "time-stamp-here",
-  });
+  t.hasStrict(JSON.parse(res.payload), TEST_SESSION);
 });
 
 test("<DELETE /session/:sessionId, Should *Succeed*>", async (t) => {
