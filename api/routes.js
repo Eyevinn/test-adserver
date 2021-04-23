@@ -1,21 +1,5 @@
 const controller = require("../controllers/api-controller");
 
-/* === Dummy Session Object === */
-const dummySessionObj = {
-  sessionId: "session-123",
-  userId: "user-123",
-  created: "time-stamp-here",
-  request: {
-    c: "request.query.c",
-    dur: "request.query.dur",
-    uid: "request.query.uid",
-    os: "request.query.os",
-    dt: "request.query.dt",
-    ss: "request.query.ss",
-    uip: "request.query.uip",
-  },
-  response: "<VAST XML>",
-};
 /* === Dummy Session Object Creator Func === */
 const dummy = (id) => {
   const sessionObj = {
@@ -23,20 +7,18 @@ const dummy = (id) => {
     userId: "user-" + id,
     created: "time-stamp-here",
     request: {
-      c: "Ok",
+      c: "true",
       dur: "30",
-      uid: "abc-999",
-      os: "iOS",
-      dt: "iPhone",
-      ss: "750x1334",
-      uip: "123.123.123.123",
+      uid: "session-" + id,
+      os: "ios",
+      dt: "mobile",
+      ss: "1920x1080",
+      uip: "“192.168.1.20",
     },
     response: "<VAST XML>",
   };
   return sessionObj;
 };
-// Create fake list of sessions.
-const dummySessionList = [dummy("123"), dummy("456"), dummy("789")];
 /* ======= ========= ======= ========== ======= */
 
 const SessionSchema = () => ({
@@ -60,6 +42,21 @@ const SessionSchema = () => ({
     },
     response: { type: "string" },
   },
+  example: {
+    sessionId: "asbc-242-fsdv-123",
+    userId: "141412",
+    created: "2021-04-19T10:02:40Z",
+    request: {
+      c: "true",
+      dur: "30",
+      uid: "asbc-242-fsdv-123",
+      os: "ios",
+      dt: "mobile",
+      ss: "1920x1080",
+      uip: "“192.168.1.20",
+    },
+    response: "<VAST XML>",
+  },
 });
 
 const BadRequestSchema = () => ({
@@ -67,6 +64,9 @@ const BadRequestSchema = () => ({
   type: "object",
   properties: {
     message: { type: "string", description: "Reason of the error" },
+  },
+  example: {
+    message: "Error due to reasons",
   },
 });
 
@@ -89,7 +89,7 @@ const schemas = {
     params: {
       sessionId: {
         type: "string",
-        description: "The id for the session.",
+        description: "The id for the session. ",
       },
     },
     response: {
@@ -102,7 +102,10 @@ const schemas = {
     description: "Deletes the given session",
     tags: ["sessions"],
     params: {
-      sessionId: { type: "string", description: "The id for the session to delete" },
+      sessionId: {
+        type: "string",
+        description: "The id for the session to delete",
+      },
     },
     security: [{ apiKey: [] }],
     response: {
@@ -162,12 +165,16 @@ const schemas = {
         description: "Client IP.",
       },
     },
+
     response: {
       201: {
         description: "Status of Session creation attempt",
         type: "object",
         properties: {
           message: { type: "string" },
+        },
+        example: {
+          message: "Creation of New Session Succsessful.",
         },
       },
       404: BadRequestSchema(),
@@ -185,6 +192,8 @@ module.exports = (fastify, opts, next) => {
         const sessionList = await controller.getSessionsList();
         // Send Array[{...},{...},{...}]
         //reply.send(sessionList);
+        // Create fake list of sessions.
+        const dummySessionList = [dummy("123"), dummy("456"), dummy("789")];
         reply.send(dummySessionList);
       } catch (exc) {
         reply.code(500).send({ message: exc.message });
@@ -204,9 +213,10 @@ module.exports = (fastify, opts, next) => {
             message: `Session with ID ${sessionId} was not found`,
           });
         } else {
-          // Temp Dummy response.
-          dummySessionObj.sessionId = req.params.sessionId;
-          reply.send(dummySessionObj);
+          //**Temp Dummy response**.
+          const dummyData = dummy("1");
+          dummyData["sessionId"] = req.params.sessionId;
+          reply.send(dummyData);
         }
       } catch (exc) {
         reply.code(500).send({ message: exc.message }); // ex. when a reply comes with wrong schema
@@ -242,46 +252,21 @@ module.exports = (fastify, opts, next) => {
     { schema: schemas["GET/users/:userId"] },
     async (request, reply) => {
       try {
-        // GET via api-controller function. This is dummy reply
-        const listOfTestSessions = [
-          {
-            sessionId: "session-888",
-            userId: request.params.userId,
-            created: "2021-04-23",
-            request: {
-              c: "Ok",
-              dur: "30",
-              uid: "abc-999",
-              os: "iOS",
-              dt: "iPhone",
-              ss: "750x1334",
-              uip: "123.123.123.123",
-            },
-            response: "<VAST XML>",
-          },
-          {
-            sessionId: "session-999",
-            userId: request.params.userId,
-            created: "2021-04-23",
-            request: {
-              c: "Ok",
-              dur: "30",
-              uid: "abc-999",
-              os: "iOS",
-              dt: "iPhone",
-              ss: "750x1334",
-              uip: "123.123.123.123",
-            },
-            response: "<VAST XML>",
-          },
-        ];
-        if (!listOfTestSessions) {
+        // GET via api-controller function.
+
+        // This is dummy reply
+        const dummyListOfSessions = [dummy("1"), dummy("2"), dummy("3")];
+        dummyListOfSessions.map((sess) => {
+          sess.userId = request.params.userId;
+        });
+
+        if (!dummyListOfSessions) {
           reply.code(404).send({
             message: `User with ID->: ${request.params.userId} was not found`,
           });
         } else {
           // Do the REAL function call. HERE
-          reply.code(200).send(listOfTestSessions);
+          reply.code(200).send(dummyListOfSessions);
         }
       } catch (exc) {
         reply.code(500).send({ message: exc.message });

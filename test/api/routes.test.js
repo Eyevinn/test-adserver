@@ -4,15 +4,22 @@ const { test } = require("tap");
 const builder = require("../../app");
 
 const TEST_SESSION = {
-    sessionId: "session-123",
-    userId: "user-123",
-    created: "time-stamp-here",
-  };
-
-
+  sessionId: "asbc-242-fsdv-123",
+  userId: "141412",
+  created: "2021-04-19T10:02:40Z",
+  request: {
+    c: "true",
+    dur: "30",
+    uid: "asbc-242-fsdv-123",
+    os: "ios",
+    dt: "mobile",
+    ss: "1920x1080",
+    uip: "“192.168.1.20",
+  },
+  response: "<VAST XML>",
+};
 
 test("<GET /sessions, Should *Succeed*>", async (t) => {
-  t.plan(3);
   const app = builder();
   t.teardown(() => app.close());
 
@@ -21,25 +28,36 @@ test("<GET /sessions, Should *Succeed*>", async (t) => {
     url: "/api/v1/sessions",
   });
   // Tests
+  const resArray = JSON.parse(res.payload);
   t.equal(res.statusCode, 200);
   t.equal(res.headers["content-type"], "application/json; charset=utf-8");
-  t.same(JSON.parse(res.payload), []);
+  t.type(resArray, "Array");
+  for (var i = 0; i < resArray.length; i++) {
+    t.type(resArray[i], "object");
+    t.equal(resArray[i].hasOwnProperty("sessionId"), true);
+    t.equal(resArray[i].hasOwnProperty("userId"), true);
+    t.equal(resArray[i].hasOwnProperty("created"), true);
+  }
+  t.end();
 });
 
 test("<GET /session/:sessionId,  Should *Succeed*>", async (t) => {
-  t.plan(3);
+  t.plan(6);
   const app = builder();
   t.teardown(() => app.close());
 
-  const sid = "the-best-id";
+  const sid = "asbc-242-fsdv-123";
   const res = await app.inject({
     method: "GET",
     url: "/api/v1/sessions/" + sid,
   });
-
+  const resObj = JSON.parse(res.payload);
   t.equal(res.statusCode, 200);
   t.equal(res.headers["content-type"], "application/json; charset=utf-8");
-  t.hasStrict(JSON.parse(res.payload), TEST_SESSION);
+  t.type(resObj, "object");
+  t.equal(resObj.hasOwnProperty("sessionId"), true);
+  t.equal(resObj.hasOwnProperty("userId"), true);
+  t.equal(resObj.hasOwnProperty("created"), true);
 });
 
 test("<DELETE /session/:sessionId, Should *Succeed*>", async (t) => {
@@ -52,9 +70,9 @@ test("<DELETE /session/:sessionId, Should *Succeed*>", async (t) => {
     method: "DELETE",
     url: "/api/v1/sessions/" + sid,
   });
-  t.equal(res.statusCode, 200);
+  t.equal(res.statusCode, 204);
   t.equal(res.headers["content-type"], "application/json; charset=utf-8");
-  t.same(res.payload, 204);
+  t.same(JSON.parse(res.payload), {});
 });
 
 test("<GET /users/:userId,  Should *Succeed*>", async (t) => {
@@ -75,7 +93,7 @@ test("<GET /users/:userId,  Should *Succeed*>", async (t) => {
     t.type(resArray[i], "object");
     t.equal(resArray[i].hasOwnProperty("sessionId"), true);
     t.equal(resArray[i].hasOwnProperty("userId"), true);
-    t.equal(resArray[i].hasOwnProperty("sessionId"), true);
+    t.equal(resArray[i].hasOwnProperty("created"), true);
   }
   t.end();
 });

@@ -2,7 +2,7 @@
   "name": "test-adserver",
   "version": "1.0.0",
   "description": "An adserver implementation to verify ad tracking implementations",
-  "main": "app.js", 
+  "main": "app.js",
   "directories": {
     "test": "test"
   },
@@ -35,6 +35,9 @@
     "swagger-jsdoc": "^7.0.0-rc.6"
   },
   "devDependencies": {
+    "@commitlint/cli": "^12.1.1",
+    "@commitlint/config-conventional": "^12.1.1",
+    "nodemon": "^2.0.7",
     "tap": "^15.0.4"
   }
 }
