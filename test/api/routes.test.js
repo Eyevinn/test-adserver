@@ -3,7 +3,7 @@
 const { test } = require("tap");
 const builder = require("../../app");
 
-let TEST_SESSION = {
+const TEST_SESSION = {
     sessionId: "session-123",
     userId: "user-123",
     created: "time-stamp-here",
