@@ -1,5 +1,6 @@
 const controller = require("../controllers/api-controller");
 const fs = require("fs");
+const { vastBuilder } = require("../utils/vast_maker");
 
 /* === Dummy Session Object Creator Func === */
 const dummy = (id) => {
@@ -34,15 +35,132 @@ const vastResponseSchema = () => ({
     Ad: {
       type: "object",
       properties: {
-        id: { type: "string", xml: { attribute: true } },
+        id: {
+          type: "string",
+          example: "ad-123",
+          xml: { attribute: true },
+        },
         InLine: {
           type: "object",
           properties: {
-            AdTitle: { type: "string" },
+            AdTitle: { type: "string", example: "Movie Ad #6" },
             Impression: {
               type: "object",
               properties: {
-                id: { type: "string", xml: { attribute: true } },
+                id: {
+                  type: "string",
+                  example: "imp-234",
+                  xml: { attribute: true },
+                },
+                " ": {
+                  type: "string",
+                  example: "http://example.com/track/impression",
+                  xml: { tags: false },
+                },
+              },
+            },
+            AdServingId: { type: "string", example: "mock-ad-server-id" },
+            Creatives: {
+              type: "object",
+              properties: {
+                Creative: {
+                  type: "object",
+                  properties: {
+                    id: {
+                      type: "string",
+                      example: "cre-345",
+                      xml: { attribute: true },
+                    },
+                    adid: {
+                      type: "string",
+                      example: "uaid-456",
+                      xml: { attribute: true },
+                    },
+                    sequence: {
+                      type: "string",
+                      example: "1",
+                      xml: { attribute: true },
+                    },
+                    Linear: {
+                      type: "object",
+                      properties: {
+                        Duration: { type: "string", example: "00:00:30" },
+                        TrackingEvents: {
+                          type: "object",
+                          properties: {
+                            Tracking: {
+                              type: "object",
+                              properties: {
+                                event: {
+                                  type: "string",
+                                  example: "complete",
+                                  xml: { attribute: true },
+                                },
+                                " ": {
+                                  type: "string",
+                                  example:
+                                    "[CDATA[http://example.com/api/v1/sessions/SID/tracking?adId=ADID&progress=100]]",
+                                  xml: { wrapper: false },
+                                },
+                              },
+                            },
+                          },
+                        },
+                        MediaFiles: {
+                          type: "object",
+                          properties: {
+                            MediaFile: {
+                              type: "object",
+                              properties: {
+                                id: {
+                                  type: "string",
+                                  example: "media-567",
+                                  xml: { attribute: true },
+                                },
+                                delivery: {
+                                  type: "string",
+                                  example: "progressive",
+                                  xml: { attribute: true },
+                                },
+                                type: {
+                                  type: "string",
+                                  example: "video/mp4",
+                                  xml: { attribute: true },
+                                },
+                                bitrate: {
+                                  type: "string",
+                                  example: "2000",
+                                  xml: { attribute: true },
+                                },
+                                width: {
+                                  type: "string",
+                                  example: "1280",
+                                  xml: { attribute: true },
+                                },
+                                height: {
+                                  type: "string",
+                                  example: "720",
+                                  xml: { attribute: true },
+                                },
+                                codec: {
+                                  type: "string",
+                                  example: "H.264",
+                                  xml: { attribute: true },
+                                },
+                                " ": {
+                                  type: "string",
+                                  example:
+                                    "[CDATA[http://example.com/video-server/mortal-kombat-trailer.mp4]]",
+                                  xml: { wrapper: false },
+                                },
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
               },
             },
           },
@@ -321,7 +439,9 @@ module.exports = (fastify, opts, next) => {
         const sessionId = req.params.sessionId;
         const adID = req.query.adId;
         const viewProgress = req.query.progress;
-        console.log(`Cool! Session:${sessionId}, on AD:${adID}, has been watched to ${viewProgress}%`);
+        console.log(
+          `Cool! Session:${sessionId}, on AD:${adID}, has been watched to ${viewProgress}%`
+        );
         // Check if session exists.
         const data = await controller.getSession(sessionId);
         if (!data) {
@@ -384,7 +504,11 @@ module.exports = (fastify, opts, next) => {
     async (request, reply) => {
       try {
         // Read Static VAST XML-file. maybe use 'package vast-xml' instead.
-        const vast_xml = fs.readFileSync("./test_vast.xml", "utf8");
+        //const vast_xml = fs.readFileSync("./test_vast.xml", "utf8");
+        const vast_xml = vastBuilder({
+          adserverHostname: request.hostname,
+          sessionId: request.query.uid,
+        });
         // Create a new test session.
         const newDummySession = {
           sessionId: "session-XXX",

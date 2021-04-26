@@ -49,7 +49,7 @@ test("<GET /session/:sessionId,  Should *Succeed*>", async (t) => {
   const sid = "asbc-242-fsdv-123";
   const res = await app.inject({
     method: "GET",
-    url: "/api/v1/sessions/" + sid,
+    url: `/api/v1/sessions/${sid}`,
   });
   const resObj = JSON.parse(res.payload);
   t.equal(res.statusCode, 200);
@@ -68,11 +68,32 @@ test("<DELETE /session/:sessionId, Should *Succeed*>", async (t) => {
   const sid = "the-best-id";
   const res = await app.inject({
     method: "DELETE",
-    url: "/api/v1/sessions/" + sid,
+    url: `/api/v1/sessions/${sid}`,
   });
   t.equal(res.statusCode, 204);
   t.equal(res.headers["content-type"], "application/json; charset=utf-8");
   t.same(JSON.parse(res.payload), {});
+});
+
+// === NEW ===
+test("<GET /session/:sessionId/tracking,  Should *Succeed*>", async (t) => {
+  t.plan(6);
+  const app = builder();
+  t.teardown(() => app.close());
+
+  const sid = "asbc-242-fsdv-123";
+  const queryStr = "?adId=20001&progress=25";
+  const res = await app.inject({
+    method: "GET",
+    url: `/api/v1/sessions/${sid}/tracking${queryStr}`,
+  });
+  const resObj = JSON.parse(res.payload);
+  t.equal(res.statusCode, 200);
+  t.equal(res.headers["content-type"], "application/json; charset=utf-8");
+  t.type(resObj, "object");
+  t.equal(resObj.hasOwnProperty("message"), true);
+  t.type(resObj.message, "string");
+  t.match(resObj, { message: /Tracking Data Recieved/ });
 });
 
 test("<GET /users/:userId,  Should *Succeed*>", async (t) => {
@@ -99,18 +120,27 @@ test("<GET /users/:userId,  Should *Succeed*>", async (t) => {
 });
 
 test("<GET /vast,  Should *Succeed*>", async (t) => {
-  t.plan(2);
+  t.plan(4);
   const app = builder();
   t.teardown(() => app.close());
 
+  const parser = require("fast-xml-parser");
   const queryStr =
     "?c=YES&dur=90&uid=some-user-id&os=android&dt=samsung&ss=1000x200&uip=123.123.123.123";
+
   const res = await app.inject({
     method: "GET",
     url: "/api/v1/vast" + queryStr,
   });
+
+  const jsonObj = parser.parse(res.payload);
+  console.log(jsonObj);
+
+  //const resJSON = JSON.parse(res.payload);
   t.equal(res.statusCode, 200);
   t.equal(res.headers["content-type"], "application/xml; charset=utf-8");
+  t.type(res.payload, "string");
+  t.equal(jsonObj.hasOwnProperty("VAST"), true);
 });
 
 /**
