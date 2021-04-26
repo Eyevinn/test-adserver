@@ -109,8 +109,8 @@ test("<GET /vast,  Should *Succeed*>", async (t) => {
     method: "GET",
     url: "/api/v1/vast" + queryStr,
   });
-  t.equal(res.statusCode, 201);
-  t.equal(res.headers["content-type"], "application/json; charset=utf-8");
+  t.equal(res.statusCode, 200);
+  t.equal(res.headers["content-type"], "application/xml; charset=utf-8");
 });
 
 /**

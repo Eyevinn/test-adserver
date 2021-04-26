@@ -1,4 +1,5 @@
 const controller = require("../controllers/api-controller");
+const fs = require("fs");
 
 /* === Dummy Session Object Creator Func === */
 const dummy = (id) => {
@@ -20,6 +21,39 @@ const dummy = (id) => {
   return sessionObj;
 };
 /* ======= ========= ======= ========== ======= */
+
+/**
+ * - First Schemas
+ * - Then the different Routes
+ */
+
+const vastResponseSchema = () => ({
+  description: "On Success, a VAST file in XML format is Returned",
+  type: "object",
+  properties: {
+    Ad: {
+      type: "object",
+      properties: {
+        id: { type: "string", xml: { attribute: true } },
+        InLine: {
+          type: "object",
+          properties: {
+            AdTitle: { type: "string" },
+            Impression: {
+              type: "object",
+              properties: {
+                id: { type: "string", xml: { attribute: true } },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  xml: {
+    name: "VAST",
+  },
+});
 
 const SessionSchema = () => ({
   description: "Sessions description",
@@ -68,8 +102,12 @@ const BadRequestSchema = () => ({
   example: {
     message: "Error due to reasons",
   },
+  xml: {
+    name: "xml",
+  },
 });
 
+// Dictionary of Schemas.
 const schemas = {
   "GET/sessions": {
     description: "Gets all sessions",
@@ -113,6 +151,38 @@ const schemas = {
       404: BadRequestSchema(),
     },
   },
+  // == NEW ==
+  "GET/sessions/:sessionId/tracking": {
+    description: "Gets the tracking data from client using the VAST",
+    tags: ["sessions"],
+    params: {
+      sessionId: {
+        type: "string",
+        description: "The id for the session. ",
+      },
+    },
+    query: {
+      adId: { type: "string", description: "The ID for the Ad. " },
+      progress: {
+        type: "string",
+        description: "The quartile reached on the ad. (ex: 75)",
+      },
+    },
+    response: {
+      200: {
+        description: "A message acknowledging tracking data has been recieved.",
+        type: "object",
+        properties: {
+          message: { type: "string", description: "Simple acknowledgment" },
+        },
+        example: {
+          message: "Tracking Data Recieved",
+        },
+      },
+      404: BadRequestSchema(),
+    },
+    security: [{ apiKey: [] }],
+  },
   "GET/users/:userId": {
     description: "Get a list of test sessions for a specific userId",
     tags: ["users"],
@@ -133,8 +203,10 @@ const schemas = {
     security: [{ apiKey: [] }],
   },
   "GET/vast": {
-    description: "Get a list of test sessions for a specific userId",
+    description:
+      "Send VAST response, then create a new session for given User ID",
     tags: ["vast"],
+    produces: ["application/xml", "application/json"],
     query: {
       c: {
         type: "string",
@@ -165,24 +237,15 @@ const schemas = {
         description: "Client IP.",
       },
     },
-
     response: {
-      201: {
-        description: "Status of Session creation attempt",
-        type: "object",
-        properties: {
-          message: { type: "string" },
-        },
-        example: {
-          message: "Creation of New Session Succsessful.",
-        },
-      },
+      200: vastResponseSchema(), // TODO, add XML example response Swagger schema.
       404: BadRequestSchema(),
     },
     security: [{ apiKey: [] }],
   },
 }; // End of dict
 
+// === SERVER ROUTES ===
 module.exports = (fastify, opts, next) => {
   fastify.get(
     "/sessions",
@@ -192,7 +255,7 @@ module.exports = (fastify, opts, next) => {
         const sessionList = await controller.getSessionsList();
         // Send Array[{...},{...},{...}]
         //reply.send(sessionList);
-        // Create fake list of sessions.
+        // This is a Fake list of sessions.
         const dummySessionList = [dummy("123"), dummy("456"), dummy("789")];
         reply.send(dummySessionList);
       } catch (exc) {
@@ -207,8 +270,8 @@ module.exports = (fastify, opts, next) => {
     async (req, reply) => {
       try {
         const sessionId = req.params.sessionId;
-        const data = await controller.getSession(sessionId);
-        if (!data) {
+        const sessionObj = await controller.getSession(sessionId);
+        if (!sessionObj) {
           reply.code(404).send({
             message: `Session with ID ${sessionId} was not found`,
           });
@@ -230,8 +293,10 @@ module.exports = (fastify, opts, next) => {
     async (request, reply) => {
       try {
         let sessionObj = await controller.getSession(request.params.sessionId);
+
         // Give dummy response object - so the session in question is "always found" atm.
         sessionObj = dummy("1337");
+
         if (!sessionObj) {
           reply.code(404).send({
             message: `Session with ID ${request.params.sessionId} was not found`,
@@ -246,26 +311,59 @@ module.exports = (fastify, opts, next) => {
     }
   );
 
+  // == NEW ==
+  fastify.get(
+    "/sessions/:sessionId/tracking",
+    { schema: schemas["GET/sessions/:sessionId/tracking"] },
+    async (req, reply) => {
+      try {
+        // Get path parameters and query parameters.
+        const sessionId = req.params.sessionId;
+        const adID = req.query.adId;
+        const viewProgress = req.query.progress;
+        console.log(`Cool! Session:${sessionId}, on AD:${adID}, has been watched to ${viewProgress}%`);
+        // Check if session exists.
+        const data = await controller.getSession(sessionId);
+        if (!data) {
+          reply.code(404).send({
+            message: `Session with ID ${sessionId} was not found`,
+          });
+        } else {
+          // Store tracking-data for the specific session... Somewhere
+          // ---
+
+          // Reply with 200 OK and acknowledgment message.
+          reply.code(200).send({
+            message: `Tracking Data Recieved [ADID:${adID}, PROGRESS:${viewProgress}]`,
+          });
+        }
+      } catch (exc) {
+        reply.code(500).send({ message: exc.message }); // ex. when a reply comes with wrong schema
+      }
+    }
+  );
+
   // Users - routes
   fastify.get(
     "/users/:userId",
     { schema: schemas["GET/users/:userId"] },
     async (request, reply) => {
       try {
-        // GET via api-controller function.
+        // Get Session List via api-controller function.
+        // And filter/map out sessions that don't have matching userID
+        // ---
 
-        // This is dummy reply
+        // This is dummy reply made to kinda look legit.
         const dummyListOfSessions = [dummy("1"), dummy("2"), dummy("3")];
         dummyListOfSessions.map((sess) => {
           sess.userId = request.params.userId;
         });
-
+        // Check if List is empty, If so assume no sessions with that user ID exists.
         if (!dummyListOfSessions) {
           reply.code(404).send({
-            message: `User with ID->: ${request.params.userId} was not found`,
+            message: `Sessions with User-ID->: ${request.params.userId} were not found`,
           });
         } else {
-          // Do the REAL function call. HERE
           reply.code(200).send(dummyListOfSessions);
         }
       } catch (exc) {
@@ -274,12 +372,19 @@ module.exports = (fastify, opts, next) => {
     }
   );
 
+  /**
+   * Planned to do two things:
+   * 1) Send a VAST response.
+   * 2) Create new Session with query params & time stamp.
+   */
   // Vast - routes
   fastify.get(
     "/vast",
     { schema: schemas["GET/vast"] },
     async (request, reply) => {
       try {
+        // Read Static VAST XML-file. maybe use 'package vast-xml' instead.
+        const vast_xml = fs.readFileSync("./test_vast.xml", "utf8");
         // Create a new test session.
         const newDummySession = {
           sessionId: "session-XXX",
@@ -294,17 +399,17 @@ module.exports = (fastify, opts, next) => {
             ss: request.query.ss,
             uip: request.query.uip,
           },
-          response: "<VAST XML>",
+          response: vast_xml,
         };
-        const success = true;
-        if (!success) {
+
+        if (!vast_xml) {
           reply.code(404).send({
-            message: `Could not make a session`,
+            message: `Could not send VAST`,
           });
         } else {
-          reply
-            .code(201)
-            .send({ message: "Creation of New Session Succsessful." });
+          reply.header("Content-Type", "application/xml; charset=utf-8");
+          //reply.code(200).send({ message: `cheers: ${request.query.c},${request.query.dur},${request.query.uid},${request.query.os}, ${request.query.dt},${request.query.ss},${request.query.uip} [END]`,});
+          reply.code(200).send(vast_xml);
         }
       } catch (exc) {
         reply.code(500).send({ message: exc.message });
