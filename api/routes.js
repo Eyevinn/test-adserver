@@ -439,17 +439,22 @@ module.exports = (fastify, opts, next) => {
         const sessionId = req.params.sessionId;
         const adID = req.query.adId;
         const viewProgress = req.query.progress;
+
+        // debugging
         console.log(
           `Cool! Session:${sessionId}, on AD:${adID}, has been watched to ${viewProgress}%`
         );
+
         // Check if session exists.
-        const data = await controller.getSession(sessionId);
-        if (!data) {
+        const sessionObj = await controller.getSession(sessionId);
+        if (!sessionObj) {
           reply.code(404).send({
             message: `Session with ID ${sessionId} was not found`,
           });
         } else {
-          // Store tracking-data for the specific session... Somewhere
+          // "...it will output on the console log a
+          // JSON object that is parse:able by Cloudwatch"
+          // ^ This by getting the session object with session Id.
           // ---
 
           // Reply with 200 OK and acknowledgment message.
@@ -503,8 +508,7 @@ module.exports = (fastify, opts, next) => {
     { schema: schemas["GET/vast"] },
     async (request, reply) => {
       try {
-        // Read Static VAST XML-file. maybe use 'package vast-xml' instead.
-        //const vast_xml = fs.readFileSync("./test_vast.xml", "utf8");
+        // Create a VAST.
         const vast_xml = vastBuilder({
           adserverHostname: request.hostname,
           sessionId: request.query.uid,
