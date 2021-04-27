@@ -19,6 +19,22 @@ const TEST_SESSION = {
   response: "<VAST XML>",
 };
 
+const PATTERN = {
+  sessionId: /.*/,
+  userId: /.*/,
+  created: /.*/,
+  request: {
+    c: /.*/,
+    dur: /.*/,
+    uid: /.*/,
+    os: /.*/,
+    dt: /.*/,
+    ss: /.*/,
+    uip: /.*/,
+  },
+  response: /.*/,
+};
+
 test("<GET /sessions, Should *Succeed*>", async (t) => {
   const app = builder();
   t.teardown(() => app.close());
@@ -34,15 +50,13 @@ test("<GET /sessions, Should *Succeed*>", async (t) => {
   t.type(resArray, "Array");
   for (var i = 0; i < resArray.length; i++) {
     t.type(resArray[i], "object");
-    t.equal(resArray[i].hasOwnProperty("sessionId"), true);
-    t.equal(resArray[i].hasOwnProperty("userId"), true);
-    t.equal(resArray[i].hasOwnProperty("created"), true);
+    t.match(resArray[i], PATTERN);
   }
   t.end();
 });
 
 test("<GET /session/:sessionId,  Should *Succeed*>", async (t) => {
-  t.plan(6);
+  t.plan(5);
   const app = builder();
   t.teardown(() => app.close());
 
@@ -55,13 +69,12 @@ test("<GET /session/:sessionId,  Should *Succeed*>", async (t) => {
   t.equal(res.statusCode, 200);
   t.equal(res.headers["content-type"], "application/json; charset=utf-8");
   t.type(resObj, "object");
-  t.equal(resObj.hasOwnProperty("sessionId"), true);
-  t.equal(resObj.hasOwnProperty("userId"), true);
-  t.equal(resObj.hasOwnProperty("created"), true);
+  t.match(resObj, PATTERN);
+  t.equal(resObj.sessionId, sid);
 });
 
 test("<DELETE /session/:sessionId, Should *Succeed*>", async (t) => {
-  t.plan(3);
+  t.plan(4);
   const app = builder();
   t.teardown(() => app.close());
 
@@ -73,11 +86,28 @@ test("<DELETE /session/:sessionId, Should *Succeed*>", async (t) => {
   t.equal(res.statusCode, 204);
   t.equal(res.headers["content-type"], "application/json; charset=utf-8");
   t.same(JSON.parse(res.payload), {});
+  // Update this with REAL Fail test later.
+  t.test("<GET /session/:sessionId,  Should *Fail*>", async (child) => {
+    child.plan(5);
+    const app = builder();
+    child.teardown(() => app.close());
+
+    const sid = "asbc-242-fsdv-123";
+    const res = await app.inject({
+      method: "GET",
+      url: `/api/v1/sessions/${sid}`,
+    });
+    const resObj = JSON.parse(res.payload);
+    child.equal(res.statusCode, 200);
+    child.equal(res.headers["content-type"], "application/json; charset=utf-8");
+    child.type(resObj, "object");
+    child.match(resObj, PATTERN);
+    child.equal(resObj.sessionId, sid);
+  });
 });
 
-// === NEW ===
 test("<GET /session/:sessionId/tracking,  Should *Succeed*>", async (t) => {
-  t.plan(6);
+  t.plan(4);
   const app = builder();
   t.teardown(() => app.close());
 
@@ -91,8 +121,6 @@ test("<GET /session/:sessionId/tracking,  Should *Succeed*>", async (t) => {
   t.equal(res.statusCode, 200);
   t.equal(res.headers["content-type"], "application/json; charset=utf-8");
   t.type(resObj, "object");
-  t.equal(resObj.hasOwnProperty("message"), true);
-  t.type(resObj.message, "string");
   t.match(resObj, { message: /Tracking Data Recieved/ });
 });
 
@@ -105,16 +133,15 @@ test("<GET /users/:userId,  Should *Succeed*>", async (t) => {
     method: "GET",
     url: "/api/v1/users/" + uid,
   });
+
   const resArray = JSON.parse(res.payload);
   t.equal(res.statusCode, 200);
   t.equal(res.headers["content-type"], "application/json; charset=utf-8");
-  //t.equal(JSON.parse(res.payload).length, 2)
   t.type(resArray, "Array");
   for (var i = 0; i < resArray.length; i++) {
     t.type(resArray[i], "object");
-    t.equal(resArray[i].hasOwnProperty("sessionId"), true);
-    t.equal(resArray[i].hasOwnProperty("userId"), true);
-    t.equal(resArray[i].hasOwnProperty("created"), true);
+    t.match(resArray[i], PATTERN);
+    t.equal(resArray[i].userId, uid);
   }
   t.end();
 });
@@ -134,8 +161,7 @@ test("<GET /vast,  Should *Succeed*>", async (t) => {
   });
 
   const jsonObj = parser.parse(res.payload);
-  console.log(jsonObj);
-
+  const xml2jsParser = require("fast-xml-parser");
   //const resJSON = JSON.parse(res.payload);
   t.equal(res.statusCode, 200);
   t.equal(res.headers["content-type"], "application/xml; charset=utf-8");
@@ -160,5 +186,63 @@ test("<GET /vast,  Should *Succeed*>", async (t) => {
 //   t.equal(res.headers["content-type"], "application/json; charset=utf-8");
 //   t.same(JSON.parse(res.payload), {
 //     message: `Session with ID ${sid} was not found`,
+//   });
+// });
+
+test("<GET /session/:sessionId/tracking,  Should *Fail: 400*>", async (t) => {
+  t.plan(3);
+  const app = builder();
+  t.teardown(() => app.close());
+
+  const queryStr = "?adId=123&";
+
+  const res = await app.inject({
+    method: "GET",
+    url: "/api/v1/vast" + queryStr,
+  });
+
+  t.equal(res.statusCode, 400);
+  t.equal(res.headers["content-type"], "application/json; charset=utf-8");
+  t.match(JSON.parse(res.payload), {
+    message: /querystring should have required property/,
+  });
+});
+
+test("<GET /vast,  Should *Fail: 400*>", async (t) => {
+  t.plan(3);
+  const app = builder();
+  t.teardown(() => app.close());
+
+  const queryStr = "?c=YES&";
+
+  const res = await app.inject({
+    method: "GET",
+    url: "/api/v1/vast" + queryStr,
+  });
+
+  t.equal(res.statusCode, 400);
+  t.equal(res.headers["content-type"], "application/json; charset=utf-8");
+  t.match(JSON.parse(res.payload), {
+    message: /querystring should have required property/,
+  });
+});
+
+// === CANNOT TEST THIS YET ===
+// test("<GET /vast,  Should *Fail: 404*>", async (t) => {
+//   t.plan(3);
+//   const app = builder();
+//   t.teardown(() => app.close());
+
+//   const queryStr = "?c=YES&";
+
+//   const res = await app.inject({
+//     method: "GET",
+//     url: "/api/v1/vast" + queryStr,
+//   });
+
+//   t.equal(res.statusCode, 404);
+//   t.equal(res.headers["content-type"], "application/json; charset=utf-8");
+//   t.match(JSON.parse(res.payload), {
+//     message: /querystring should have required property/,
 //   });
 // });

@@ -1,11 +1,11 @@
 const createVast = require("vast-builder");
 
 /**
- *
+ * description: "To build the tracking end-point"
  * @param {*} opt =
  * {
- *      adserverHostname = string,
- *      sessionId = string,
+ *      adserverHostname = { type: "string" },
+ *      sessionId = { type: "string" },
  * }
  */
 

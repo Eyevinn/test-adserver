@@ -211,14 +211,14 @@ const SessionSchema = () => ({
   },
 });
 
-const BadRequestSchema = () => ({
+const BadRequestSchema = (exampleMsg) => ({
   description: "Bad request error description",
   type: "object",
   properties: {
     message: { type: "string", description: "Reason of the error" },
   },
   example: {
-    message: "Error due to reasons",
+    message: exampleMsg,
   },
   xml: {
     name: "xml",
@@ -245,12 +245,12 @@ const schemas = {
     params: {
       sessionId: {
         type: "string",
-        description: "The id for the session. ",
+        description: "The ID for the session. ",
       },
     },
     response: {
       200: SessionSchema(),
-      404: BadRequestSchema(),
+      404: BadRequestSchema("Session with ID: 'xxx-xxx-xxx-xxx' was not found"),
     },
     security: [{ apiKey: [] }],
   },
@@ -260,31 +260,41 @@ const schemas = {
     params: {
       sessionId: {
         type: "string",
-        description: "The id for the session to delete",
+        description: "The ID for the session to delete",
       },
     },
     security: [{ apiKey: [] }],
     response: {
       204: {},
-      404: BadRequestSchema(),
+      404: BadRequestSchema("Session with ID: 'xxx-xxx-xxx-xxx' was not found"),
     },
   },
   // == NEW ==
   "GET/sessions/:sessionId/tracking": {
     description: "Gets the tracking data from client using the VAST",
     tags: ["sessions"],
+
     params: {
       sessionId: {
         type: "string",
-        description: "The id for the session. ",
+        description: "The ID for the session. ",
       },
     },
     query: {
-      adId: { type: "string", description: "The ID for the Ad. " },
-      progress: {
-        type: "string",
-        description: "The quartile reached on the ad. (ex: 75)",
+      type: "object",
+      properties: {
+        adId: {
+          type: "string",
+          description: "The ID for the Ad. ",
+          example: "adid-123",
+        },
+        progress: {
+          type: "string",
+          description: "The watch-time percent reached on the Ad.",
+          example: "75",
+        },
       },
+      required: ["adId", "progress"],
     },
     response: {
       200: {
@@ -297,7 +307,17 @@ const schemas = {
           message: "Tracking Data Recieved",
         },
       },
-      404: BadRequestSchema(),
+      400: {
+        description: "Bad request error, Invalid request syntax",
+        type: "object",
+        properties: {
+          message: { type: "string", description: "Reason of the error" },
+        },
+        example: {
+          message: "querystring should have required property 'adId'",
+        },
+      },
+      404: BadRequestSchema("Session with ID: 'xxx-xxx-xxx-xxx' was not found"),
     },
     security: [{ apiKey: [] }],
   },
@@ -307,7 +327,7 @@ const schemas = {
     params: {
       userId: {
         type: "string",
-        description: "The id for the user of sessions.",
+        description: "The User ID a session should match.",
       },
     },
     response: {
@@ -316,48 +336,72 @@ const schemas = {
         type: "array",
         items: SessionSchema(),
       },
-      404: BadRequestSchema(),
+      404: BadRequestSchema("Sessions with User-ID: 'xxx-xxx' were not found"),
     },
     security: [{ apiKey: [] }],
   },
   "GET/vast": {
     description:
-      "Send VAST response, then create a new session for given User ID",
+      "Send a VAST response, then create a new session for the given User ID",
     tags: ["vast"],
     produces: ["application/xml", "application/json"],
     query: {
-      c: {
-        type: "string",
-        description: "Consent check.",
+      type: "object",
+      properties: {
+        c: {
+          type: "string",
+          description: "Consent check.",
+          example: "true",
+        },
+        dur: {
+          type: "string",
+          description: "Desired duration.",
+          example: "60",
+        },
+        uid: {
+          type: "string",
+          description: "User ID.",
+          example: "asbc-242-fsdv-123",
+        },
+        os: {
+          type: "string",
+          description: "User OS.",
+          example: "ios",
+        },
+        dt: {
+          type: "string",
+          description: "Device type.",
+          example: "mobile",
+        },
+        ss: {
+          type: "string",
+          description: "Screen size.",
+          example: "1920x1080",
+        },
+        uip: {
+          type: "string",
+          description: "Client IP.",
+          example: "192.168.1.200",
+        },
       },
-      dur: {
-        type: "string",
-        description: "Desired duration.",
-      },
-      uid: {
-        type: "string",
-        description: "User ID.",
-      },
-      os: {
-        type: "string",
-        description: "User OS.",
-      },
-      dt: {
-        type: "string",
-        description: "Device type.",
-      },
-      ss: {
-        type: "string",
-        description: "Screen size.",
-      },
-      uip: {
-        type: "string",
-        description: "Client IP.",
-      },
+      required: ["c", "dur", "uid", "os", "dt", "ss", "uip"],
     },
     response: {
-      200: vastResponseSchema(), // TODO, add XML example response Swagger schema.
-      404: BadRequestSchema(),
+      200: vastResponseSchema(),
+      400: {
+        description: "Bad request error description",
+        type: "object",
+        properties: {
+          message: { type: "string", description: "Reason of the error" },
+        },
+        example: {
+          message: "querystring should have required property 'uid'",
+        },
+        xml: {
+          name: "xml",
+        },
+      },
+      404: BadRequestSchema("Error creating VAST response object"),
     },
     security: [{ apiKey: [] }],
   },
@@ -375,7 +419,7 @@ module.exports = (fastify, opts, next) => {
         //reply.send(sessionList);
         // This is a Fake list of sessions.
         const dummySessionList = [dummy("123"), dummy("456"), dummy("789")];
-        reply.send(dummySessionList);
+        reply.code(200).send(dummySessionList);
       } catch (exc) {
         reply.code(500).send({ message: exc.message });
       }
@@ -397,10 +441,11 @@ module.exports = (fastify, opts, next) => {
           //**Temp Dummy response**.
           const dummyData = dummy("1");
           dummyData["sessionId"] = req.params.sessionId;
-          reply.send(dummyData);
+          // Send Session Object
+          reply.send(dumm);
         }
       } catch (exc) {
-        reply.code(500).send({ message: exc.message }); // ex. when a reply comes with wrong schema
+        reply.code(500).send({ message: exc.message });
       }
     }
   );
@@ -459,7 +504,7 @@ module.exports = (fastify, opts, next) => {
 
           // Reply with 200 OK and acknowledgment message.
           reply.code(200).send({
-            message: `Tracking Data Recieved [ADID:${adID}, PROGRESS:${viewProgress}]`,
+            message: `Tracking Data Recieved [ ADID:${adID}, PROGRESS:${viewProgress} ]`,
           });
         }
       } catch (exc) {
@@ -475,7 +520,7 @@ module.exports = (fastify, opts, next) => {
     async (request, reply) => {
       try {
         // Get Session List via api-controller function.
-        // And filter/map out sessions that don't have matching userID
+        // And then map/filter out sessions that don't have matching userID
         // ---
 
         // This is dummy reply made to kinda look legit.
@@ -499,7 +544,7 @@ module.exports = (fastify, opts, next) => {
 
   /**
    * Planned to do two things:
-   * 1) Send a VAST response.
+   * 1) Create and Send a VAST response.
    * 2) Create new Session with query params & time stamp.
    */
   // Vast - routes
@@ -510,10 +555,12 @@ module.exports = (fastify, opts, next) => {
       try {
         // Create a VAST.
         const vast_xml = vastBuilder({
-          adserverHostname: request.hostname,
-          sessionId: request.query.uid,
+          adserverHostname: `${process.env.HOST || "127.0.0.1"}:${
+            process.env.PORT || "8080"
+          }`,
+          sessionId: request.query.uid, // Need to use some SessionId generator instead.
         });
-        // Create a new test session.
+        // Create a new test session. HERE like, let res = Session(opt);??
         const newDummySession = {
           sessionId: "session-XXX",
           userId: "user-XXX",
