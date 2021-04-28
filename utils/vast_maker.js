@@ -13,7 +13,7 @@ const sampleAds = [
   {
     id: "sample-ad_001",
     url:
-      "https://redirector.gvt1.com/videoplayback/id/a33fc5b2685eb16e/itag/22/source/gfp_video_ads/requiressl/yes/acao/yes/mime/video%2Fmp4/ctier/L/ip/0.0.0.0/ipbits/0/expire/1619459389/sparams/ip,ipbits,expire,id,itag,source,requiressl,acao,mime,ctier/signature/204F535B065918DC7C21D9C1789D710D9C20658A.52540F9C4C1EB2E7E541D2B7D6A1E2D7E4D1A928/key/ck2/file/file.mp4",
+      "https://r1---sn-uxaxovg-5gok.gvt1.com/videoplayback/id/b96674ee53e47835/itag/18/source/gfp_video_ads/requiressl/yes/acao/yes/mime/video%2Fmp4/ctier/L/ip/0.0.0.0/ipbits/0/expire/1619611421/sparams/acao,ctier,expire,id,ip,ipbits,itag,mh,mime,mip,mm,mn,ms,mv,mvi,pl,requiressl,source/signature/203A67B649D26929E02DDBA91A0536DE0D24A0FC.44E2B9243FDF4FD50950BA56BBFFB59B0255BE3D/key/cms1/cms_redirect/yes/mh/9Z/mip/85.226.117.43/mm/28/mn/sn-uxaxovg-5gok/ms/nvh/mt/1619589857/mv/m/mvi/1/pl/19/file/file.mp4",
     duration: "00:00:10",
   },
   {
@@ -32,7 +32,7 @@ const sampleAds = [
 function vastBuilder(opt) {
   const vast4 = createVast.v4();
   // Add <Ad>-tags for every ad in the sampleAds list
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < sampleAds.length; i++) {
     vast4
       .attachAd({ id: `AD-ID_00${i + 1}`, sequence: `${i + 1}` })
       .attachInLine()

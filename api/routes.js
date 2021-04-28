@@ -442,7 +442,7 @@ module.exports = (fastify, opts, next) => {
           const dummyData = dummy("1");
           dummyData["sessionId"] = req.params.sessionId;
           // Send Session Object
-          reply.send(dumm);
+          reply.send(dummyData);
         }
       } catch (exc) {
         reply.code(500).send({ message: exc.message });
