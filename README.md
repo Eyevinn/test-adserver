@@ -12,12 +12,26 @@ An adserver implementation to verify ad tracking implementations
 
 ## Docker
 
+To build the `adserver-api` image run:
+
+    docker build . -f Dockerfile -t adserver-api:local --no-cache
+
 A `docker-compose` config file is provided that takes care of building the image.
 
 Start the service:
 
-- `docker-compose up`
+    docker-compose up
 
 Stop the service:
 
-- `docker-compose down`
+    docker-compose down
+
+### With local database
+
+A separate docker compose file is provided that will also create a local postgres database:
+
+    docker-compose -f docker-compose-postgresql.yml up
+
+And to stop:
+
+    docker-compose -f docker-compose-postgresql.yml down
