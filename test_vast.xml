@@ -1,0 +1,44 @@
+<VAST version="4.0" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.iab.com/VAST">
+   <Ad id="test-ad_1">
+        <InLine>
+            <AdTitle>Ad That Test-Adserver Wants Player To See</AdTitle>
+            <Impression id="Adserver-ID-1">about:blank</Impression>
+            <AdServingId>Test-Adserver-47ed3bac-1768-4b9a-9d0e-0b92422ab066</AdServingId>
+            <Creatives>
+                <Creative id="from-test-adserver" adid="a-unique-ID" sequence="1">
+                    <Linear>
+                        <Duration>00:00:16</Duration>
+                        <TrackingEvents>
+                            <Tracking event="start">
+                            <![CDATA[http://127.0.0.1:8080/api/v1/sessions/s-169/tracking?adId=12&progress=0]]>
+                            </Tracking>
+                            <Tracking event="firstQuartile">
+                             <![CDATA[http://127.0.0.1:8080/api/v1/sessions/s-169/tracking?adId=12&progress=25]]>
+                            </Tracking>
+                            <Tracking event="midpoint">
+                            <![CDATA[http://127.0.0.1:8080/api/v1/sessions/s-169/tracking?adId=12&progress=50]]>
+                            </Tracking>
+                            <Tracking event="thirdQuartile">
+                            <![CDATA[http://127.0.0.1:8080/api/v1/sessions/s-169/tracking?adId=12&progress=75]]>
+                            </Tracking>
+                            <Tracking event="complete">
+                            <![CDATA[http://127.0.0.1:8080/api/v1/sessions/s-169/tracking?adId=12&progress=100]]>
+                            </Tracking>
+                        </TrackingEvents>
+                        <MediaFiles>
+                            <MediaFile id="5241" delivery="progressive" type="video/mp4" bitrate="2000" width="1280" height="720" minBitrate="1500" maxBitrate="2500" scalable="1" maintainAspectRatio="1" codec="H.264">
+                                <![CDATA[https://s0.2mdn.net/4253510/google_ddm_animation_480P.mp4]]>
+                            </MediaFile>
+                            <MediaFile id="5244" delivery="progressive" type="video/mp4" bitrate="1000" width="854" height="480" minBitrate="700" maxBitrate="1500" scalable="1" maintainAspectRatio="1" codec="H.264">
+                                <![CDATA[https://s0.2mdn.net/4253510/google_ddm_animation_480P.mp4]]>
+                            </MediaFile>
+                            <MediaFile id="5246" delivery="progressive" type="video/mp4" bitrate="600" width="640" height="360" minBitrate="500" maxBitrate="700" scalable="1" maintainAspectRatio="1" codec="H.264">
+                                <![CDATA[https://s0.2mdn.net/4253510/google_ddm_animation_480P.mp4]]>
+                            </MediaFile>
+                        </MediaFiles>
+                    </Linear>
+                </Creative>
+            </Creatives>
+        </InLine>
+    </Ad>
+</VAST>
