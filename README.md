@@ -14,7 +14,7 @@ An adserver implementation to verify ad tracking implementations
 
 To build the `adserver-api` image run:
 
-    docker build . -f Dockerfile -t adserver-api:local --no-cache
+    docker build . -t adserver-api:local --no-cache
 
 A `docker-compose` config file is also provided that takes care of building the image.
 
@@ -35,3 +35,10 @@ A separate docker compose file is provided that will also create a local postgre
 And to stop:
 
     docker-compose -f docker-compose-postgresql.yml down
+
+#### Persistent storage
+
+The directory `.pgdata` is mounted inside the postgres container for persistance. If you wish to change the location, update `docker-compose-postgresql.yml` accordingly:
+
+    volumes: 
+      - /path/to/somewhere/else:/var/lib/postgresql/data
