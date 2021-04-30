@@ -1,34 +1,13 @@
-const controller = require("../controllers/api-controller");
-const fs = require("fs");
-const { vastBuilder } = require("../utils/vast_maker");
-
-/* === Dummy Session Object Creator Func === */
-const dummy = (id) => {
-  const sessionObj = {
-    sessionId: "session-" + id,
-    userId: "user-" + id,
-    created: "time-stamp-here",
-    request: {
-      c: "true",
-      dur: "30",
-      uid: "session-" + id,
-      os: "ios",
-      dt: "mobile",
-      ss: "1920x1080",
-      uip: "“192.168.1.20",
-    },
-    response: "<VAST XML>",
-  };
-  return sessionObj;
-};
-/* ======= ========= ======= ========== ======= */
+const dbController = require("../controllers/db-controller");
+const logger = require("../logger.js");
+const Session = require("./Session.js");
 
 /**
  * - First Schemas
  * - Then the different Routes
  */
 
-const vastResponseSchema = () => ({
+const VastResponseSchema = () => ({
   description: "On Success, a VAST file in XML format is Returned",
   type: "object",
   properties: {
@@ -180,28 +159,30 @@ const SessionSchema = () => ({
     sessionId: { type: "string" },
     userId: { type: "string" },
     created: { type: "string" },
-    request: {
+    adBreakDuration: { type: "string" },
+    clientRequest: {
       type: "object",
       properties: {
-        c: { type: "string" },
-        dur: { type: "string" },
-        uid: { type: "string" },
-        os: { type: "string" },
-        dt: { type: "string" },
-        ss: { type: "string" },
-        uip: { type: "string" },
+        Consent: { type: "string" },
+        RequestedDuration: { type: "string" },
+        UserId: { type: "string" },
+        OperatingSystem: { type: "string" },
+        DeviceType: { type: "string" },
+        ScreenSize: { type: "string" },
+        ClientIp: { type: "string" },
       },
     },
     response: { type: "string" },
   },
   example: {
-    sessionId: "asbc-242-fsdv-123",
-    userId: "141412",
+    sessionId: "asbc-24220210419100240",
+    userId: "asbc-242",
     created: "2021-04-19T10:02:40Z",
-    request: {
+    adBreakDuration: "40",
+    clientRequest: {
       c: "true",
-      dur: "30",
-      uid: "asbc-242-fsdv-123",
+      dur: "60",
+      uid: "asbc-242",
       os: "ios",
       dt: "mobile",
       ss: "1920x1080",
@@ -269,7 +250,6 @@ const schemas = {
       404: BadRequestSchema("Session with ID: 'xxx-xxx-xxx-xxx' was not found"),
     },
   },
-  // == NEW ==
   "GET/sessions/:sessionId/tracking": {
     description: "Gets the tracking data from client using the VAST",
     tags: ["sessions"],
@@ -336,7 +316,7 @@ const schemas = {
         type: "array",
         items: SessionSchema(),
       },
-      404: BadRequestSchema("Sessions with User-ID: 'xxx-xxx' were not found"),
+      404: BadRequestSchema("Sessions under User-ID: 'xxx-xxx' were not found"),
     },
     security: [{ apiKey: [] }],
   },
@@ -387,7 +367,7 @@ const schemas = {
       required: ["c", "dur", "uid", "os", "dt", "ss", "uip"],
     },
     response: {
-      200: vastResponseSchema(),
+      200: VastResponseSchema(),
       400: {
         description: "Bad request error description",
         type: "object",
@@ -407,19 +387,19 @@ const schemas = {
   },
 }; // End of dict
 
-// === SERVER ROUTES ===
-module.exports = (fastify, opts, next) => {
+// ======================
+// ====  API ROUTES  ====
+// ======================
+module.exports = (fastify, opt, next) => {
   fastify.get(
     "/sessions",
     { schema: schemas["GET/sessions"] },
     async (req, reply) => {
       try {
-        const sessionList = await controller.getSessionsList();
-        // Send Array[{...},{...},{...}]
-        //reply.send(sessionList);
-        // This is a Fake list of sessions.
-        const dummySessionList = [dummy("123"), dummy("456"), dummy("789")];
-        reply.code(200).send(dummySessionList);
+        let sessionList = await dbController.getAllSessions();
+        // Send Array of: items -> containing all session information.
+        sessionList = sessionList.map((session) => session.getAllInfo());
+        reply.code(200).send(sessionList);
       } catch (exc) {
         reply.code(500).send({ message: exc.message });
       }
@@ -432,17 +412,21 @@ module.exports = (fastify, opts, next) => {
     async (req, reply) => {
       try {
         const sessionId = req.params.sessionId;
-        const sessionObj = await controller.getSession(sessionId);
-        if (!sessionObj) {
+        const session = await dbController.getSession(sessionId);
+        if (!session) {
           reply.code(404).send({
-            message: `Session with ID ${sessionId} was not found`,
+            message: `Session with ID: '${sessionId}' was not found`,
           });
         } else {
-          //**Temp Dummy response**.
-          const dummyData = dummy("1");
-          dummyData["sessionId"] = req.params.sessionId;
-          // Send Session Object
-          reply.send(dummyData);
+          const replyBody = {
+            sessionId: session.sessionId,
+            userId: session.getUser(),
+            created: session.created,
+            adBreakDuration: session.adBreakDuration,
+            clientRequest: session.getClientRequest(),
+            response: session.getVastXml().toString(),
+          };
+          reply.code(200).send(replyBody);
         }
       } catch (exc) {
         reply.code(500).send({ message: exc.message });
@@ -453,19 +437,15 @@ module.exports = (fastify, opts, next) => {
   fastify.delete(
     "/sessions/:sessionId",
     { schema: schemas["DELETE/sessions/:sessionId"] },
-    async (request, reply) => {
+    async (req, reply) => {
       try {
-        let sessionObj = await controller.getSession(request.params.sessionId);
-
-        // Give dummy response object - so the session in question is "always found" atm.
-        sessionObj = dummy("1337");
-
-        if (!sessionObj) {
+        let session = await dbController.getSession(req.params.sessionId);
+        if (!session) {
           reply.code(404).send({
-            message: `Session with ID ${request.params.sessionId} was not found`,
+            message: `Session with ID: '${req.params.sessionId}' was not found`,
           });
         } else {
-          await controller.deleteSession(request.params.sessionId);
+          await dbController.DeleteSession(req.params.sessionId);
           reply.code(204).send({});
         }
       } catch (exc) {
@@ -474,7 +454,6 @@ module.exports = (fastify, opts, next) => {
     }
   );
 
-  // == NEW ==
   fastify.get(
     "/sessions/:sessionId/tracking",
     { schema: schemas["GET/sessions/:sessionId/tracking"] },
@@ -485,16 +464,11 @@ module.exports = (fastify, opts, next) => {
         const adID = req.query.adId;
         const viewProgress = req.query.progress;
 
-        // debugging
-        console.log(
-          `Cool! Session:${sessionId}, on AD:${adID}, has been watched to ${viewProgress}%`
-        );
-
         // Check if session exists.
-        const sessionObj = await controller.getSession(sessionId);
-        if (!sessionObj) {
+        const session = await dbController.getSession(sessionId);
+        if (!session) {
           reply.code(404).send({
-            message: `Session with ID ${sessionId} was not found`,
+            message: `Session with ID: '${sessionId}' was not found`,
           });
         } else {
           // "...it will output on the console log a
@@ -502,6 +476,10 @@ module.exports = (fastify, opts, next) => {
           // ^ This by getting the session object with session Id.
           // ---
 
+          // debugging
+          console.log(
+            `Cool! Session:${sessionId}, on AD:${adID}, has been watched to ${viewProgress}%`
+          );
           // Reply with 200 OK and acknowledgment message.
           reply.code(200).send({
             message: `Tracking Data Recieved [ ADID:${adID}, PROGRESS:${viewProgress} ]`,
@@ -517,24 +495,24 @@ module.exports = (fastify, opts, next) => {
   fastify.get(
     "/users/:userId",
     { schema: schemas["GET/users/:userId"] },
-    async (request, reply) => {
+    async (req, reply) => {
       try {
-        // Get Session List via api-controller function.
+        // Get Session List via db-controller function.
         // And then map/filter out sessions that don't have matching userID
         // ---
+        let sessionList = await dbController.getSessionsByUserId(
+          req.params.userId
+        );
 
-        // This is dummy reply made to kinda look legit.
-        const dummyListOfSessions = [dummy("1"), dummy("2"), dummy("3")];
-        dummyListOfSessions.map((sess) => {
-          sess.userId = request.params.userId;
-        });
-        // Check if List is empty, If so assume no sessions with that user ID exists.
-        if (!dummyListOfSessions) {
+        // Check if List is null, If so assume no sessions with that user ID exists.
+        if (!sessionList) {
           reply.code(404).send({
-            message: `Sessions with User-ID->: ${request.params.userId} were not found`,
+            message: `Sessions under User-ID: '${req.params.userId}' were not found`,
           });
         } else {
-          reply.code(200).send(dummyListOfSessions);
+          // Send Array of: items -> containing all session information.
+          sessionList = sessionList.map((session) => session.getAllInfo());
+          reply.code(200).send(sessionList);
         }
       } catch (exc) {
         reply.code(500).send({ message: exc.message });
@@ -548,49 +526,31 @@ module.exports = (fastify, opts, next) => {
    * 2) Create new Session with query params & time stamp.
    */
   // Vast - routes
-  fastify.get(
-    "/vast",
-    { schema: schemas["GET/vast"] },
-    async (request, reply) => {
-      try {
-        // Create a VAST.
-        const vast_xml = vastBuilder({
-          adserverHostname: `${process.env.HOST || "127.0.0.1"}:${
-            process.env.PORT || "8080"
-          }`,
-          sessionId: request.query.uid, // Need to use some SessionId generator instead.
-        });
-        // Create a new test session. HERE like, let res = Session(opt);??
-        const newDummySession = {
-          sessionId: "session-XXX",
-          userId: "user-XXX",
-          created: "time-stamp-here",
-          request: {
-            c: request.query.c,
-            dur: request.query.dur,
-            uid: request.query.uid,
-            os: request.query.os,
-            dt: request.query.dt,
-            ss: request.query.ss,
-            uip: request.query.uip,
-          },
-          response: vast_xml,
-        };
-
-        if (!vast_xml) {
-          reply.code(404).send({
-            message: `Could not send VAST`,
-          });
-        } else {
-          reply.header("Content-Type", "application/xml; charset=utf-8");
-          //reply.code(200).send({ message: `cheers: ${request.query.c},${request.query.dur},${request.query.uid},${request.query.os}, ${request.query.dt},${request.query.ss},${request.query.uip} [END]`,});
-          reply.code(200).send(vast_xml);
-        }
-      } catch (exc) {
-        reply.code(500).send({ message: exc.message });
+  fastify.get("/vast", { schema: schemas["GET/vast"] }, async (req, reply) => {
+    try {
+      // LOG requested query parameters.
+      //console.log("Request Query Params:",JSON.parse(JSON.stringify(req.query)));
+      logger.info(JSON.parse(JSON.stringify(req.query)));
+      // Create new session, then add to session DB.
+      const session = new Session(req.query);
+      const result = await dbController.AddSessionToStorage(session);
+      if (!result) {
+        reply.code(404).send({ message: "Could not create a session" });
       }
+      // Respond with sessions VAST
+      vast_xml = session.getVastXml();
+      if (!vast_xml) {
+        reply.code(404).send({
+          message: `Could not send VAST`,
+        });
+      } else {
+        reply.header("Content-Type", "application/xml; charset=utf-8");
+        reply.code(200).send(vast_xml);
+      }
+    } catch (exc) {
+      reply.code(500).send({ message: exc.message });
     }
-  );
+  });
 
   next();
 };

@@ -1,0 +1,28 @@
+{"level":30,"time":1619780647945,"pid":29296,"hostname":"LAPTOP-E1QS9TVG","msg":"Server listening at http://127.0.0.1:8080"}
+{"level":30,"time":1619780671870,"pid":29296,"hostname":"LAPTOP-E1QS9TVG","reqId":"req-1","req":{"method":"GET","url":"/api/v1/vast?c=true&dur=70&uid=mac10&os=ios&dt=mobile&ss=800x344&uip=123.876.634.44","hostname":"127.0.0.1:8080","remoteAddress":"127.0.0.1","remotePort":55578},"msg":"incoming request"}
+{"level":30,"time":1619780671876,"pid":29296,"hostname":"LAPTOP-E1QS9TVG","reqId":"req-1","res":{"statusCode":500},"responseTime":5.099700093269348,"msg":"request completed"}
+{"level":30,"time":1619780759683,"pid":39704,"hostname":"LAPTOP-E1QS9TVG","msg":"Server listening at http://127.0.0.1:8080"}
+{"level":30,"time":1619780771926,"pid":39704,"hostname":"LAPTOP-E1QS9TVG","reqId":"req-1","req":{"method":"GET","url":"/api/v1/vast?c=true&dur=70&uid=mac10&os=ios&dt=mobile&ss=800x344&uip=123.876.634.44","hostname":"127.0.0.1:8080","remoteAddress":"127.0.0.1","remotePort":55678},"msg":"incoming request"}
+{"level":30,"time":1619780771952,"pid":39704,"hostname":"LAPTOP-E1QS9TVG","reqId":"req-1","res":{"statusCode":200},"responseTime":22.78659999370575,"msg":"request completed"}
+{"level":30,"time":1619781037672,"pid":3372,"hostname":"LAPTOP-E1QS9TVG","msg":"Server listening at http://127.0.0.1:8080"}
+{"level":30,"time":1619781039205,"pid":36628,"hostname":"LAPTOP-E1QS9TVG","msg":"Server listening at http://127.0.0.1:8080"}
+{"level":30,"time":1619781041903,"pid":47452,"hostname":"LAPTOP-E1QS9TVG","msg":"Server listening at http://127.0.0.1:8080"}
+{"level":30,"time":1619781045381,"pid":5512,"hostname":"LAPTOP-E1QS9TVG","msg":"Server listening at http://127.0.0.1:8080"}
+{"level":30,"time":1619781067782,"pid":18748,"hostname":"LAPTOP-E1QS9TVG","msg":"Server listening at http://127.0.0.1:8080"}
+{"level":30,"time":1619781070302,"pid":33808,"hostname":"LAPTOP-E1QS9TVG","msg":"Server listening at http://127.0.0.1:8080"}
+{"level":30,"time":1619781071442,"pid":44092,"hostname":"LAPTOP-E1QS9TVG","msg":"Server listening at http://127.0.0.1:8080"}
+{"level":30,"time":1619781073397,"pid":30840,"hostname":"LAPTOP-E1QS9TVG","msg":"Server listening at http://127.0.0.1:8080"}
+{"level":30,"time":1619781080257,"pid":38168,"hostname":"LAPTOP-E1QS9TVG","msg":"Server listening at http://127.0.0.1:8080"}
+{"level":30,"time":1619781084801,"pid":10320,"hostname":"LAPTOP-E1QS9TVG","msg":"Server listening at http://127.0.0.1:8080"}
+{"level":30,"time":1619781100869,"pid":10320,"hostname":"LAPTOP-E1QS9TVG","reqId":"req-1","req":{"method":"GET","url":"/api/v1/vast?c=true&dur=70&uid=mac10&os=ios&dt=mobile&ss=800x344&uip=123.876.634.44","hostname":"127.0.0.1:8080","remoteAddress":"127.0.0.1","remotePort":55986},"msg":"incoming request"}
+{"level":30,"time":1619781100870,"pid":10320,"hostname":"LAPTOP-E1QS9TVG","reqId":"req-1","msg":"I am in Vast endpoint."}
+{"level":30,"time":1619781100890,"pid":10320,"hostname":"LAPTOP-E1QS9TVG","reqId":"req-1","res":{"statusCode":200},"responseTime":20.50499999523163,"msg":"request completed"}
+{"level":30,"time":1619781281192,"pid":45596,"hostname":"LAPTOP-E1QS9TVG","msg":"Server listening at http://127.0.0.1:8080"}
+{"level":30,"time":1619781293256,"pid":45596,"hostname":"LAPTOP-E1QS9TVG","reqId":"req-1","req":{"method":"GET","url":"/api/v1/vast?c=true&dur=70&uid=mac10&os=ios&dt=mobile&ss=800x344&uip=123.876.634.44","hostname":"127.0.0.1:8080","remoteAddress":"127.0.0.1","remotePort":56173},"msg":"incoming request"}
+{"level":30,"time":1619781293257,"pid":45596,"hostname":"LAPTOP-E1QS9TVG","reqId":"req-1","c":"true","dur":"70","uid":"mac10","os":"ios","dt":"mobile","ss":"800x344","uip":"123.876.634.44"}
+{"level":30,"time":1619781293274,"pid":45596,"hostname":"LAPTOP-E1QS9TVG","reqId":"req-1","res":{"statusCode":200},"responseTime":17.805100083351135,"msg":"request completed"}
+{"level":30,"time":1619781480346,"pid":45596,"hostname":"LAPTOP-E1QS9TVG","reqId":"req-2","req":{"method":"GET","url":"/api/v1/sessions","hostname":"127.0.0.1:8080","remoteAddress":"127.0.0.1","remotePort":56344},"msg":"incoming request"}
+{"level":30,"time":1619781480347,"pid":45596,"hostname":"LAPTOP-E1QS9TVG","reqId":"req-2","res":{"statusCode":200},"responseTime":1.0935999155044556,"msg":"request completed"}
+{"level":30,"time":1619781556697,"pid":45596,"hostname":"LAPTOP-E1QS9TVG","reqId":"req-3","req":{"method":"GET","url":"/api/v1/vast?c=true&dur=70&uid=mac10&os=ios&dt=mobile&ss=800x344&uip=123.876.634.44&more=100&evenmore=200&muchmore=300","hostname":"127.0.0.1:8080","remoteAddress":"127.0.0.1","remotePort":56414},"msg":"incoming request"}
+{"level":30,"time":1619781556697,"pid":45596,"hostname":"LAPTOP-E1QS9TVG","reqId":"req-3","c":"true","dur":"70","uid":"mac10","os":"ios","dt":"mobile","ss":"800x344","uip":"123.876.634.44","more":"100","evenmore":"200","muchmore":"300"}
+{"level":30,"time":1619781556699,"pid":45596,"hostname":"LAPTOP-E1QS9TVG","reqId":"req-3","res":{"statusCode":200},"responseTime":1.5200999975204468,"msg":"request completed"}
