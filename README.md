@@ -16,7 +16,7 @@ To build the `adserver-api` image run:
 
     docker build . -f Dockerfile -t adserver-api:local --no-cache
 
-A `docker-compose` config file is provided that takes care of building the image.
+A `docker-compose` config file is also provided that takes care of building the image.
 
 Start the service:
 
