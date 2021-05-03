@@ -35,7 +35,9 @@
     "fastify-swagger": "^4.6.0",
     "fs": "*",
     "swagger-jsdoc": "^7.0.0-rc.6",
-    "vast-builder": "^4.0.1"
+    "timestamp-to-seconds": "^0.0.2",
+    "vast-builder": "^4.0.1",
+    "winston": "^3.3.3"
   },
   "devDependencies": {
     "@commitlint/cli": "^12.1.1",
