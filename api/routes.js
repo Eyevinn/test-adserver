@@ -162,15 +162,16 @@ const SessionSchema = () => ({
     adBreakDuration: { type: "string" },
     clientRequest: {
       type: "object",
-      properties: {
-        Consent: { type: "string" },
-        RequestedDuration: { type: "string" },
-        UserId: { type: "string" },
-        OperatingSystem: { type: "string" },
-        DeviceType: { type: "string" },
-        ScreenSize: { type: "string" },
-        ClientIp: { type: "string" },
-      },
+      additionalProperties: true,
+      // properties: {
+      //   Consent: { type: "string" },
+      //   RequestedDuration: { type: "string" },
+      //   UserId: { type: "string" },
+      //   OperatingSystem: { type: "string" },
+      //   DeviceType: { type: "string" },
+      //   ScreenSize: { type: "string" },
+      //   ClientIp: { type: "string" },
+      // },
     },
     response: { type: "string" },
   },
@@ -398,7 +399,16 @@ module.exports = (fastify, opt, next) => {
       try {
         let sessionList = await dbController.getAllSessions();
         // Send Array of: items -> containing all session information.
-        sessionList = sessionList.map((session) => session.getAllInfo());
+        sessionList = sessionList.map((session) => {
+          return {
+            sessionId: session.sessionId,
+            userId: session.getUser(),
+            created: session.created,
+            adBreakDuration: session.adBreakDuration,
+            clientRequest: session.getClientRequest(),
+            response: session.getVastXml().toString(),
+          };
+        });
         reply.code(200).send(sessionList);
       } catch (exc) {
         reply.code(500).send({ message: exc.message });
@@ -418,7 +428,7 @@ module.exports = (fastify, opt, next) => {
             message: `Session with ID: '${sessionId}' was not found`,
           });
         } else {
-          const replyBody = {
+          const payload = {
             sessionId: session.sessionId,
             userId: session.getUser(),
             created: session.created,
@@ -426,7 +436,7 @@ module.exports = (fastify, opt, next) => {
             clientRequest: session.getClientRequest(),
             response: session.getVastXml().toString(),
           };
-          reply.code(200).send(replyBody);
+          reply.code(200).send(payload);
         }
       } catch (exc) {
         reply.code(500).send({ message: exc.message });
@@ -439,13 +449,14 @@ module.exports = (fastify, opt, next) => {
     { schema: schemas["DELETE/sessions/:sessionId"] },
     async (req, reply) => {
       try {
-        let session = await dbController.getSession(req.params.sessionId);
+        const sessionId = req.params.sessionId;
+        const session = await dbController.getSession(sessionId);
         if (!session) {
           reply.code(404).send({
-            message: `Session with ID: '${req.params.sessionId}' was not found`,
+            message: `Session with ID: '${sessionId}' was not found`,
           });
         } else {
-          await dbController.DeleteSession(req.params.sessionId);
+          await dbController.DeleteSession(sessionId);
           reply.code(204).send({});
         }
       } catch (exc) {
@@ -498,8 +509,6 @@ module.exports = (fastify, opt, next) => {
     async (req, reply) => {
       try {
         // Get Session List via db-controller function.
-        // And then map/filter out sessions that don't have matching userID
-        // ---
         let sessionList = await dbController.getSessionsByUserId(
           req.params.userId
         );
@@ -511,7 +520,16 @@ module.exports = (fastify, opt, next) => {
           });
         } else {
           // Send Array of: items -> containing all session information.
-          sessionList = sessionList.map((session) => session.getAllInfo());
+          sessionList = sessionList.map((session) => {
+            return {
+              sessionId: session.sessionId,
+              userId: session.getUser(),
+              created: session.created,
+              adBreakDuration: session.adBreakDuration,
+              clientRequest: session.getClientRequest(),
+              response: session.getVastXml().toString(),
+            };
+          });
           reply.code(200).send(sessionList);
         }
       } catch (exc) {
@@ -529,19 +547,20 @@ module.exports = (fastify, opt, next) => {
   fastify.get("/vast", { schema: schemas["GET/vast"] }, async (req, reply) => {
     try {
       // LOG requested query parameters.
-      //console.log("Request Query Params:",JSON.parse(JSON.stringify(req.query)));
       logger.info(JSON.parse(JSON.stringify(req.query)));
+      //console.log("Request Query Params:",JSON.parse(JSON.stringify(req.query)));
+
       // Create new session, then add to session DB.
       const session = new Session(req.query);
       const result = await dbController.AddSessionToStorage(session);
       if (!result) {
-        reply.code(404).send({ message: "Could not create a session" });
+        reply.code(404).send({ message: "Could not store new session" });
       }
       // Respond with sessions VAST
       vast_xml = session.getVastXml();
       if (!vast_xml) {
         reply.code(404).send({
-          message: `Could not send VAST`,
+          message: `VAST not found`,
         });
       } else {
         reply.header("Content-Type", "application/xml; charset=utf-8");

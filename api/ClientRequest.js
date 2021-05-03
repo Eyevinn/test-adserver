@@ -1,4 +1,5 @@
 class ClientRequest {
+  // Private fields
   #consent;
   #requestedDuration;
   #userId;
@@ -6,7 +7,7 @@ class ClientRequest {
   #deviceType;
   #screenSize;
   #clientIp;
-  #leftovers;
+  #additionalParams;
 
   constructor(params) {
     this.#consent = params.c;
@@ -16,16 +17,23 @@ class ClientRequest {
     this.#deviceType = params.dt;
     this.#screenSize = params.ss;
     this.#clientIp = params.uip;
-
-    this.#leftovers = this._RemoveExpectedParams(params);
+    // In case client sends more params than expected.
+    this.#additionalParams = this.#getUnexpectedParams(params);
   }
 
-  _RemoveExpectedParams(params) {
+  #getUnexpectedParams(params) {
+    // All expected params.
     const expected = ["c", "dur", "uid", "os", "dt", "ss", "uip"];
-    for (const param in expected) {
-      delete params[param];
-    }
-    return params;
+    // A new collection of items:
+    // 'params'-items where keys are not included in 'expected'.
+    const unexpected = Object.keys(params)
+      .filter((key) => !expected.includes(key))
+      .reduce((obj, key) => {
+        obj[key] = params[key];
+        return obj;
+      }, {});
+    // return remaining params (the unexpected ones).
+    return unexpected;
   }
 
   getQueryParameters() {
@@ -38,10 +46,11 @@ class ClientRequest {
       ScreenSize: this.#screenSize,
       ClientIp: this.#clientIp,
     };
-    const unexpected = this.#leftovers;
-    const complete = { expected, unexpected };
+    const unexpected = this.#additionalParams;
+    // concatenate the 2 objects.
+    const allParameters = Object.assign(expected, unexpected);
 
-    return expected;
+    return allParameters;
   }
 }
 
