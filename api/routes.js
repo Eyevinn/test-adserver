@@ -1,4 +1,4 @@
-const dbController = require("../controllers/db-controller");
+const DBAdapter = require("../controllers/memory-db-adapter");
 const logger = require("../logger.js");
 const Session = require("./Session.js");
 
@@ -397,7 +397,7 @@ module.exports = (fastify, opt, next) => {
     { schema: schemas["GET/sessions"] },
     async (req, reply) => {
       try {
-        let sessionList = await dbController.getAllSessions();
+        let sessionList = await DBAdapter.getAllSessions();
         // Send Array of: items -> containing all session information.
         sessionList = sessionList.map((session) => {
           return {
@@ -422,7 +422,7 @@ module.exports = (fastify, opt, next) => {
     async (req, reply) => {
       try {
         const sessionId = req.params.sessionId;
-        const session = await dbController.getSession(sessionId);
+        const session = await DBAdapter.getSession(sessionId);
         if (!session) {
           reply.code(404).send({
             message: `Session with ID: '${sessionId}' was not found`,
@@ -450,13 +450,13 @@ module.exports = (fastify, opt, next) => {
     async (req, reply) => {
       try {
         const sessionId = req.params.sessionId;
-        const session = await dbController.getSession(sessionId);
+        const session = await DBAdapter.getSession(sessionId);
         if (!session) {
           reply.code(404).send({
             message: `Session with ID: '${sessionId}' was not found`,
           });
         } else {
-          await dbController.DeleteSession(sessionId);
+          await DBAdapter.DeleteSession(sessionId);
           reply.code(204).send({});
         }
       } catch (exc) {
@@ -475,22 +475,30 @@ module.exports = (fastify, opt, next) => {
         const adID = req.query.adId;
         const viewProgress = req.query.progress;
 
+        const eventNames = {
+          0: "start",
+          25: "firstQuartile",
+          50: "midpoint",
+          75: "thirdQuartile",
+          100: "complete",
+        };
+
         // Check if session exists.
-        const session = await dbController.getSession(sessionId);
+        const session = await DBAdapter.getSession(sessionId);
         if (!session) {
           reply.code(404).send({
             message: `Session with ID: '${sessionId}' was not found`,
           });
         } else {
-          // "...it will output on the console log a
-          // JSON object that is parse:able by Cloudwatch"
-          // ^ This by getting the session object with session Id.
-          // ---
+          // LOG data to console with special format.
+          const logMsg = {
+            type: "test-adserver",
+            time: new Date().toISOString(),
+            event: eventNames[viewProgress],
+            session: `${process.env.HOSTDOMAIN || 'localhost:8080'}/api/v1/sessions/${sessionId}`,
+          };
+          console.log(logMsg);
 
-          // debugging
-          console.log(
-            `Cool! Session:${sessionId}, on AD:${adID}, has been watched to ${viewProgress}%`
-          );
           // Reply with 200 OK and acknowledgment message.
           reply.code(200).send({
             message: `Tracking Data Recieved [ ADID:${adID}, PROGRESS:${viewProgress} ]`,
@@ -509,7 +517,7 @@ module.exports = (fastify, opt, next) => {
     async (req, reply) => {
       try {
         // Get Session List via db-controller function.
-        let sessionList = await dbController.getSessionsByUserId(
+        let sessionList = await DBAdapter.getSessionsByUserId(
           req.params.userId
         );
 
@@ -547,12 +555,12 @@ module.exports = (fastify, opt, next) => {
   fastify.get("/vast", { schema: schemas["GET/vast"] }, async (req, reply) => {
     try {
       // LOG requested query parameters.
-      logger.info(JSON.parse(JSON.stringify(req.query)));
-      //console.log("Request Query Params:",JSON.parse(JSON.stringify(req.query)));
+      logger.info(req.query);
+      console.log("Request Query Params:", req.query);
 
       // Create new session, then add to session DB.
       const session = new Session(req.query);
-      const result = await dbController.AddSessionToStorage(session);
+      const result = await DBAdapter.AddSessionToStorage(session);
       if (!result) {
         reply.code(404).send({ message: "Could not store new session" });
       }

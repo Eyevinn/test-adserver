@@ -1,6 +1,8 @@
 const ClientRequest = require("./ClientRequest.js");
 const User = require("./User.js");
 const { VastBuilder } = require("../utils/vast-maker");
+const { v4: uuid } = require('uuid');
+
 
 class Session {
   // Public Fields
@@ -17,7 +19,7 @@ class Session {
     const timeStamp = new Date().toISOString();
 
     this.created = timeStamp;
-    this.sessionId = this.#SessionIdGenerator(queryParams, timeStamp);
+    this.sessionId = uuid();
     this.#user = new User(queryParams.uid);
     this.#clientRequest = new ClientRequest(queryParams);
 
@@ -34,12 +36,6 @@ class Session {
     this.adBreakDuration = vastObj.duration;
   }
 
-  #SessionIdGenerator(queryParams, timeStamp) {
-    // ex output: my-uid20210430124444752
-    const sessionId = `${queryParams.uid}${timeStamp.replace(/[-:TZ.]/g, "")}`;
-    return sessionId;
-  }
-
   getUser() {
     return this.#user.getUserId();
   }
@@ -49,7 +45,7 @@ class Session {
   }
 
   getClientRequest() {
-    return this.#clientRequest.getQueryParameters();
+    return this.#clientRequest.getAllQueryParameters();
   }
 
   /*
