@@ -568,10 +568,6 @@ module.exports = (fastify, opt, next) => {
       }
       // Respond with sessions VAST
       vast_xml = session.getVastXml();
-      // LOG to Console.
-      console.log("#### VAST-XML RESPONSE BELOW ####:\n")
-      console.log(vast_xml);
-
       if (!vast_xml) {
         reply.code(404).send({
           message: `VAST not found`,
