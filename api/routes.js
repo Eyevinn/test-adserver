@@ -495,7 +495,9 @@ module.exports = (fastify, opt, next) => {
             type: "test-adserver",
             time: new Date().toISOString(),
             event: eventNames[viewProgress],
-            session: `${process.env.HOSTDOMAIN || 'localhost:8080'}/api/v1/sessions/${sessionId}`,
+            session: `${
+              process.env.HOSTDOMAIN || "localhost:8080"
+            }/api/v1/sessions/${sessionId}`,
           };
           console.log(logMsg);
 
@@ -556,7 +558,7 @@ module.exports = (fastify, opt, next) => {
     try {
       // LOG requested query parameters.
       logger.info(req.query);
-      console.log("Request Query Params:", req.query);
+      //console.log("Request Query Params:", req.query);
 
       // Create new session, then add to session DB.
       const session = new Session(req.query);
@@ -566,6 +568,10 @@ module.exports = (fastify, opt, next) => {
       }
       // Respond with sessions VAST
       vast_xml = session.getVastXml();
+      // LOG to Console.
+      console.log("#### VAST-XML RESPONSE BELOW ####:\n")
+      console.log(vast_xml);
+
       if (!vast_xml) {
         reply.code(404).send({
           message: `VAST not found`,
