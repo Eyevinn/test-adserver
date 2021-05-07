@@ -5,7 +5,7 @@ const consoleTransport = new winston.transports.Console();
 
 const options = {
   format: format.combine(
-    format.label({ label: "Client Requested Query Parameters" }),
+    format.label({ label: "Client's Request Query Parameters" }),
     //format.colorize(),
     format.timestamp({
       format: "YYYY-MM-DD HH:mm:ss", // for adding timestamp to log

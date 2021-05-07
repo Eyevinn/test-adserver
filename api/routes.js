@@ -1,11 +1,16 @@
 const DBAdapter = require("../controllers/memory-db-adapter");
-const logger = require("../logger.js");
+const logger = require("../utils/logger.js");
 const Session = require("./Session.js");
 
 /**
  * - First Schemas
  * - Then the different Routes
  */
+
+const EMPTY_VAST_MSG = `.--------------- WARNING ---------------.
+|     Empty VAST-XML Sent To Client     |
+'---------------------------------------'\n`;
+const EMPTY_VAST_STR = `<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<VAST version=\"4.0\"/>`;
 
 const VastResponseSchema = () => ({
   description: "On Success, a VAST file in XML format is Returned",
@@ -365,23 +370,9 @@ const schemas = {
           example: "192.168.1.200",
         },
       },
-      required: ["c", "dur", "uid", "os", "dt", "ss", "uip"],
     },
     response: {
       200: VastResponseSchema(),
-      400: {
-        description: "Bad request error description",
-        type: "object",
-        properties: {
-          message: { type: "string", description: "Reason of the error" },
-        },
-        example: {
-          message: "querystring should have required property 'uid'",
-        },
-        xml: {
-          name: "xml",
-        },
-      },
       404: BadRequestSchema("Error creating VAST response object"),
     },
     security: [{ apiKey: [] }],
@@ -490,24 +481,24 @@ module.exports = (fastify, opt, next) => {
             message: `Session with ID: '${sessionId}' was not found`,
           });
         } else {
-          // LOG data to console with special format.
+          // [LOG]: data to console with special format.
           const logMsg = {
             type: "test-adserver",
             time: new Date().toISOString(),
             event: eventNames[viewProgress],
-            session: `${
-              process.env.HOSTDOMAIN || "localhost:8080"
+            session: `${process.env.HOST || "localhost"}:${
+              process.env.PORT || "8080"
             }/api/v1/sessions/${sessionId}`,
           };
           console.log(logMsg);
 
-          // Reply with 200 OK and acknowledgment message.
+          // Reply with 200 OK and acknowledgment message. Client Ignores this?
           reply.code(200).send({
             message: `Tracking Data Recieved [ ADID:${adID}, PROGRESS:${viewProgress} ]`,
           });
         }
       } catch (exc) {
-        reply.code(500).send({ message: exc.message }); // ex. when a reply comes with wrong schema
+        reply.code(500).send({ message: exc.message });
       }
     }
   );
@@ -556,9 +547,8 @@ module.exports = (fastify, opt, next) => {
   // Vast - routes
   fastify.get("/vast", { schema: schemas["GET/vast"] }, async (req, reply) => {
     try {
-      // LOG requested query parameters.
+      // [LOG]: requested query parameters with a timestamp.
       logger.info(req.query);
-      //console.log("Request Query Params:", req.query);
 
       // Create new session, then add to session DB.
       const session = new Session(req.query);
@@ -566,13 +556,20 @@ module.exports = (fastify, opt, next) => {
       if (!result) {
         reply.code(404).send({ message: "Could not store new session" });
       }
-      // Respond with sessions VAST
+      // Respond with session's VAST
       vast_xml = session.getVastXml();
       if (!vast_xml) {
         reply.code(404).send({
           message: `VAST not found`,
         });
       } else {
+        // [LOG]: VAST-XML to console.
+        if (vast_xml.toString() === EMPTY_VAST_STR) {
+          console.log(EMPTY_VAST_MSG + vast_xml);
+        } else {
+          console.log("...VAST RESPONSE:\n\n" + vast_xml);
+        }
+
         reply.header("Content-Type", "application/xml; charset=utf-8");
         reply.code(200).send(vast_xml);
       }

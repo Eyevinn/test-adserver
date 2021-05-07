@@ -1,8 +1,7 @@
 const ClientRequest = require("./ClientRequest.js");
 const User = require("./User.js");
 const { VastBuilder } = require("../utils/vast-maker");
-const { v4: uuid } = require('uuid');
-
+const { v4: uuid } = require("uuid");
 
 class Session {
   // Public Fields
@@ -20,13 +19,14 @@ class Session {
 
     this.created = timeStamp;
     this.sessionId = uuid();
-    this.#user = new User(queryParams.uid);
+    this.#user = new User(queryParams.uid || null);
+
     this.#clientRequest = new ClientRequest(queryParams);
 
     // Create Vast object.
     const vastObj = VastBuilder({
       sessionId: this.sessionId,
-      desiredDuration: queryParams.dur,
+      desiredDuration: queryParams.dur || "0",
       adserverHostname: `${process.env.HOST || "127.0.0.1"}:${
         process.env.PORT || "8080"
       }`,
