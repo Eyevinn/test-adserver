@@ -10,13 +10,13 @@ class ClientRequest {
   #rawParameters;
 
   constructor(params) {
-    this.#consent = params.c;
-    this.#requestedDuration = params.dur;
-    this.#userId = params.uid;
-    this.#operatingSystem = params.os;
-    this.#deviceType = params.dt;
-    this.#screenSize = params.ss;
-    this.#clientIp = params.uip;
+    this.#consent = params.c || null;
+    this.#requestedDuration = params.dur || null;
+    this.#userId = params.uid || null;
+    this.#operatingSystem = params.os || null;
+    this.#deviceType = params.dt || null;
+    this.#screenSize = params.ss || null;
+    this.#clientIp = params.uip || null;
     // Store the raw query parameters (everything the client sent).
     this.#rawParameters = params;
   }

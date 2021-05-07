@@ -91,7 +91,6 @@ function VastBuilder(params) {
 
 // Assuming Access to a List of Ads.
 function GetAdsAndDuration(targetDuration) {
-  
   targetDuration = parseInt(targetDuration);
   let remainingDuration = targetDuration;
   let chosenAds = [];

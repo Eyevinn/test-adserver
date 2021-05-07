@@ -2,7 +2,7 @@ class User {
   #userId;
 
   constructor(userId) {
-    // Assign uid.
+    // Assign uid
     this.#userId = userId;
   }
 
