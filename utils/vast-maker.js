@@ -4,7 +4,7 @@ const timestampToSeconds = require("timestamp-to-seconds");
 const AdList = [
   {
     id: "streamingtech_ad",
-    url: "https://testcontent.eyevinn.technology/ads/probably-the-best-10s.mov",
+    url: "https://testcontent.eyevinn.technology/ads/probably-the-best-10s.mp4",
     duration: "00:00:10",
   },
   {
