@@ -1,6 +1,8 @@
 SELECT 'CREATE DATABASE session_db_dev'
 WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'session_db_dev')\gexec ;
 
+GRANT ALL PRIVILEGES ON DATABASE session_db_dev TO eyevinn;
+
 \c session_db_dev;
 
 CREATE TABLE public.sessions_table(

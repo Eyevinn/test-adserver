@@ -9,7 +9,7 @@ services:
             - PORT=8080
             - API_KEY=secret-key
             - APP_DB_HOST=db
-            - APP_DB_USER=postgres
+            - APP_DB_USER=eyevinn
             - APP_DB_PASSWORD=very-secret-stuff
         ports:
             - 8080:8080
@@ -20,6 +20,7 @@ services:
         image: postgres
         environment:
             - POSTGRES_PASSWORD=very-secret-stuff
+            - POSTGRES_USER=eyevinn
             - PGDATA=/var/lib/postgresql/data/pgdata
         ports:
             - 5432:5432
