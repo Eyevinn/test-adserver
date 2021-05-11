@@ -3,6 +3,11 @@ const timestampToSeconds = require("timestamp-to-seconds");
 
 const AdList = [
   {
+    id: "streamingtech_ad",
+    url: "https://testcontent.eyevinn.technology/ads/probably-the-best-10s.mov",
+    duration: "00:00:10",
+  },
+  {
     id: "sample-ad_001",
     url:
       "https://iab-publicfiles.s3.amazonaws.com/vast/VAST-4.0-Short-Intro.mp4",
