@@ -3,7 +3,7 @@ name: Build, tag, and push image to Amazon ECR
 on:
   push:
     tags:
-      - *
+      - v*
 
 env:
   AWS_REGION: eu-north-1
