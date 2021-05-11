@@ -4,6 +4,7 @@ services:
   db:
     image: postgres
     environment:
+      - POSTGRES_USER=eyevinn
       - POSTGRES_PASSWORD=very-secret-stuff
       - PGDATA=/var/lib/postgresql/data/pgdata
     ports:
@@ -20,7 +21,7 @@ services:
       - PORT=8080
       - API_KEY=secret-key
       - APP_DB_HOST=db
-      - APP_DB_USER=postgres
+      - APP_DB_USER=eyevinn
       - APP_DB_PASSWORD=very-secret-stuff
       - APP_DB_NAME=session_db_test
     ports:
@@ -30,11 +31,11 @@ services:
 
   test-adserver-api-tests:
     image: adserver-api:local
-    command: dockerize -wait tcp://db:5432  -wait tcp://test-adserver-api:8080 -timeout 10s bash -c "npm run test-chai"
+    command: dockerize -wait tcp://db:5432  -wait tcp://test-adserver-api:8080 -timeout 60s bash -c "npm run test-chai"
     environment:
       - APP_URL=http://test-adserver-api:8080
       - APP_DB_HOST=db
-      - APP_DB_USER=postgres
+      - APP_DB_USER=eyevinn
       - APP_DB_PASSWORD=very-secret-stuff
     depends_on:
       - db
