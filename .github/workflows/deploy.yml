@@ -1,17 +1,13 @@
-name: Deploy to Amazon ECS
+name: Build, tag, and push image to Amazon ECR
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - *
 
 env:
   AWS_REGION: eu-north-1
   ECR_REPOSITORY: telenor-test-adserver
-  ECS_SERVICE: telenor-test-adserver-service
-  ECS_CLUSTER: lab-telenor
-  ECS_TASK_DEFINITION: ecs/telenor-test-adserver-task.json
-  CONTAINER_NAME: telenor-test-adserver
 
 defaults:
   run:
