@@ -25,10 +25,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Get the version
-        id: get_version
-        run: echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
-
       - name: Configure AWS ECS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -42,7 +38,7 @@ jobs:
         with:
           task-definition: ${{ env.ECS_TASK_DEFINITION }}
           container-name: ${{ env.CONTAINER_NAME }}
-          image: ${{ ECR_REGISTRY }}/{{ $ECR_REPOSITORY }}:${{ steps.get_version.outputs.VERSION }}
+          image: ${{ ECR_REGISTRY }}/{{ $ECR_REPOSITORY }}:${{ github.sha }}
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
