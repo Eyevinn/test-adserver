@@ -30,7 +30,7 @@ class Session {
       adserverHostname:
         process.env.ADSERVER ||
         `${process.env.HOST}:${process.env.PORT}` ||
-        "localhost:8080",
+        "127.0.0.1:8080",
     });
 
     this.#vastXml = vastObj.xml;
