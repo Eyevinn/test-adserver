@@ -10,7 +10,7 @@ env:
   ECS_SERVICE: adserver-api
   ECS_CLUSTER: test-adserver-cluster
   ECS_TASK_DEFINITION: aws/ecs/taskdef.json
-  CONTAINER_NAME: adserver-api
+  CONTAINER_NAME: test-adserver
 
 defaults:
   run:
