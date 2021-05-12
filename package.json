@@ -10,7 +10,8 @@
     "test-spec": "tap -Rspec test/**/*.test.js",
     "test": "tap test/**/*.test.js",
     "dev": "nodemon -L server.js",
-    "start-fastify": "fastify start -l info app.js"
+    "start-fastify": "fastify start -l info app.js",
+    "postversion": "git push && git push --tags"
   },
   "repository": {
     "type": "git",
