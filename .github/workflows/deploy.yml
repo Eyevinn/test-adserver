@@ -6,11 +6,11 @@ on:
 
 env:
   AWS_REGION: eu-north-1
-  ECR_REPOSITORY: telenor-test-adserver
+  ECR_REPOSITORY: adserver-api
   ECS_SERVICE: adserver-api
   ECS_CLUSTER: test-adserver-cluster
   ECS_TASK_DEFINITION: aws/ecs/taskdef.json
-  CONTAINER_NAME: telenor-test-adserver
+  CONTAINER_NAME: test-adserver
 
 defaults:
   run:

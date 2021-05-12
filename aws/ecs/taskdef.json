@@ -1,0 +1,42 @@
+{
+    "family": "test-adserver", 
+    "networkMode": "awsvpc", 
+    "executionRoleArn": "arn:aws:iam::590877988961:role/ecsTaskExecutionRole",
+    "containerDefinitions": [
+        {
+            "name": "test-adserver", 
+            "image": "590877988961.dkr.ecr.eu-north-1.amazonaws.com/adserver-api:latest", 
+            "essential": true,
+            "portMappings": [
+                {
+                    "containerPort": 8080, 
+                    "hostPort": 8080, 
+                    "protocol": "tcp"
+                }
+            ], 
+            "environment": [
+                {
+                    "name": "PORT",
+                    "value": "8080"
+                },
+                {
+                    "name": "API_KEY",
+                    "value": "secret-key"
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/test-adserver",
+                    "awslogs-region": "eu-north-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            }
+        }
+    ], 
+    "requiresCompatibilities": [
+        "FARGATE"
+    ], 
+    "cpu": "256", 
+    "memory": "512"
+}
