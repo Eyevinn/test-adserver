@@ -486,9 +486,7 @@ module.exports = (fastify, opt, next) => {
             type: "test-adserver",
             time: new Date().toISOString(),
             event: eventNames[viewProgress],
-            session: `${process.env.HOST || "localhost"}:${
-              process.env.PORT || "8080"
-            }/api/v1/sessions/${sessionId}`,
+            session: `${process.env.ADSERVER}/api/v1/sessions/${sessionId}` || `${process.env.HOST}:${process.env.PORT}/api/v1/sessions/${sessionId}` || "127.0.0.1:8080",
           };
           console.log(logMsg);
 
