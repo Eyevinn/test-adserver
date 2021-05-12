@@ -22,6 +22,10 @@
                 {
                     "name": "API_KEY",
                     "value": "secret-key"
+                },
+                {
+                    "name": "HOST",
+                    "value": "telenor.adtest.eyevinn.technology"
                 }
             ],
             "logConfiguration": {
