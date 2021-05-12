@@ -24,10 +24,6 @@
                     "value": "secret-key"
                 },
                 {
-                    "name": "HOST",
-                    "value": "telenor.adtest.eyevinn.technology"
-                },
-                {
                     "name": "ADSERVER",
                     "value": "telenor.adtest.eyevinn.technology"
                 }
