@@ -481,14 +481,14 @@ module.exports = (fastify, opt, next) => {
             message: `Session with ID: '${sessionId}' was not found`,
           });
         } else {
+
+          let adserverHostname = process.env.ADSERVER || `${process.env.HOST || "127.0.0.1"}:${process.env.PORT || "8080" }`;
           // [LOG]: data to console with special format.
           const logMsg = {
             type: "test-adserver",
             time: new Date().toISOString(),
             event: eventNames[viewProgress],
-            session: `${process.env.HOST || "localhost"}:${
-              process.env.PORT || "8080"
-            }/api/v1/sessions/${sessionId}`,
+            session: `${adserverHostname}/api/v1/sessions/${sessionId}`,
           };
           console.log(logMsg);
 
