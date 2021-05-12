@@ -6,6 +6,7 @@ on:
 
 env:
   AWS_REGION: eu-north-1
+  ECR_REGISTRY: 590877988961.dkr.ecr.eu-north-1.amazonaws.com
   ECR_REPOSITORY: adserver-api
   ECS_SERVICE: adserver-api
   ECS_CLUSTER: test-adserver-cluster
