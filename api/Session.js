@@ -30,8 +30,8 @@ class Session {
       adserverHostname: process.env.ADSERVER || `localhost:8080`,
     });
 
-    this.#vastXml = queryParams.response || vastObj.xml;
-    this.adBreakDuration = queryParams.adBreakDuration || vastObj.duration;
+    this.#vastXml = vastObj.xml;
+    this.adBreakDuration = vastObj.duration;
   }
 
   getUser() {
