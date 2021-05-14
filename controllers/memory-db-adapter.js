@@ -12,6 +12,14 @@ class MemoryDBAdapter extends DBAdapter {
   // Get a List of running test sessions.
   async getAllSessions() {
     const sessionList = Object.values(SESSION_STORE);
+
+    // Sort by newest first
+    sessionList.sort((a, b) => {
+      const dateA = new Date(a["created"]);
+      const dateB = new Date(b["created"]);
+      return dateB - dateA;
+    });
+
     return sessionList;
   }
 

@@ -482,7 +482,7 @@ module.exports = (fastify, opt, next) => {
           });
         } else {
 
-          let adserverHostname = process.env.ADSERVER || `${process.env.HOST || "127.0.0.1"}:${process.env.PORT || "8080" }`;
+          let adserverHostname = process.env.ADSERVER || `localhost:8080`;
           // [LOG]: data to console with special format.
           const logMsg = {
             type: "test-adserver",
