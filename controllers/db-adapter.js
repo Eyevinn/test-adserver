@@ -1,7 +1,7 @@
 class DBAdapter {
   async AddSessionToStorage(session) {}
 
-  async getAllSessions() {}
+  async getAllSessions(opt) {}
 
   async getSessionsByUserId(userId) {}
 

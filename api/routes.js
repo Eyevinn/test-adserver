@@ -1,5 +1,6 @@
 const DBAdapter = require("../controllers/memory-db-adapter");
 const logger = require("../utils/logger.js");
+const { PaginateMemory, Transform } = require("../utils/utilities");
 const Session = require("./Session.js");
 
 /**
@@ -168,15 +169,6 @@ const SessionSchema = () => ({
     clientRequest: {
       type: "object",
       additionalProperties: true,
-      // properties: {
-      //   Consent: { type: "string" },
-      //   RequestedDuration: { type: "string" },
-      //   UserId: { type: "string" },
-      //   OperatingSystem: { type: "string" },
-      //   DeviceType: { type: "string" },
-      //   ScreenSize: { type: "string" },
-      //   ClientIp: { type: "string" },
-      // },
     },
     response: { type: "string" },
   },
@@ -217,11 +209,38 @@ const schemas = {
   "GET/sessions": {
     description: "Gets all sessions",
     tags: ["sessions"],
+    query: {
+      type: "object",
+      properties: {
+        page: {
+          type: "string",
+          description: "Page number.",
+          example: "1",
+        },
+        limit: {
+          type: "string",
+          description: "Limit of sessions on each page.",
+          example: "10",
+        },
+      },
+    },
     response: {
       200: {
-        description: "On success returns an array of sessions",
-        type: "array",
-        items: SessionSchema(),
+        description: "On success return a pagination object",
+        type: "object",
+        properties: {
+          previousPage: {},
+          currentPage: {},
+          nextPage: {},
+          totalPages: {},
+          limit: {},
+          totalItems: {},
+          data: {
+            description: "On success returns an array of sessions",
+            type: "array",
+            items: SessionSchema(),
+          },
+        },
       },
     },
     security: [{ apiKey: [] }],
@@ -388,18 +407,11 @@ module.exports = (fastify, opt, next) => {
     { schema: schemas["GET/sessions"] },
     async (req, reply) => {
       try {
-        let sessionList = await DBAdapter.getAllSessions();
-        // Send Array of: items -> containing all session information.
-        sessionList = sessionList.map((session) => {
-          return {
-            sessionId: session.sessionId,
-            userId: session.getUser(),
-            created: session.created,
-            adBreakDuration: session.adBreakDuration,
-            clientRequest: session.getClientRequest(),
-            response: session.getVastXml().toString(),
-          };
-        });
+        const options = {
+          page: req.query.page,
+          limit: req.query.limit,
+        };
+        const sessionList = await DBAdapter.getAllSessions(options);
         reply.code(200).send(sessionList);
       } catch (exc) {
         reply.code(500).send({ message: exc.message });
@@ -481,7 +493,6 @@ module.exports = (fastify, opt, next) => {
             message: `Session with ID: '${sessionId}' was not found`,
           });
         } else {
-
           let adserverHostname = process.env.ADSERVER || `localhost:8080`;
           // [LOG]: data to console with special format.
           const logMsg = {

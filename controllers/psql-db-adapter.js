@@ -6,7 +6,7 @@ class PsqlDBAdapter extends DBAdapter {
   }
 
   // Get a list of running test sessions.
-  async getAllSessions() {
+  async getAllSessions(opt) {
     // TODO ...
   }
 

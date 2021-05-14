@@ -46,19 +46,6 @@ class Session {
     return this.#clientRequest.getAllQueryParameters();
   }
 
-  /*
-  getAllInfo() {
-    const payload = {
-      sessionId: this.sessionId,
-      userId: this.getUser(),
-      created: this.created,
-      adBreakDuration: this.adBreakDuration,
-      clientRequest: this.getClientRequest(),
-      response: this.getVastXml().toString(),
-    };
-    return payload;
-  }
-  */
 }
 
 module.exports = Session;
