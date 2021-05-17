@@ -14,7 +14,7 @@
  */
 
 function PaginateMemoryDB(list = [], pageNum, pageLimit) {
-  const limit = parseInt(pageLimit, 10) || 5;
+  const limit = parseInt(pageLimit, 10) || 80;
   const page = parseInt(pageNum, 10) || 1;
 
   const startAt = (page - 1) * limit;
