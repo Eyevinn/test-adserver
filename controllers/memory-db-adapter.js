@@ -1,5 +1,5 @@
 const DBAdapter = require("./db-adapter");
-const { PaginateMemory, Transform } = require("../utils/utilities");
+const { PaginateMemoryDB, Transform } = require("../utils/utilities");
 
 SESSION_STORE = {};
 
@@ -14,16 +14,9 @@ class MemoryDBAdapter extends DBAdapter {
   async getAllSessions(opt) {
     let sessionList = Object.values(SESSION_STORE);
 
-    // Sort by newest first
-    sessionList.sort((a, b) => {
-      const dateA = new Date(a["created"]);
-      const dateB = new Date(b["created"]);
-      return dateB - dateA;
-    });
-
     // Assuming We are to always respond with a pagination.
     // Paginate w/ query params, deafult values used otherwise.
-    sessionList = PaginateMemory(sessionList, opt.page, opt.limit);
+    sessionList = PaginateMemoryDB(sessionList, opt.page, opt.limit);
     sessionList.data = sessionList.data.map((session) => {
       return Transform(session);
     });

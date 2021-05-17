@@ -8,24 +8,7 @@ An adserver implementation to verify ad tracking implementations
 - `npm install`, then
 - `npm start` to run the server.
 - `npm run dev` to run the server in dev mode with nodemon listening to updates.
-- `npm run test` to run the unittests with Node-Tap. (To Be Updated)
-
-## Endpoints
-
-- GET `/api/docs` to access the complete `Swagger` documentation.
-- GET `/api/v1/sessions` to get list of sessions, newest first.
-- GET `/api/v1/sessions/:sessionId` to get a specific session.
-- DELETE `/api/v1/sessions/:sessionId` to remove a specific session.
-- GET `/api/v1/users/userId` to get all sessions for a specific user, newest first.
-- GET `/api/v1/sessions/:sessionId/tracking` to send tracking data to server through query parameters.
-- GET `/api/v1/vast` to create a session and get a VAST-XML file, may also use query parameters.
-
-## Environment variables
-
-- `ADSERVER` Public hostname and port for service. Needed for tracking, defaults to `localhost:8080`
-- `HOST` To set the interface that the server listens to. Default is `localhost`.
-- `POST` To set the port that the server listens to. Default is `8080`.
-- `API_KEY` (NOT YET IMPLEMENTED) To authorize certain API calls. Default is `secret-key`.
+- `npm run test` to run the unittests with Node-Tap.
 
 ## Docker
 

@@ -1,6 +1,6 @@
 const DBAdapter = require("../controllers/memory-db-adapter");
 const logger = require("../utils/logger.js");
-const { PaginateMemory, Transform } = require("../utils/utilities");
+const { PaginateMemoryDB, Transform } = require("../utils/utilities");
 const Session = require("./Session.js");
 
 /**

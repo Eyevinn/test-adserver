@@ -13,7 +13,7 @@
  * 
  */
 
-function PaginateMemory(list = [], pageNum, pageLimit) {
+function PaginateMemoryDB(list = [], pageNum, pageLimit) {
   const limit = parseInt(pageLimit, 10) || 5;
   const page = parseInt(pageNum, 10) || 1;
 
@@ -65,4 +65,4 @@ function Transform(session) {
     response: session.getVastXml().toString(),
   };
 }
-module.exports = { PaginateMemory, Transform };
+module.exports = { PaginateMemoryDB, Transform };
