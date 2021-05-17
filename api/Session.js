@@ -27,8 +27,9 @@ class Session {
     const vastObj = VastBuilder({
       sessionId: this.sessionId,
       desiredDuration: queryParams.dur || "0",
-      adserverHostname: process.env.ADSERVER || 
-      `${process.env.HOST || "127.0.0.1"}:${process.env.PORT || "8080" }`
+      adserverHostname:
+        process.env.ADSERVER ||
+        `${process.env.HOST || "127.0.0.1"}:${process.env.PORT || "8080"}`,
     });
 
     this.#vastXml = vastObj.xml;
