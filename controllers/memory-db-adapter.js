@@ -14,6 +14,13 @@ class MemoryDBAdapter extends DBAdapter {
   async getAllSessions(opt) {
     let sessionList = Object.values(SESSION_STORE);
 
+     // Sort by newest first
+    sessionList.sort((a, b) => {
+      const dateA = new Date(a["created"]);
+      const dateB = new Date(b["created"]);
+      return dateB - dateA;
+    });
+    
     // Assuming We are to always respond with a pagination.
     // Paginate w/ query params, deafult values used otherwise.
     sessionList = PaginateMemoryDB(sessionList, opt.page, opt.limit);
