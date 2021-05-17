@@ -27,7 +27,8 @@ class Session {
     const vastObj = VastBuilder({
       sessionId: this.sessionId,
       desiredDuration: queryParams.dur || "0",
-      adserverHostname: process.env.ADSERVER || `localhost:8080`,
+      adserverHostname:
+        process.env.ADSERVER || `localhost:${process.env.PORT || "8080"}`,
     });
 
     this.#vastXml = vastObj.xml;
@@ -45,7 +46,6 @@ class Session {
   getClientRequest() {
     return this.#clientRequest.getAllQueryParameters();
   }
-
 }
 
 module.exports = Session;
