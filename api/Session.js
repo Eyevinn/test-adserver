@@ -27,8 +27,8 @@ class Session {
     const vastObj = VastBuilder({
       sessionId: this.sessionId,
       desiredDuration: queryParams.dur || "0",
-      adserverHostname: process.env.ADSERVER || 
-      `${process.env.HOST || "127.0.0.1"}:${process.env.PORT || "8080" }`
+      adserverHostname:
+        process.env.ADSERVER || `localhost:${process.env.PORT || "8080"}`,
     });
 
     this.#vastXml = queryParams.response || vastObj.xml;
@@ -46,20 +46,6 @@ class Session {
   getClientRequest() {
     return this.#clientRequest.getAllQueryParameters();
   }
-
-  /*
-  getAllInfo() {
-    const payload = {
-      sessionId: this.sessionId,
-      userId: this.getUser(),
-      created: this.created,
-      adBreakDuration: this.adBreakDuration,
-      clientRequest: this.getClientRequest(),
-      response: this.getVastXml().toString(),
-    };
-    return payload;
-  }
-  */
 }
 
 module.exports = Session;
