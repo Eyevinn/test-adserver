@@ -151,6 +151,12 @@ describe(" MY ROUTES", () => {
     it("should be a pagination object", () => {
       reply.body.should.be.a("object");
       reply.body.should.have.property('previousPage');
+      reply.body.should.have.property('currentPage');
+      reply.body.should.have.property('nextPage');
+      reply.body.should.have.property('totalPages');
+      reply.body.should.have.property('limit');
+      reply.body.should.have.property('totalItems');
+      reply.body.should.have.property('data');
     });
     it("should have Array where items match PATTERN", () => {
       for (var i = 0; i < reply.body.data.length; i++) {
