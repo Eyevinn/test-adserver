@@ -7,9 +7,9 @@
     "test": "test"
   },
   "scripts": {
-    "test-spec": "tap -Rspec test/**/*.test.js",
     "test": "mocha --timeout 10000 --bail",
     "dev": "nodemon -L server.js",
+    "start": "node server.js",
     "start-fastify": "fastify start -l info app.js",
     "postversion": "git push && git push --tags"
   },
