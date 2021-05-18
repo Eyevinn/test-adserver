@@ -532,7 +532,7 @@ module.exports = (fastify, opt, next) => {
           });
         } else {
           await DBAdapter.DeleteSession(sessionId);
-          reply.code(204).send({});
+          reply.send(200);
         }
       } catch (exc) {
         reply.code(500).send({ message: exc.message });
