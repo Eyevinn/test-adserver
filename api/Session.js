@@ -37,8 +37,8 @@ class Session {
       podSize: params.ps || null
     });
 
-    this.#vastXml = queryParams.response || vastObj.xml;
-    this.adBreakDuration = queryParams.adBreakDuration || vastObj.duration;
+    this.#vastXml = vastObj.xml;
+    this.adBreakDuration = vastObj.duration;
   }
 
   getUser() {
