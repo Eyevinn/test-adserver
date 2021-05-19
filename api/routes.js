@@ -460,7 +460,7 @@ module.exports = (fastify, opt, next) => {
           });
         } else {
           await DBAdapter.DeleteSession(sessionId);
-          reply.send(200);
+          reply.send(204);
         }
       } catch (exc) {
         reply.code(500).send({ message: exc.message });
