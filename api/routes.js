@@ -475,7 +475,7 @@ module.exports = (fastify, opt, next) => {
       try {
         // Get path parameters and query parameters.
         const sessionId = req.params.sessionId;
-        const adID = req.query.adId;
+        const adId = req.query.adId;
         const viewProgress = req.query.progress;
 
         const eventNames = {
@@ -500,13 +500,14 @@ module.exports = (fastify, opt, next) => {
             type: "test-adserver",
             time: new Date().toISOString(),
             event: eventNames[viewProgress],
+            ad_id: adId,
             session: `${adserverHostname}/api/v1/sessions/${sessionId}`,
           };
           console.log(logMsg);
 
           // Reply with 200 OK and acknowledgment message. Client Ignores this?
           reply.code(200).send({
-            message: `Tracking Data Recieved [ ADID:${adID}, PROGRESS:${viewProgress} ]`,
+            message: `Tracking Data Recieved [ ADID:${adId}, PROGRESS:${viewProgress} ]`,
           });
         }
       } catch (exc) {
