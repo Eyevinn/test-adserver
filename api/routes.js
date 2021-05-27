@@ -1,3 +1,4 @@
+const { AddSessionToStorage } = require("../controllers/memory-db-adapter");
 const DBAdapter = require("../controllers/memory-db-adapter");
 const logger = require("../utils/logger.js");
 const { PaginateMemoryDB, Transform } = require("../utils/utilities");
@@ -326,6 +327,74 @@ const schemas = {
     },
     security: [{ apiKey: [] }],
   },
+  "GET/sessions/:sessionId/events": {
+    description:
+      "Gets a collection of all tracking events recieved from a specific session",
+    tags: ["sessions"],
+    params: {
+      sessionId: {
+        type: "string",
+        description: "The ID for the session. ",
+      },
+    },
+    response: {
+      200: {
+        description:
+          "JSON object containing a list of items detailing a recieved event.",
+        type: "object",
+        properties: {
+          events: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                type: { type: "string" },
+                issuedAt: { type: "string" },
+                userAgent: { type: "string" },
+              },
+            },
+          },
+        },
+        example: {
+          events: [
+            {
+              type: "start",
+              issuedAt: "2020-05-26T10:43:02Z",
+              userAgent: "ad1",
+            },
+            {
+              type: "firstQuartile",
+              issuedAt: "2020-05-26T10:44:02Z",
+              userAgent: "ad1",
+            },
+            {
+              type: "midpoint",
+              issuedAt: "2020-05-26T10:44:02Z",
+              userAgent: "ad1",
+            },
+          ],
+        },
+      },
+
+      404: BadRequestSchema("Session with ID: 'xxx-xxx-xxx-xxx' was not found"),
+    },
+    security: [{ apiKey: [] }],
+  },
+  "DELETE/sessions/:sessionId": {
+    description: "Deletes the given session",
+    tags: ["sessions"],
+    params: {
+      sessionId: {
+        type: "string",
+        description: "The ID for the session to delete",
+      },
+    },
+    security: [{ apiKey: [] }],
+    response: {
+      204: {},
+      404: BadRequestSchema("Session with ID: 'xxx-xxx-xxx-xxx' was not found"),
+    },
+  },
   "GET/users/:userId": {
     description: "Get a list of test sessions for a specific userId",
     tags: ["users"],
@@ -504,6 +573,63 @@ module.exports = (fastify, opt, next) => {
             session: `${adserverHostname}/api/v1/sessions/${sessionId}`,
           };
           console.log(logMsg);
+
+          // Reply with 200 OK and acknowledgment message. Client Ignores this?
+          reply.code(200).send({
+            message: `Tracking Data Recieved [ ADID:${adId}, PROGRESS:${viewProgress} ]`,
+          });
+        }
+      } catch (exc) {
+        reply.code(500).send({ message: exc.message });
+      }
+    }
+  );
+  fastify.get(
+    "/sessions/:sessionId/events",
+    { schema: schemas["GET/sessions/:sessionId/events"] },
+    async (req, reply) => {
+      try {
+        // Get path parameters and query parameters.
+        const sessionId = req.params.sessionId;
+        const adId = req.query.adId;
+        const viewProgress = req.query.progress;
+
+        const eventNames = {
+          0: "start",
+          25: "firstQuartile",
+          50: "midpoint",
+          75: "thirdQuartile",
+          100: "complete",
+        };
+
+        // Check if session exists.
+        const session = await DBAdapter.getSession(sessionId);
+        if (!session) {
+          reply.code(404).send({
+            message: `Session with ID: '${sessionId}' was not found`,
+          });
+        } else {
+          let adserverHostname =
+            process.env.ADSERVER || `localhost:${process.env.PORT || "8080"}`;
+          // [LOG]: data to console with special format.
+          const logMsg = {
+            type: "test-adserver",
+            time: new Date().toISOString(),
+            event: eventNames[viewProgress],
+            ad_id: adId,
+            session: `${adserverHostname}/api/v1/sessions/${sessionId}`,
+          };
+          console.log(logMsg);
+
+          // Store event info in session.
+          const newEvent = {
+            type: logMsg.event,
+            issuedAt: logMsg.time,
+            userAgent: "mobile",
+          };
+          session.AddTrackedEvent(newEvent);
+          // Update session in storage
+          await AddSessionToStorage(session);
 
           // Reply with 200 OK and acknowledgment message. Client Ignores this?
           reply.code(200).send({
