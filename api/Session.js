@@ -1,5 +1,5 @@
 const ClientRequest = require("./ClientRequest.js");
-const TrackingEvent = require("./TrackingEvent.js")
+const EventTracker = require("./EventTracker.js")
 const User = require("./User.js");
 const { VastBuilder } = require("../utils/vast-maker");
 const { v4: uuid } = require("uuid");
@@ -13,7 +13,7 @@ class Session {
   #clientRequest;
   #user;
   #vastXml;
-  #trackedEvents
+  #eventTracker
 
   constructor(queryParams) {
     // Take a time stamp.
@@ -24,7 +24,7 @@ class Session {
     this.#user = new User(queryParams.uid || null);
 
     this.#clientRequest = new ClientRequest(queryParams);
-    this.#trackedEvents = new TrackingEvent();
+    this.#eventTracker = new EventTracker();
 
     // Create Vast object.
     const vastObj = VastBuilder({
@@ -51,11 +51,11 @@ class Session {
   }
 
   getTrackedEvents(){
-    return this.#trackedEvents.getEvents();
+    return this.#eventTracker.getEvents();
   }
 
   AddTrackedEvent(eventObj){
-    this.#trackedEvents.AddEvent(eventObj);
+    this.#eventTracker.AddEvent(eventObj);
   }
 
 }

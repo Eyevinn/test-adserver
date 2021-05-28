@@ -1,4 +1,4 @@
-class TrackingEvent {
+class EventTracker {
   #eventList;
 
   constructor() {
@@ -16,4 +16,4 @@ class TrackingEvent {
   }
 }
 
-module.exports = TrackingEvent;
+module.exports = EventTracker;
