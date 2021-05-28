@@ -575,7 +575,7 @@ module.exports = (fastify, opt, next) => {
           ad_id: adId,
           session: `${adserverHostname}/api/v1/sessions/${sessionId}`,
         };
-        console.log(logMsg);
+        console.log(JSON.stringify(logMsg));
 
         // Store event info in session.
         const newEvent = {
