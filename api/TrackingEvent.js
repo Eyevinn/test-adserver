@@ -11,7 +11,7 @@ class TrackingEvent {
 
   getEvents() {
     return {
-      event: this.#eventList,
+      events: this.#eventList,
     };
   }
 }

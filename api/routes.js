@@ -230,12 +230,12 @@ const schemas = {
         description: "On success return a pagination object",
         type: "object",
         properties: {
-          previousPage: {},
-          currentPage: {},
-          nextPage: {},
-          totalPages: {},
-          limit: {},
-          totalItems: {},
+          previousPage: { example: "null",},
+          currentPage: {example: "1",},
+          nextPage: {example: "2",},
+          totalPages: {example: "2",},
+          limit: {example: "5",},
+          totalItems: {example: "10",},
           data: {
             description: "On success returns an array of sessions",
             type: "array",
@@ -350,6 +350,7 @@ const schemas = {
               properties: {
                 type: { type: "string" },
                 issuedAt: { type: "string" },
+                onAd: { type: "string" },
                 userAgent: { type: "string" },
               },
             },
@@ -360,17 +361,20 @@ const schemas = {
             {
               type: "start",
               issuedAt: "2020-05-26T10:43:02Z",
-              userAgent: "ad1",
+              onAd: "sample_ad_2",
+              userAgent: "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0",
             },
             {
               type: "firstQuartile",
               issuedAt: "2020-05-26T10:44:02Z",
-              userAgent: "ad1",
+              onAd: "sample_ad_2",
+              userAgent: "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0",
             },
             {
               type: "midpoint",
               issuedAt: "2020-05-26T10:44:02Z",
-              userAgent: "ad1",
+              onAd: "sample_ad_2",
+              userAgent: "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0",
             },
           ],
         },
@@ -546,6 +550,7 @@ module.exports = (fastify, opt, next) => {
         const sessionId = req.params.sessionId;
         const adId = req.query.adId;
         const viewProgress = req.query.progress;
+        const userAgent = req.headers['user-agent'] || "Not Found";
 
         const eventNames = {
           0: "start",
@@ -558,32 +563,42 @@ module.exports = (fastify, opt, next) => {
         // Check if session exists.
         const session = await DBAdapter.getSession(sessionId);
         if (!session) {
-          reply.code(404).send({
-            message: `Session with ID: '${sessionId}' was not found`,
-          });
-        } else {
-          let adserverHostname =
-            process.env.ADSERVER || `localhost:${process.env.PORT || "8080"}`;
-          // [LOG]: data to console with special format.
-          const logMsg = {
-            type: "test-adserver",
-            time: new Date().toISOString(),
-            event: eventNames[viewProgress],
-            ad_id: adId,
-            session: `${adserverHostname}/api/v1/sessions/${sessionId}`,
-          };
-          console.log(logMsg);
-
-          // Reply with 200 OK and acknowledgment message. Client Ignores this?
-          reply.code(200).send({
-            message: `Tracking Data Recieved [ ADID:${adId}, PROGRESS:${viewProgress} ]`,
-          });
+          reply.code(404).send({message: `Session with ID: '${sessionId}' was not found`});
         }
+
+        let adserverHostname =
+          process.env.ADSERVER || `localhost:${process.env.PORT || "8080"}`;
+        // [LOG]: data to console with special format.
+        const logMsg = {
+          type: "test-adserver",
+          time: new Date().toISOString(),
+          event: eventNames[viewProgress],
+          ad_id: adId,
+          session: `${adserverHostname}/api/v1/sessions/${sessionId}`,
+        };
+        console.log(logMsg);
+
+        // Store event info in session.
+        const newEvent = {
+          type: logMsg.event,
+          issuedAt: logMsg.time,
+          onAd: adId,
+          userAgent: userAgent,
+        };
+        session.AddTrackedEvent(newEvent);
+        // Update session in storage
+        await AddSessionToStorage(session);
+
+        // Reply with 200 OK and acknowledgment message.
+        reply.code(200).send({
+          message: `Tracking Data Recieved [ ADID:${adId}, PROGRESS:${viewProgress} ]`,
+        });
       } catch (exc) {
         reply.code(500).send({ message: exc.message });
       }
     }
   );
+
   fastify.get(
     "/sessions/:sessionId/events",
     { schema: schemas["GET/sessions/:sessionId/events"] },
@@ -591,16 +606,6 @@ module.exports = (fastify, opt, next) => {
       try {
         // Get path parameters and query parameters.
         const sessionId = req.params.sessionId;
-        const adId = req.query.adId;
-        const viewProgress = req.query.progress;
-
-        const eventNames = {
-          0: "start",
-          25: "firstQuartile",
-          50: "midpoint",
-          75: "thirdQuartile",
-          100: "complete",
-        };
 
         // Check if session exists.
         const session = await DBAdapter.getSession(sessionId);
@@ -609,32 +614,10 @@ module.exports = (fastify, opt, next) => {
             message: `Session with ID: '${sessionId}' was not found`,
           });
         } else {
-          let adserverHostname =
-            process.env.ADSERVER || `localhost:${process.env.PORT || "8080"}`;
-          // [LOG]: data to console with special format.
-          const logMsg = {
-            type: "test-adserver",
-            time: new Date().toISOString(),
-            event: eventNames[viewProgress],
-            ad_id: adId,
-            session: `${adserverHostname}/api/v1/sessions/${sessionId}`,
-          };
-          console.log(logMsg);
-
-          // Store event info in session.
-          const newEvent = {
-            type: logMsg.event,
-            issuedAt: logMsg.time,
-            userAgent: "mobile",
-          };
-          session.AddTrackedEvent(newEvent);
-          // Update session in storage
-          await AddSessionToStorage(session);
-
+          // Get the List of tracked events from session.
+          const eventsList = session.getTrackedEvents();
           // Reply with 200 OK and acknowledgment message. Client Ignores this?
-          reply.code(200).send({
-            message: `Tracking Data Recieved [ ADID:${adId}, PROGRESS:${viewProgress} ]`,
-          });
+          reply.code(200).send(eventsList);
         }
       } catch (exc) {
         reply.code(500).send({ message: exc.message });
