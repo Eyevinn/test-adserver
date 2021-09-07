@@ -7,6 +7,11 @@ class ClientRequest {
   #deviceType;
   #screenSize;
   #clientIp;
+  #userAgent;
+  #acceptLanguage;
+  #maxPodDuration;
+  #minPodDuration;
+  #podSize;
   #rawParameters;
 
   constructor(params) {
@@ -17,11 +22,16 @@ class ClientRequest {
     this.#deviceType = params.dt || null;
     this.#screenSize = params.ss || null;
     this.#clientIp = params.uip || null;
+    this.#userAgent = params.ua || null;
+    this.#acceptLanguage = params.al || null;
+    this.#maxPodDuration = params.max || null;
+    this.#minPodDuration = params.min || null;
+    this.#podSize = params.ps || null;
     // Store the raw query parameters (everything the client sent).
     this.#rawParameters = params;
   }
 
-  getAllQueryParameters() {
+  getAllParameters() {
     return this.#rawParameters;
   }
 
@@ -34,6 +44,11 @@ class ClientRequest {
       DeviceType: this.#deviceType,
       ScreenSize: this.#screenSize,
       ClientIp: this.#clientIp,
+      UserAgent: this.#userAgent,
+      AcceptLanguage: this.#acceptLanguage,
+      MaxPodDuration: this.#maxPodDuration,
+      MinPodDuration: this.#minPodDuration,
+      PodSizeNoCreatives: this.#podSize
     };
     return properties;
   }

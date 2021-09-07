@@ -2,9 +2,11 @@ const chai = require("chai");
 const chaiHttp = require("chai-http");
 const should = chai.should();
 const chaiMatchPattern = require("chai-match-pattern");
+const { default: fastify } = require("fastify");
+const builder = require("../app");
 const _ = chaiMatchPattern.getLodashModule();
 
-const SERVER_URL = process.env.APP_URL || "http://localhost:8080";
+let SERVER_URL = process.env.APP_URL || "http://localhost:8080";
 
 const PATTERN = {
   sessionId: _.isString,
@@ -21,9 +23,35 @@ let SID;
 chai.use(chaiHttp);
 chai.use(chaiMatchPattern);
 
+let serverIsUp;
+
+chai
+  .request(SERVER_URL)
+  .get("/")
+  .end((err, res) => {
+    if (err) {
+      serverIsUp = false;
+    } else {
+      serverIsUp = true;
+    }
+  });
+
+if (!serverIsUp) {
+  fastifyServer = builder();
+  fastifyServer.listen("8080").then((server) => {
+    SERVER_URL = server;
+  });
+}
+
 const queryStr = `?c=YES&dur=15&uid=${UID}&os=android&dt=samsung&ss=1000x200&uip=123.123.123.123`;
 
 describe(" MY ROUTES", () => {
+  after((done) => {
+    if (!serverIsUp) {
+      fastifyServer.close();
+    }
+    done();
+  });
   // test 1
   describe("GET->VAST", () => {
     let numOfSessions;
@@ -40,7 +68,7 @@ describe(" MY ROUTES", () => {
             "content-type",
             "application/json; charset=utf-8"
           );
-          numOfSessions = res.body['data'].length;
+          numOfSessions = res.body["data"].length;
           done();
         });
     });
@@ -78,7 +106,7 @@ describe(" MY ROUTES", () => {
             "content-type",
             "application/json; charset=utf-8"
           );
-          res.body['data'].length.should.equal(numOfSessions + 1);
+          res.body["data"].length.should.equal(numOfSessions + 1);
           done();
         });
     });
@@ -150,13 +178,13 @@ describe(" MY ROUTES", () => {
     });
     it("should be a pagination object", () => {
       reply.body.should.be.a("object");
-      reply.body.should.have.property('previousPage');
-      reply.body.should.have.property('currentPage');
-      reply.body.should.have.property('nextPage');
-      reply.body.should.have.property('totalPages');
-      reply.body.should.have.property('limit');
-      reply.body.should.have.property('totalItems');
-      reply.body.should.have.property('data');
+      reply.body.should.have.property("previousPage");
+      reply.body.should.have.property("currentPage");
+      reply.body.should.have.property("nextPage");
+      reply.body.should.have.property("totalPages");
+      reply.body.should.have.property("limit");
+      reply.body.should.have.property("totalItems");
+      reply.body.should.have.property("data");
     });
     it("should have Array where items match PATTERN", () => {
       for (var i = 0; i < reply.body.data.length; i++) {
@@ -287,6 +315,108 @@ describe(" MY ROUTES", () => {
         .end((err, res) => {
           if (err) {
             console.log("Error! ->", err);
+            done(err);
+          }
+          res.should.have.status(404);
+          res.body.should.be.a("object");
+          res.body.should.matchPattern({ message: _.isString });
+          done();
+        });
+    });
+  });
+  // test 6
+  describe("GET->SESSIONS/:sessionId/tracking", () => {
+    let reply;
+    before((done) => {
+      const queryParams = "?adId=mockAd1&progress=100";
+      chai
+        .request(SERVER_URL)
+        .get("/api/v1/sessions/" + SID + "/tracking" + queryParams)
+        .end((err, res) => {
+          if (err) {
+            done(err);
+          }
+          reply = res;
+          done();
+        });
+    });
+    it("should have status 200", () => {
+      reply.should.have.status(200);
+    });
+    it("should send an object", () => {
+      reply.body.should.be.a("object");
+    });
+    it("should be content-type: application/json ", () => {
+      reply.should.have.header(
+        "content-type",
+        "application/json; charset=utf-8"
+      );
+    });
+
+    it("should return a confirmation message", () => {
+      reply.body.should.matchPattern({message: _.isString});
+    });
+    it("should store an event object in given session", () => {
+
+    });
+
+    it("should 404 when session ID unknown", (done) => {
+      chai
+        .request(SERVER_URL)
+        .get("/api/v1/sessions/DONT_EXIST/tracking")
+        .end((err, res) => {
+          if (err) {
+            done(err);
+          }
+          res.should.have.status(404);
+          res.body.should.be.a("object");
+          res.body.should.matchPattern({ message: _.isString });
+          done();
+        });
+    });
+  });
+   // test 7
+   describe("GET->SESSIONS/:sessionId/events", () => {
+    let reply;
+    before((done) => {
+      const queryParams = "?adId=mockAd1&progress=100";
+      chai
+        .request(SERVER_URL)
+        .get("/api/v1/sessions/" + SID + "/events")
+        .end((err, res) => {
+          if (err) {
+            done(err);
+          }
+          reply = res;
+          done();
+        });
+    });
+    it("should have status 200", () => {
+      reply.should.have.status(200);
+    });
+    it("should send an object", () => {
+      reply.body.should.be.a("object");
+    });
+    it("should be content-type: application/json ", () => {
+      reply.should.have.header(
+        "content-type",
+        "application/json; charset=utf-8"
+      );
+    });
+
+    it("should return a confirmation message", () => {
+      reply.body.should.matchPattern({message: _.isString});
+    });
+    it("should store an event object in given session", () => {
+
+    });
+
+    it("should 404 when session ID unknown", (done) => {
+      chai
+        .request(SERVER_URL)
+        .get("/api/v1/sessions/DONT_EXIST/tracking")
+        .end((err, res) => {
+          if (err) {
             done(err);
           }
           res.should.have.status(404);

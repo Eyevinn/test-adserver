@@ -184,7 +184,10 @@ const SessionSchema = () => ({
       os: "ios",
       dt: "mobile",
       ss: "1920x1080",
-      uip: "“192.168.1.20",
+      uip: "192.168.1.20",
+      ua: "",
+      bl: "sv-SE,sv;q=0.9,en-US;q=0.8,en;q=0.7",
+
     },
     response: "<VAST XML>",
   },
@@ -550,7 +553,6 @@ module.exports = (fastify, opt, next) => {
         const adId = req.query.adId;
         const viewProgress = req.query.progress;
         const userAgent = req.headers['user-agent'] || "Not Found";
-
         const eventNames = {
           0: "start",
           25: "firstQuartile",
@@ -671,8 +673,20 @@ module.exports = (fastify, opt, next) => {
       // [LOG]: requested query parameters with a timestamp.
       logger.info(req.query);
 
+      // If client didn't send IP as query, then use IP in header
+      if (!req.query['uip']) {
+        const parseIp = ( req => 
+          req.headers['x-forwarded-for']?.split(',').shift() || req.socket?.remoteAddress );
+          req.query['uip'] = parseIp(req);
+      }
+
+      // Parse user agent and browser language from request header
+      const userAgent = req.headers['user-agent'] || "Not Found";
+      const acceptLanguage = req.headers['accept-language'] || "Not Found";
+
+      const params = Object.assign(req.query, {ua: userAgent, al: acceptLanguage});
       // Create new session, then add to session DB.
-      const session = new Session(req.query);
+      const session = new Session(params);
       const result = await DBAdapter.AddSessionToStorage(session);
       if (!result) {
         reply.code(404).send({ message: "Could not store new session" });
