@@ -2,6 +2,11 @@ const createVast = require("vast-builder");
 const timestampToSeconds = require("timestamp-to-seconds");
 const { parse } = require("fast-xml-parser");
 
+const PopulationMethods = Object.freeze({
+  GO_BY_MIN: 1,
+  GO_BY_MAX: 2,
+  GO_BY_SIZE_AND_MAX: 3
+});
 
 const AdList = [
   {
@@ -34,18 +39,93 @@ const AdList = [
  * desiredDuration: "60",
  * sessionId: "abc-123",
  * adserverHostname: "localhost:8080"
+ * podSize: "3",
+ * podMin: "10",
+ * podMax: "40"
  * }
  */
 function VastBuilder(params) {
   let vastObject = {};
 
-  const [selectedAds, adsDuration] = GetAdsAndDuration(AdList, params.desiredDuration, params.podSize, params.minPodDuration, params.maxPodDuration);
+  let [selectedAds, adsDuration] = GetAdsAndDuration(AdList, params.desiredDuration, params.podSize, params.minPodDuration, params.maxPodDuration);
 
+  //selectedAds = selectedAds.standAloneAds;
   const vast4 = createVast.v4();
-  // Add <Ad>-tags for every ad in the sampleAds list
-  for (let i = 0; i < selectedAds.length; i++) {
+ 
+  AttachPodAds(vast4, selectedAds.podAds, params);
+  AttachStandAloneAds(vast4, selectedAds.standAloneAds, params, selectedAds.podAds.length);
+
+
+  vastObject = { xml: vast4.toXml(), duration: adsDuration };
+
+  return vastObject;
+}
+
+
+// Add <Ad>-tags for every ad in the sampleAds list
+function AttachStandAloneAds(vast4, ads, params, podSize) {
+   podSize = podSize?podSize++:1;
+   for (let i = 0; i < ads.length; i++) {
     vast4
-      .attachAd({ id: `AD-ID_00${i + 1}`, sequence: `${i + 1}`})
+      .attachAd({ id: `AD-ID_00${i + podSize}`, })
+      .attachInLine()
+      .addImpression("about:blank", { id: `IMPRESSION-ID_00${i + podSize}` })
+      .addAdSystem(`Test Adserver`)
+      .addAdTitle(`Ad That Test-Adserver Wants Player To See #${i + podSize}`)
+      .attachCreatives()
+      .attachCreative({
+        id: `CRETIVE-ID_00${i + podSize}`,
+        adId: `${ads[i].id}`,
+        sequence: `${i + podSize}`
+      })
+      .addUniversalAdId(`${ads[i].universalId}${i + podSize}`, {
+        idRegistry: "test-ad-id.eyevinn",
+        idValue: `${ads[i].universalId}${i + podSize}`
+      })
+      .attachLinear()
+      .attachTrackingEvents()
+      .addTracking(
+        `http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${ads[i].id}&progress=0`,
+        { event: "start" }
+      )
+      .addTracking(
+        `http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${ads[i].id}&progress=25`,
+        { event: "firstQuartile" }
+      )
+      .addTracking(
+        `http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${ads[i].id}&progress=50`,
+        { event: "midpoint" }
+      )
+      .addTracking(
+        `http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${ads[i].id}&progress=75`,
+        { event: "thirdQuartile" }
+      )
+      .addTracking(
+        `http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${ads[i].id}&progress=100`,
+        { event: "complete" }
+      )
+      .and()
+      .addDuration(ads[i].duration)
+      .attachMediaFiles()
+      .attachMediaFile(ads[i].url, {
+        delivery: "progressive",
+        type: "video/mp4",
+        // bitrate: "17700",
+        // width: "1920",
+        // height: "1080",
+        codec: "H.264" 
+      })
+      .back();
+  }
+}
+
+
+
+// Attaching Pod adds to the VAST object.
+function AttachPodAds(vast4, podAds, params) {
+  for (let i = 0; i < podAds.length; i++) {
+    vast4
+      .attachAd({ id: `POD_AD-ID_00${i + 1}`, sequence: `${i + 1}`})
       .attachInLine()
       .addImpression("about:blank", { id: `IMPRESSION-ID_00${i + 1}` })
       .addAdSystem(`Test Adserver`)
@@ -53,39 +133,39 @@ function VastBuilder(params) {
       .attachCreatives()
       .attachCreative({
         id: `CRETIVE-ID_00${i + 1}`,
-        adId: `${selectedAds[i].id}_${i+1}`,
-        sequence: `${i + 1}`,
+        adId: `${podAds[i].id}_${i+1}`,
+        sequence: `${i + 1}`
       })
-      .addUniversalAdId(`${selectedAds[i].universalId}${i + 1}`, {
+      .addUniversalAdId(`${podAds[i].universalId}${i + 1}`, {
         idRegistry: "test-ad-id.eyevinn",
-        idValue: `${selectedAds[i].universalId}${i + 1}`
+        idValue: `${podAds[i].universalId}${i + 1}`
       })
       .attachLinear()
       .attachTrackingEvents()
       .addTracking(
-        `http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${selectedAds[i].id}_${i+1}&progress=0`,
+        `http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${podAds[i].id}_${i+1}&progress=0`,
         { event: "start" }
       )
       .addTracking(
-        `http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${selectedAds[i].id}_${i+1}&progress=25`,
+        `http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${podAds[i].id}_${i+1}&progress=25`,
         { event: "firstQuartile" }
       )
       .addTracking(
-        `http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${selectedAds[i].id}_${i+1}&progress=50`,
+        `http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${podAds[i].id}_${i+1}&progress=50`,
         { event: "midpoint" }
       )
       .addTracking(
-        `http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${selectedAds[i].id}_${i+1}&progress=75`,
+        `http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${podAds[i].id}_${i+1}&progress=75`,
         { event: "thirdQuartile" }
       )
       .addTracking(
-        `http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${selectedAds[i].id}_${i+1}&progress=100`,
+        `http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${podAds[i].id}_${i+1}&progress=100`,
         { event: "complete" }
       )
       .and()
-      .addDuration(selectedAds[i].duration)
+      .addDuration(podAds[i].duration)
       .attachMediaFiles()
-      .attachMediaFile(selectedAds[i].url, {
+      .attachMediaFile(podAds[i].url, {
         delivery: "progressive",
         type: "video/mp4",
         bitrate: "17700",
@@ -95,10 +175,9 @@ function VastBuilder(params) {
       })
       .back();
   }
-  vastObject = { xml: vast4.toXml(), duration: adsDuration };
-
-  return vastObject;
 }
+
+
 
 // Assuming Access to a List of Ads.
 function GetAdsAndDuration(adList, targetDuration, podSize, podMin, podMax) {
@@ -110,9 +189,9 @@ function GetAdsAndDuration(adList, targetDuration, podSize, podMin, podMax) {
   let chosenPodAds = [];
   let chosenStandAloneAds = [];
   
-  // Sort Main Ad List in Descending order.
+  // Sort Main Ad List in Ascending order.
   adList.sort((a, b) =>
-    timestampToSeconds(a.duration) > timestampToSeconds(b.duration) ? -1 : 1
+    timestampToSeconds(a.duration) > timestampToSeconds(b.duration) ? 1 : -1
   );
 
   const durations = adList.map(ad => timestampToSeconds(ad.duration));
@@ -120,31 +199,39 @@ function GetAdsAndDuration(adList, targetDuration, podSize, podMin, podMax) {
 
   // If any kind of Pod parameter exists
   if (podSize || podMin || podMax) {
-  	let podCase;
-    const populationMethods = Object.freeze({
-      GO_BY_MIN: 1,
-      GO_BY_MAX: 2,
-      GO_BY_SIZE_AND_MAX: 3
-    });
+
+    let podCase;
 
     if(!podSize && !podMax && podMin) { 
-      podCase = populationMethods.GO_BY_MIN;
+      podCase = PopulationMethods.GO_BY_MIN;
     }
     else if (!podSize && podMax) {
-      podCase = populationMethods.GO_BY_MAX;
+      podCase = PopulationMethods.GO_BY_MAX;
     }
     else {
-      podCase = populationMethods.GO_BY_SIZE_AND_MAX;
+      podCase = PopulationMethods.GO_BY_SIZE_AND_MAX;
     }
     // If no upper limit to Pod duration, use target duration.
     podMax = podMax?podMax:targetDuration;
     // Populate pod list with adds that follow pod parameters. Append items to 'chosenPodAds'
-    PopulatePod(podSize, podMin, podMax, adList, chosenPodAds, podCase);
+    PopulatePod(podSize, podMin, podMax, adList, chosenPodAds, podCase, targetDuration);
+  }
+  // TODO: REMOVE once AD buffet works again...
+  else {
+    podCase = PopulationMethods.GO_BY_MAX
+    podMax = podMax?podMax:targetDuration;
+    PopulatePod(podSize, podMin, podMax, adList, chosenPodAds, podCase, targetDuration);
   }
 
   const actualPodDuration = chosenPodAds.map(ad => timestampToSeconds(ad.duration)).reduce((a, b) => a + b, 0);
-  remainingDuration = remainingDuration - actualPodDuration;
-
+  let standAloneTargetDuration = remainingDuration - actualPodDuration;
+  remainingDuration = standAloneTargetDuration;
+  
+  console.log("stand::" + remainingDuration);
+  console.log("Pod::" + actualPodDuration);
+  
+  //Reverse ORder
+  adList.reverse();
   // Fill-up remaining time with Stand-Alone Ads
   while (adList.length > 0 && remainingDuration >= shortestAdDuration) {
     // Adding to chosenStandAloneAds list based on durations; Add the longest Ad possible.
@@ -156,40 +243,68 @@ function GetAdsAndDuration(adList, targetDuration, podSize, podMin, podMax) {
       }
     }
   }
+
   // Calculate the actual total duration (stand-alones and pod).
-  const actualDuration = (targetDuration - remainingDuration) + actualPodDuration;
+  const actualDuration = (standAloneTargetDuration - remainingDuration) + actualPodDuration;
+  console.log("actual::" + actualDuration);
   return [{standAloneAds: chosenStandAloneAds, podAds: chosenPodAds}, actualDuration.toString()];
 }
 
+
 function indexOfSmallest(a) {
  var lowest = 0;
- a.reverse();
  for (var i = 1; i < a.length; i++) {
   if (a[i] < a[lowest]) lowest = i;
  }
  return lowest;
 }
 
-function PopulatePod(_size, _min, _max, _ads, _chosenAds, _method) {
-  // Base Case
-	if (_size === 0) {
-		return;
-	}
+
+function PopulatePod(_size, _min, _max, _ads, _chosenAds, _method, _targetDur) {
+
+  // Base Case #1: Regardless of current Pod size, return if Pod duration is greater than _max!
+  if (_chosenAds.length > 0) {
+    const totalDur = _chosenAds.map(ad => timestampToSeconds(ad.duration)).reduce((a, b) => a + b, 0);
+    if (totalDur === _targetDur ) {
+      return;
+    } else if (totalDur > _targetDur) {
+      _chosenAds.pop();
+      return;
+    }
+  }
+
+  // Base Case #2: Pod Size fullfilled.
+  if (_size === 0) {
+    return;
+  }
   const allDurations = _ads.map(ad => timestampToSeconds(ad.duration));
   
   let remainingDuration;
   switch (_method) {
-    case populationMethods.GO_BY_SIZE_AND_MAX:
+    case PopulationMethods.GO_BY_SIZE_AND_MAX:
       let avgDur = Math.floor(_max/_size);
+        
+    if(_size === 1) {
+        for (let i = allDurations.length - 1; i > 0; i--) {
+          if (allDurations[i] <= avgDur){
+            _chosenAds.push(_ads[i]);
+            return;
+          }
+        }
+      }
+      
       let diffs = allDurations.map( dur => Math.abs(avgDur - dur));
+
+
       let chosenIdx = indexOfSmallest(diffs);
       let chosenAd = _ads[chosenIdx];
       _chosenAds.push(chosenAd);
-  	  PopulatePod(_size - 1, _min, (_max - allDurations[chosenIdx]), _ads, _chosenAds, populationMethods.GO_BY_SIZE_AND_MAX);
+      PopulatePod(_size - 1, _min, (_max - allDurations[chosenIdx]),
+       _ads, _chosenAds, PopulationMethods.GO_BY_SIZE_AND_MAX, _targetDur);
       break;
-    case populationMethods.GO_BY_MAX:
+    case PopulationMethods.GO_BY_MAX:
      remainingDuration = _max;
-	   let shortestAdDuration = Math.min(...allDurations);
+     let shortestAdDuration = Math.min(...allDurations);
        while (allDurations.length > 0 && remainingDuration >= shortestAdDuration) {
          // Adding to chosenStandAloneAds list based on durations; Add the longest Ad possible.
          for (let i = 0; i < allDurations.length; i++) {
@@ -199,9 +314,9 @@ function PopulatePod(_size, _min, _max, _ads, _chosenAds, _method) {
              remainingDuration = remainingDuration - adDuration;
            }
          }
-  	   }
+       }
       break;
-    case populationMethods.GO_BY_MIN:
+    case PopulationMethods.GO_BY_MIN:
       remainingDuration = _max;
       let total = 0;
       while (allDurations.length > 0 &&  total < _min ) {

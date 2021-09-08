@@ -185,8 +185,11 @@ const SessionSchema = () => ({
       dt: "mobile",
       ss: "1920x1080",
       uip: "192.168.1.20",
-      ua: "",
+      ua: "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0",
       bl: "sv-SE,sv;q=0.9,en-US;q=0.8,en;q=0.7",
+      min: "10",
+      max: "45",
+      ps: "4"
 
     },
     response: "<VAST XML>",
@@ -435,7 +438,7 @@ const schemas = {
         },
         dur: {
           type: "string",
-          description: "Desired duration.",
+          description: "Desired duration in seconds.",
           example: "60",
         },
         uid: {
@@ -462,6 +465,21 @@ const schemas = {
           type: "string",
           description: "Client IP.",
           example: "192.168.1.200",
+        },
+        min: {
+          type: "string",
+          description: "Minimum Ad Pod duration in seconds.",
+          example: "10",
+        },
+        max: {
+          type: "string",
+          description: "Maximum Ad Pod duration in seconds.",
+          example: "30",
+        },
+        ps: {
+          type: "string",
+          description: "Desired Pod size in numbers of Ads.",
+          example: "3",
         },
       },
     },
@@ -588,7 +606,7 @@ module.exports = (fastify, opt, next) => {
         };
         session.AddTrackedEvent(newEvent);
         // Update session in storage
-        await AddSessionToStorage(session);
+        await DBAdapter.AddSessionToStorage(session);
 
         // Reply with 200 OK and acknowledgment message.
         reply.code(200).send({
