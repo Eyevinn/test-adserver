@@ -22,7 +22,7 @@ class Session {
 
     this.created = timeStamp;
     this.sessionId = uuid();
-    this.host = params.userHost;
+    this.host = params.host;
     this.#user = new User(params.uid || null);
 
     this.#clientRequest = new ClientRequest(params);
