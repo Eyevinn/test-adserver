@@ -18,18 +18,36 @@ const AdList = [
     height: "1080",
     codec: "H.264" 
   },
-  // {
-  //   universalId: "AAA/CCCC123/",
-  //   id: "25percent_ad",
-  //   url: "https://static.videezy.com/system/resources/previews/000/019/185/original/25percent-blue.mp4",
-  //   duration: "00:00:05",
-  // },
-  // {
-  //   universalId: "AAA/DDDD123/",
-  //   id: "25percentDrawn_ad",
-  //   url: "https://static.videezy.com/system/resources/previews/000/017/907/original/25percent.mp4",
-  //   duration: "00:00:20",
-  // },
+  {
+    universalId: "AAA/CCCC123/",
+    id: "25percent-ad_001",
+    url: "https://static.videezy.com/system/resources/previews/000/019/185/original/25percent-blue.mp4",
+    duration: "00:00:05",
+    bitrate: "600",
+    width: "630",
+    height: "354",
+    codec: "H.264" 
+  },
+  {
+    universalId: "AAA/DDDD123/",
+    id: "sample-ad_002",
+    url: "https://iab-publicfiles.s3.amazonaws.com/vast/VAST-4.0-Short-Intro.mp4",
+    duration: "00:00:16",
+    bitrate: "1000",
+    width: "1280",
+    height: "720",
+    codec: "H.264" 
+  },
+  {
+    universalId: "AAA/EEEE123/",
+    id: "sample-ad_003",
+    url: "https://s0.2mdn.net/4253510/google_ddm_animation_480P.mp4",
+    duration: "00:01:00",
+    bitrate: "900",
+    width: "854",
+    height: "480",
+    codec: "H.264" 
+  },
 ];
 
 /**
