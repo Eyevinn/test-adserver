@@ -7,7 +7,7 @@ const Session = require("./Session.js");
  * - First Schemas
  * - Then the different Routes
  */
-let count = 0;
+
 const EMPTY_VAST_MSG = `.--------------- WARNING ---------------.
 |     Empty VAST-XML Sent To Client     |
 '---------------------------------------'\n`;
