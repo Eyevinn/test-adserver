@@ -1,6 +1,5 @@
 const createVast = require("vast-builder");
 const timestampToSeconds = require("timestamp-to-seconds");
-const { parse } = require("fast-xml-parser");
 
 const PopulationMethods = Object.freeze({
   GO_BY_MIN: 1,
@@ -14,19 +13,23 @@ const AdList = [
     id: "streamingtech_ad",
     url: "https://testcontent.eyevinn.technology/ads/probably-the-best-10s.mp4",
     duration: "00:00:10",
+    bitrate: "17700",
+    width: "1920",
+    height: "1080",
+    codec: "H.264" 
   },
-  {
-    universalId: "AAA/CCCC123/",
-    id: "25percent_ad",
-    url: "https://static.videezy.com/system/resources/previews/000/019/185/original/25percent-blue.mp4",
-    duration: "00:00:05",
-  },
-  {
-    universalId: "AAA/DDDD123/",
-    id: "25percentDrawn_ad",
-    url: "https://static.videezy.com/system/resources/previews/000/017/907/original/25percent.mp4",
-    duration: "00:00:20",
-  },
+  // {
+  //   universalId: "AAA/CCCC123/",
+  //   id: "25percent_ad",
+  //   url: "https://static.videezy.com/system/resources/previews/000/019/185/original/25percent-blue.mp4",
+  //   duration: "00:00:05",
+  // },
+  // {
+  //   universalId: "AAA/DDDD123/",
+  //   id: "25percentDrawn_ad",
+  //   url: "https://static.videezy.com/system/resources/previews/000/017/907/original/25percent.mp4",
+  //   duration: "00:00:20",
+  // },
 ];
 
 /**
@@ -64,7 +67,7 @@ function VastBuilder(params) {
 
 // Add <Ad>-tags for every ad in the sampleAds list
 function AttachStandAloneAds(vast4, ads, params, podSize) {
-   podSize = podSize?podSize++:1;
+   podSize = podSize?podSize+1:1;
    for (let i = 0; i < ads.length; i++) {
     vast4
       .attachAd({ id: `AD-ID_00${i + podSize}`, })
@@ -110,10 +113,10 @@ function AttachStandAloneAds(vast4, ads, params, podSize) {
       .attachMediaFile(ads[i].url, {
         delivery: "progressive",
         type: "video/mp4",
-        // bitrate: "17700",
-        // width: "1920",
-        // height: "1080",
-        codec: "H.264" 
+        bitrate: ads[i].bitrate,
+        width: ads[i].width,
+        height: ads[i].height,
+        codec: ads[i].codec 
       })
       .back();
   }
@@ -213,8 +216,9 @@ function GetAdsAndDuration(adList, targetDuration, podSize, podMin, podMax) {
     }
     // If no upper limit to Pod duration, use target duration.
     podMax = podMax?podMax:targetDuration;
+    podTargetDuration = podMax;
     // Populate pod list with adds that follow pod parameters. Append items to 'chosenPodAds'
-    PopulatePod(podSize, podMin, podMax, adList, chosenPodAds, podCase, targetDuration);
+    PopulatePod(podSize, podMin, podMax, adList, chosenPodAds, podCase, podTargetDuration);
   }
   // TODO: REMOVE once AD buffet works again...
   else {

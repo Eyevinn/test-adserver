@@ -186,7 +186,7 @@ const SessionSchema = () => ({
       ss: "1920x1080",
       uip: "192.168.1.20",
       ua: "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0",
-      bl: "sv-SE,sv;q=0.9,en-US;q=0.8,en;q=0.7",
+      al: "sv-SE,sv;q=0.9,en-US;q=0.8,en;q=0.7",
       min: "10",
       max: "45",
       ps: "4"
