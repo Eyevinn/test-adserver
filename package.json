@@ -18,8 +18,11 @@
     "url": "git+https://github.com/Eyevinn/test-adserver.git"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Eyevinn Technology AB (work@eyevinn.se)",
+  "contributors": [
+    "Nicholas Frederiksen <nicholas.frederiksen@eyevinn.se> (Eyevinn Technology AB)"
+  ],
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/Eyevinn/test-adserver/issues"
   },
