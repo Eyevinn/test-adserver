@@ -187,7 +187,7 @@ const SessionSchema = () => ({
       uip: "192.168.1.20",
       userAgent: "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0",
       acceptLang: "sv-SE,sv;q=0.9,en-US;q=0.8,en;q=0.7",
-      userHost: "192.168.1.20:8000",
+      host: "192.168.1.20:8000",
       min: "10",
       max: "45",
       ps: "4"
@@ -219,11 +219,6 @@ const schemas = {
     query: {
       type: "object",
       properties: {
-        filter: {
-          type: "string",
-          description: "Filter sessions by HOST",
-          example: "127.0.0.1:9000",
-        },
         page: {
           type: "string",
           description: "Page number.",
@@ -507,10 +502,11 @@ module.exports = (fastify, opt, next) => {
     async (req, reply) => {
       try {
         const options = {
-          filter: req.query.filter,
           page: req.query.page,
           limit: req.query.limit,
+          targetHost: req.headers['host']
         };
+        
         const sessionList = await DBAdapter.getAllSessions(options);
         reply.code(200).send(sessionList);
       } catch (exc) {
@@ -708,9 +704,9 @@ module.exports = (fastify, opt, next) => {
       // Parse user agent, browser language, and host from request header
       const userAgent = req.headers['user-agent'] || "Not Found";
       const acceptLanguage = req.headers['accept-language'] || "Not Found";
-      const userHost = req.headers['host'];
+      const host = req.headers['host'];
 
-      const params = Object.assign(req.query, {userAgent: userAgent, acceptLang: acceptLanguage, userHost: userHost});
+      const params = Object.assign(req.query, {userAgent: userAgent, acceptLang: acceptLanguage, host: host});
       // Create new session, then add to session DB.
       const session = new Session(params);
       const result = await DBAdapter.AddSessionToStorage(session);

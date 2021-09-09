@@ -12,7 +12,7 @@ class ClientRequest {
   #maxPodDuration;
   #minPodDuration;
   #podSize;
-  #userHost;
+  #host;
   #rawParameters;
 
   constructor(params) {
@@ -25,7 +25,7 @@ class ClientRequest {
     this.#clientIp = params.uip || null;
     this.#userAgent = params.userAgent || null;
     this.#acceptLanguage = params.acceptLang || null;
-    this.#userHost = params.userHost || null;
+    this.#host = params.host || null;
     this.#maxPodDuration = params.max || null;
     this.#minPodDuration = params.min || null;
     this.#podSize = params.ps || null;
@@ -48,7 +48,7 @@ class ClientRequest {
       ClientIp: this.#clientIp,
       UserAgent: this.#userAgent,
       AcceptLanguage: this.#acceptLanguage,
-      UserHost: this.#userHost,
+      Host: this.#host,
       MaxPodDuration: this.#maxPodDuration,
       MinPodDuration: this.#minPodDuration,
       PodSizeNoCreatives: this.#podSize
