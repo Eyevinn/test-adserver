@@ -14,6 +14,10 @@ class MemoryDBAdapter extends DBAdapter {
   async getAllSessions(opt) {
     let sessionList = Object.values(SESSION_STORE);
 
+    // Filter session list on host field.
+    if (opt && opt.filter && opt.filter != "") {
+      sessionList = sessionList.filter( session => session.host.localeCompare(opt.filter) === 0);
+    }
      // Sort by newest first
     sessionList.sort((a, b) => {
       const dateA = new Date(a["created"]);
