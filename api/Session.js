@@ -9,6 +9,7 @@ class Session {
   sessionId;
   adBreakDuration;
   created;
+  host;
   // Private Fields
   #clientRequest;
   #user;
@@ -21,6 +22,7 @@ class Session {
 
     this.created = timeStamp;
     this.sessionId = uuid();
+    this.host = params.userHost;
     this.#user = new User(params.uid || null);
 
     this.#clientRequest = new ClientRequest(params);
