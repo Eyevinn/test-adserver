@@ -184,7 +184,12 @@ const SessionSchema = () => ({
       os: "ios",
       dt: "mobile",
       ss: "1920x1080",
-      uip: "“192.168.1.20",
+      uip: "192.168.1.20",
+      min: "10",
+      max: "45",
+      ps: "4",
+      userAgent: "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0",
+      acceptLang: "sv-SE,sv;q=0.9,en-US;q=0.8,en;q=0.7",
     },
     response: "<VAST XML>",
   },
@@ -432,7 +437,7 @@ const schemas = {
         },
         dur: {
           type: "string",
-          description: "Desired duration.",
+          description: "Desired duration in seconds.",
           example: "60",
         },
         uid: {
@@ -459,6 +464,21 @@ const schemas = {
           type: "string",
           description: "Client IP.",
           example: "192.168.1.200",
+        },
+        min: {
+          type: "string",
+          description: "Minimum Ad Pod duration in seconds.",
+          example: "10",
+        },
+        max: {
+          type: "string",
+          description: "Maximum Ad Pod duration in seconds.",
+          example: "30",
+        },
+        ps: {
+          type: "string",
+          description: "Desired Pod size in numbers of Ads.",
+          example: "3",
         },
       },
     },
@@ -532,7 +552,7 @@ module.exports = (fastify, opt, next) => {
           });
         } else {
           await DBAdapter.DeleteSession(sessionId);
-          reply.code(204).send({});
+          reply.send(204);
         }
       } catch (exc) {
         reply.code(500).send({ message: exc.message });
@@ -550,7 +570,6 @@ module.exports = (fastify, opt, next) => {
         const adId = req.query.adId;
         const viewProgress = req.query.progress;
         const userAgent = req.headers['user-agent'] || "Not Found";
-
         const eventNames = {
           0: "start",
           25: "firstQuartile",
@@ -586,7 +605,7 @@ module.exports = (fastify, opt, next) => {
         };
         session.AddTrackedEvent(newEvent);
         // Update session in storage
-        await AddSessionToStorage(session);
+        await DBAdapter.AddSessionToStorage(session);
 
         // Reply with 200 OK and acknowledgment message.
         reply.code(200).send({
@@ -671,8 +690,20 @@ module.exports = (fastify, opt, next) => {
       // [LOG]: requested query parameters with a timestamp.
       logger.info(req.query);
 
+      // If client didn't send IP as query, then use IP in header
+      if (!req.query['uip']) {
+        const parseIp = ( req => 
+          req.headers['x-forwarded-for']?.split(',').shift() || req.socket?.remoteAddress );
+          req.query['uip'] = parseIp(req);
+      }
+
+      // Parse user agent, browser language, and host from request header
+      const userAgent = req.headers['user-agent'] || "Not Found";
+      const acceptLanguage = req.headers['accept-language'] || "Not Found";
+
+      const params = Object.assign(req.query, {userAgent: userAgent, acceptLang: acceptLanguage});
       // Create new session, then add to session DB.
-      const session = new Session(req.query);
+      const session = new Session(params);
       const result = await DBAdapter.AddSessionToStorage(session);
       if (!result) {
         reply.code(404).send({ message: "Could not store new session" });

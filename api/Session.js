@@ -15,23 +15,26 @@ class Session {
   #vastXml;
   #eventTracker
 
-  constructor(queryParams) {
+  constructor(params) {
     // Take a time stamp.
     const timeStamp = new Date().toISOString();
 
     this.created = timeStamp;
     this.sessionId = uuid();
-    this.#user = new User(queryParams.uid || null);
+    this.#user = new User(params.uid || null);
 
-    this.#clientRequest = new ClientRequest(queryParams);
+    this.#clientRequest = new ClientRequest(params);
     this.#eventTracker = new EventTracker();
 
     // Create Vast object.
     const vastObj = VastBuilder({
       sessionId: this.sessionId,
-      desiredDuration: queryParams.dur || "0",
+      desiredDuration: params.dur || "0",
       adserverHostname:
         process.env.ADSERVER || `localhost:${process.env.PORT || "8080"}`,
+      maxPodDuration: params.max || null,
+      minPodDuration: params.min || null,
+      podSize: params.ps || null
     });
 
     this.#vastXml = vastObj.xml;
@@ -47,7 +50,7 @@ class Session {
   }
 
   getClientRequest() {
-    return this.#clientRequest.getAllQueryParameters();
+    return this.#clientRequest.getAllParameters();
   }
 
   getTrackedEvents(){
