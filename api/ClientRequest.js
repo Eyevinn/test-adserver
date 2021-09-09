@@ -22,8 +22,8 @@ class ClientRequest {
     this.#deviceType = params.dt || null;
     this.#screenSize = params.ss || null;
     this.#clientIp = params.uip || null;
-    this.#userAgent = params.ua || null;
-    this.#acceptLanguage = params.al || null;
+    this.#userAgent = params.userAgent || null;
+    this.#acceptLanguage = params.acceptLang || null;
     this.#maxPodDuration = params.max || null;
     this.#minPodDuration = params.min || null;
     this.#podSize = params.ps || null;

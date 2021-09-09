@@ -185,12 +185,11 @@ const SessionSchema = () => ({
       dt: "mobile",
       ss: "1920x1080",
       uip: "192.168.1.20",
-      ua: "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0",
-      al: "sv-SE,sv;q=0.9,en-US;q=0.8,en;q=0.7",
       min: "10",
       max: "45",
-      ps: "4"
-
+      ps: "4",
+      userAgent: "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0",
+      acceptLang: "sv-SE,sv;q=0.9,en-US;q=0.8,en;q=0.7",
     },
     response: "<VAST XML>",
   },
@@ -698,11 +697,11 @@ module.exports = (fastify, opt, next) => {
           req.query['uip'] = parseIp(req);
       }
 
-      // Parse user agent and browser language from request header
+      // Parse user agent, browser language, and host from request header
       const userAgent = req.headers['user-agent'] || "Not Found";
       const acceptLanguage = req.headers['accept-language'] || "Not Found";
 
-      const params = Object.assign(req.query, {ua: userAgent, al: acceptLanguage});
+      const params = Object.assign(req.query, {userAgent: userAgent, acceptLang: acceptLanguage});
       // Create new session, then add to session DB.
       const session = new Session(params);
       const result = await DBAdapter.AddSessionToStorage(session);
