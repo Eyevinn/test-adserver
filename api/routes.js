@@ -219,11 +219,6 @@ const schemas = {
     query: {
       type: "object",
       properties: {
-        filter: {
-          type: "string",
-          description: "Filter sessions by HOST",
-          example: "127.0.0.1:9000",
-        },
         page: {
           type: "string",
           description: "Page number.",
@@ -507,7 +502,6 @@ module.exports = (fastify, opt, next) => {
     async (req, reply) => {
       try {
         const options = {
-          filter: req.query.filter,
           page: req.query.page,
           limit: req.query.limit,
           targetHost: req.headers['host']
