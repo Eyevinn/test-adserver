@@ -10,6 +10,14 @@ You can build and run a container in your own hosted environment or Eyevinn can 
 
 This component is released under open source and we are happy for contributions!
 
+## Requirements
+- Node v12+
+## Database
+Right now the test-adserver uses in memory storage for all its data, no external database is required.
+Support for persistent storage is a work in progress.
+
+In a future update, we will add support for persistent storage using PostgreSQL.
+Other databases can be used also, as long as they follow the same implementation steps that of the coming PostgreSQL example. 
 ## Usage 
 - `git clone https://github.com/Eyevinn/test-adserver.git`
 - `cd test-adserver`
@@ -32,8 +40,7 @@ This component is released under open source and we are happy for contributions!
 
 - `ADSERVER` Public hostname and port for service. Needed for tracking, defaults to `localhost:8080`
 - `HOST` To set the interface that the server listens to. Default is `localhost`.
-- `POST` To set the port that the server listens to. Default is `8080`.
-- `API_KEY` (NOT YET IMPLEMENTED) To authorize certain API calls. Default is `secret-key`.
+- `PORT` To set the port that the server listens to. Default is `8080`.
 
 ## Docker
 
@@ -50,23 +57,6 @@ Start the service:
 Stop the service:
 
     docker-compose down
-
-### With local database
-
-A separate docker compose file is provided that will also create a local postgres database:
-
-    docker-compose -f docker-compose-postgresql.yml up
-
-And to stop:
-
-    docker-compose -f docker-compose-postgresql.yml down
-
-#### Persistent storage
-
-The directory `.pgdata` is mounted inside the postgres container for persistance. If you wish to change the location, update `docker-compose-postgresql.yml` accordingly:
-
-    volumes: 
-      - /path/to/somewhere/else:/var/lib/postgresql/data
 
 
 ## About Eyevinn Technology
