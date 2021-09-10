@@ -32,8 +32,7 @@ class Session {
     const vastObj = VastBuilder({
       sessionId: this.sessionId,
       desiredDuration: params.dur || "0",
-      adserverHostname:
-        process.env.ADSERVER || `localhost:${process.env.PORT || "8080"}`,
+      adserverHostname: this.host,
       maxPodDuration: params.max || null,
       minPodDuration: params.min || null,
       podSize: params.ps || null
@@ -55,11 +54,11 @@ class Session {
     return this.#clientRequest.getAllParameters();
   }
 
-  getTrackedEvents(){
+  getTrackedEvents() {
     return this.#eventTracker.getEvents();
   }
 
-  AddTrackedEvent(eventObj){
+  AddTrackedEvent(eventObj) {
     this.#eventTracker.AddEvent(eventObj);
   }
 
