@@ -696,8 +696,15 @@ module.exports = (fastify, opt, next) => {
 
       // If client didn't send IP as query, then use IP in header
       if (!req.query['uip']) {
-        const parseIp = ( req => 
-          req.headers['x-forwarded-for']?.split(',').shift() || req.socket?.remoteAddress );
+        const parseIp = (req => {
+          if (req.headers['x-forwarded-for']) {
+            return req.headers['x-forwarded-for'].split(',').shift();
+          } else if (req.socket) {
+            return req.socket.remoteAddress;
+          } else {
+            return "Not found";
+          }
+        });
           req.query['uip'] = parseIp(req);
       }
 
