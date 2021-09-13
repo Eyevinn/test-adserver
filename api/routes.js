@@ -515,6 +515,7 @@ module.exports = (fastify, opt, next) => {
         const sessionList = await DBAdapter.getAllSessions(options);
         reply.code(200).send(sessionList);
       } catch (exc) {
+        logger.error(exc, { label: req.headers['host'] });
         reply.code(500).send({ message: exc.message });
       }
     }
@@ -543,6 +544,7 @@ module.exports = (fastify, opt, next) => {
           reply.code(200).send(payload);
         }
       } catch (exc) {
+        logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
         reply.code(500).send({ message: exc.message });
       }
     }
@@ -564,6 +566,7 @@ module.exports = (fastify, opt, next) => {
           reply.send(204);
         }
       } catch (exc) {
+        logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
         reply.code(500).send({ message: exc.message });
       }
     }
@@ -590,6 +593,7 @@ module.exports = (fastify, opt, next) => {
         // Check if session exists.
         const session = await DBAdapter.getSession(sessionId);
         if (!session) {
+          logger.info(`Session with ID: '${sessionId}' was not found`, { label: req.headers['host'], sessionId: session.sessionId });
           reply.code(404).send({message: `Session with ID: '${sessionId}' was not found`});
         }
 
@@ -597,13 +601,11 @@ module.exports = (fastify, opt, next) => {
           process.env.ADSERVER || `localhost:${process.env.PORT || "8080"}`;
         // [LOG]: data to console with special format.
         const logMsg = {
-          type: "test-adserver",
-          time: new Date().toISOString(),
+          host: req.headers['host'],
           event: eventNames[viewProgress],
-          ad_id: adId,
-          session: `${adserverHostname}/api/v1/sessions/${sessionId}`,
+          adId: adId,
         };
-        console.log(JSON.stringify(logMsg));
+        logger.info(logMsg, { label: req.headers['host'], sessionId: session.sessionId });
 
         // Store event info in session.
         const newEvent = {
@@ -621,6 +623,7 @@ module.exports = (fastify, opt, next) => {
           message: `Tracking Data Recieved [ ADID:${adId}, PROGRESS:${viewProgress} ]`,
         });
       } catch (exc) {
+        logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
         reply.code(500).send({ message: exc.message });
       }
     }
@@ -647,6 +650,7 @@ module.exports = (fastify, opt, next) => {
           reply.code(200).send(eventsList);
         }
       } catch (exc) {
+        logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
         reply.code(500).send({ message: exc.message });
       }
     }
@@ -665,6 +669,7 @@ module.exports = (fastify, opt, next) => {
 
         // Check if List is null, If so assume no sessions with that user ID exists.
         if (!sessionList) {
+          logger.error(`Sessions under User-ID: '${req.params.userId}' were not found`, { label: req.headers['host'], sessionId: session.sessionId });
           reply.code(404).send({
             message: `Sessions under User-ID: '${req.params.userId}' were not found`,
           });
@@ -683,6 +688,7 @@ module.exports = (fastify, opt, next) => {
           reply.code(200).send(sessionList);
         }
       } catch (exc) {
+        logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
         reply.code(500).send({ message: exc.message });
       }
     }
@@ -697,7 +703,7 @@ module.exports = (fastify, opt, next) => {
   fastify.get("/vast", { schema: schemas["GET/vast"] }, async (req, reply) => {
     try {
       // [LOG]: requested query parameters with a timestamp.
-      logger.info(req.query);
+      logger.info(req.query, { label: req.headers['host'] });
 
       // If client didn't send IP as query, then use IP in header
       if (!req.query['uip']) {
@@ -726,26 +732,29 @@ module.exports = (fastify, opt, next) => {
       const session = new Session(params);
       const result = await DBAdapter.AddSessionToStorage(session);
       if (!result) {
+        logger.error("Could not store new session", { label: host, sessionId: session.sessionId })
         reply.code(404).send({ message: "Could not store new session" });
       }
       // Respond with session's VAST
       vast_xml = session.getVastXml();
       if (!vast_xml) {
+        logger.error("VAST not found", { label: host, sessionId: session.sessionId })
         reply.code(404).send({
           message: `VAST not found`,
         });
       } else {
-        // [LOG]: VAST-XML to console.
+        logger.debug(vast_xml.toString(), { label: host, sessionId: session.sessionId });
         if (vast_xml.toString() === EMPTY_VAST_STR) {
-          console.log(EMPTY_VAST_MSG + vast_xml);
+          logger.info("Empty VAST returned", { label: host });
         } else {
-          console.log("...VAST RESPONSE:\n\n" + vast_xml);
+          logger.info("Returned VAST and created a session", { label: req.headers['host'], sessionId: session.sessionId });
         }
 
         reply.header("Content-Type", "application/xml; charset=utf-8");
         reply.code(200).send(vast_xml);
       }
     } catch (exc) {
+      logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
       reply.code(500).send({ message: exc.message });
     }
   });
