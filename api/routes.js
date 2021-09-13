@@ -482,6 +482,11 @@ const schemas = {
           description: "Desired Pod size in numbers of Ads.",
           example: "3",
         },
+        userAgent: {
+          type: "string",
+          description: "Client's user agent",
+          example: "Mozilla/5.0",
+        },
       },
     },
     response: {
@@ -705,15 +710,18 @@ module.exports = (fastify, opt, next) => {
             return "Not found";
           }
         });
-          req.query['uip'] = parseIp(req);
+        req.query['uip'] = parseIp(req);
       }
 
-      // Parse user agent, browser language, and host from request header
-      const userAgent = req.headers['user-agent'] || "Not Found";
+      // If client didn't send user-agent as query, then read from header
+      if (!req.query['userAgent']) {
+        req.query['userAgent'] = req.headers['user-agent'] || "Not Found";
+      }
+      // Parse browser language, and host from request header
       const acceptLanguage = req.headers['accept-language'] || "Not Found";
       const host = req.headers['host'];
 
-      const params = Object.assign(req.query, {userAgent: userAgent, acceptLang: acceptLanguage, host: host});
+      const params = Object.assign(req.query, { acceptLang: acceptLanguage, host: host });
       // Create new session, then add to session DB.
       const session = new Session(params);
       const result = await DBAdapter.AddSessionToStorage(session);
