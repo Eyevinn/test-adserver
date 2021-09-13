@@ -576,7 +576,7 @@ module.exports = (fastify, opt, next) => {
     "/sessions/:sessionId/tracking",
     { schema: schemas["GET/sessions/:sessionId/tracking"] },
     async (req, reply) => {
-      try {
+      try {        
         // Get path parameters and query parameters.
         const sessionId = req.params.sessionId;
         const adId = req.query.adId;
@@ -593,35 +593,33 @@ module.exports = (fastify, opt, next) => {
         // Check if session exists.
         const session = await DBAdapter.getSession(sessionId);
         if (!session) {
-          logger.info(`Session with ID: '${sessionId}' was not found`, { label: req.headers['host'], sessionId: session.sessionId });
+          logger.info(`Session with ID: '${sessionId}' was not found`, { label: req.headers['host'], sessionId: sessionId });
           reply.code(404).send({message: `Session with ID: '${sessionId}' was not found`});
+        } else {
+          // [LOG]: data to console with special format.
+          const logMsg = {
+            host: req.headers['host'],
+            event: eventNames[viewProgress],
+            adId: adId,
+          };
+          logger.info(logMsg, { label: req.headers['host'], sessionId: sessionId });
+
+          // Store event info in session.
+          const newEvent = {
+            type: logMsg.event,
+            issuedAt: logMsg.time,
+            onAd: adId,
+            userAgent: userAgent,
+          };
+          session.AddTrackedEvent(newEvent);
+          // Update session in storage
+          await DBAdapter.AddSessionToStorage(session);
+
+          // Reply with 200 OK and acknowledgment message.
+          reply.code(200).send({
+            message: `Tracking Data Recieved [ ADID:${adId}, PROGRESS:${viewProgress} ]`,
+          });
         }
-
-        let adserverHostname =
-          process.env.ADSERVER || `localhost:${process.env.PORT || "8080"}`;
-        // [LOG]: data to console with special format.
-        const logMsg = {
-          host: req.headers['host'],
-          event: eventNames[viewProgress],
-          adId: adId,
-        };
-        logger.info(logMsg, { label: req.headers['host'], sessionId: session.sessionId });
-
-        // Store event info in session.
-        const newEvent = {
-          type: logMsg.event,
-          issuedAt: logMsg.time,
-          onAd: adId,
-          userAgent: userAgent,
-        };
-        session.AddTrackedEvent(newEvent);
-        // Update session in storage
-        await DBAdapter.AddSessionToStorage(session);
-
-        // Reply with 200 OK and acknowledgment message.
-        reply.code(200).send({
-          message: `Tracking Data Recieved [ ADID:${adId}, PROGRESS:${viewProgress} ]`,
-        });
       } catch (exc) {
         logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
         reply.code(500).send({ message: exc.message });
@@ -669,7 +667,7 @@ module.exports = (fastify, opt, next) => {
 
         // Check if List is null, If so assume no sessions with that user ID exists.
         if (!sessionList) {
-          logger.error(`Sessions under User-ID: '${req.params.userId}' were not found`, { label: req.headers['host'], sessionId: session.sessionId });
+          logger.info(`Sessions under User-ID: '${req.params.userId}' were not found`, { label: req.headers['host'] });
           reply.code(404).send({
             message: `Sessions under User-ID: '${req.params.userId}' were not found`,
           });
@@ -688,7 +686,7 @@ module.exports = (fastify, opt, next) => {
           reply.code(200).send(sessionList);
         }
       } catch (exc) {
-        logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
+        logger.error(exc, { label: req.headers['host'] });
         reply.code(500).send({ message: exc.message });
       }
     }
