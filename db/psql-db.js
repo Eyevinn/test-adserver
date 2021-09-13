@@ -14,6 +14,8 @@ if (process.env.APP_DB_PSQL_URL) {
     console.error("Problem Connecting to Postgresql Database");
     throw new Error(err);
   }
+} else {
+  console.log(":::JEREMY RENNER::::")
 }
 
 
