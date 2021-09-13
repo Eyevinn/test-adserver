@@ -99,9 +99,9 @@ function AttachStandAloneAds(vast4, ads, params, podSize) {
         adId: `${ads[i].id}`,
         sequence: `${i + podSize}`
       })
-      .addUniversalAdId(`${ads[i].universalId}${i + podSize}`, {
+      .addUniversalAdId(encodeURIComponent(`${ads[i].universalId}${i + podSize}`), {
         idRegistry: "test-ad-id.eyevinn",
-        idValue: `${ads[i].universalId}${i + podSize}`
+        idValue: encodeURIComponent(`${ads[i].universalId}${i + podSize}`)
       })
       .attachLinear()
       .attachTrackingEvents()
@@ -157,9 +157,9 @@ function AttachPodAds(vast4, podAds, params) {
         adId: `${podAds[i].id}_${i+1}`,
         sequence: `${i + 1}`
       })
-      .addUniversalAdId(`${podAds[i].universalId}${i + 1}`, {
+      .addUniversalAdId(encodeURIComponent(`${podAds[i].universalId}${i + 1}`), {
         idRegistry: "test-ad-id.eyevinn",
-        idValue: `${podAds[i].universalId}${i + 1}`
+        idValue: encodeURIComponent(`${podAds[i].universalId}${i + 1}`)
       })
       .attachLinear()
       .attachTrackingEvents()
