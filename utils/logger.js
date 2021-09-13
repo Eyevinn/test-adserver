@@ -1,20 +1,16 @@
-const winston = require("winston");
+const { createLogger, format, transports } = require("winston");
+const { combine, timestamp, label, printf } = format;
 
-const format = winston.format;
-const consoleTransport = new winston.transports.Console();
+const logFormat = printf(({ level, message, label, timestamp, sessionId }) => {
+  return `${timestamp} [${label}${sessionId?"/"+sessionId:""}] ${level}: ${JSON.stringify(message)}`;
+});
 
-const options = {
-  format: format.combine(
-    format.label({ label: "Client's Request Query Parameters" }),
-    //format.colorize(),
-    format.timestamp({
-      format: "YYYY-MM-DD HH:mm:ss", // for adding timestamp to log
-    }),
-    format.prettyPrint()
+const logger = createLogger({
+  format: combine(
+    timestamp(),
+    logFormat
   ),
-  transports: [consoleTransport],
-};
-
-const logger = new winston.createLogger(options); // initialising logger
+  transports: [new transports.Console({ level: process.env.DEBUG ? "debug" : "info" })]
+});
 
 module.exports = logger;
