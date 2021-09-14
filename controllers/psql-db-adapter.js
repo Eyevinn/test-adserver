@@ -1,7 +1,5 @@
 const DBAdapter = require("./db-adapter");
-const { SQLReply2Session } = require("../utils/formatters");
 const db = require("../db/psql-db");
-const { PaginatePsqlDB, PsqlTransform } = require("../utils/utilities");
 
 class PsqlDBAdapter extends DBAdapter {
   async AddSessionToStorage(session) {
@@ -29,15 +27,20 @@ class PsqlDBAdapter extends DBAdapter {
       // Can possibly return an empty array.
 
       // TODO: PAGINATION AND SORT
-      let pagi_db_reply = await PaginatePsqlDB(db, opt.page, opt.limit);
+      let pagi_db_reply = await this._Paginator({
+        database: db,
+        pageNum: opt.page,
+        pageLimit: opt.limit
+      });
 
       // TURN IT BACK TO SESSION CLASS OBJECT
       // (!) Transform data to expected output format.
       pagi_db_reply.data = pagi_db_reply.data.map((session) => {
-        return PsqlTransform(session);
+        return this._FromDBToObject(session);
       });
 
       // (!) They are expecting a pagination object
+      console.log(JSON.stringify(pagi_db_reply));
       return pagi_db_reply;
     } catch (err) {
       throw err;
@@ -56,7 +59,7 @@ class PsqlDBAdapter extends DBAdapter {
       }
       // TURN IT BACK TO SESSION CLASS OBJECT
       db_reply = db_reply.map((session) => {
-        return PsqlTransform(session);
+        return this._FromDBToObject(session);
       });
       return db_reply;
     } catch (err) {
@@ -75,7 +78,7 @@ class PsqlDBAdapter extends DBAdapter {
         return null;
       }
       // TURN IT BACK TO SESSION CLASS OBJECT
-      return PsqlTransform(db_reply);
+      return this._FromDBToObject(db_reply);
     } catch (err) {
       throw err;
     }
@@ -91,8 +94,52 @@ class PsqlDBAdapter extends DBAdapter {
       return err;
     }
   }
+
+  async _Paginator(opt) {
+    if (!opt || !opt.database) {
+      return false;
+    }
+    const db = opt.database;
+    const limit = parseInt(opt.pageLimit, 10) || 80;
+    const page = parseInt(opt.pageNum, 10) || 1;
+    const startAt = (page - 1) * limit;
+    const getTotalPages = (limit, totalCount) => Math.ceil(totalCount / limit);
+    const getNextPage = (page, limit, total) => (total / limit) > page ? page + 1 : null;
+    const getPreviousPage = page => page <= 1 ? null : page - 1;
+
+    try {
+      const total = await db("sessions_table").count("* as count").first();
+      const rawSessions = await db("sessions_table")
+        .select()
+        .orderBy("created", "desc")
+        .offset(startAt)
+        .limit(limit);
+
+      return {
+        previousPage: getPreviousPage(page),
+        currentPage: page,
+        nextPage: getNextPage(page, limit, total.count),
+        totalPages: getTotalPages(limit, total.count),
+        limit: limit,
+        totalItems: total.count,
+        data: rawSessions,
+      };
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+  }
+
+  _FromDBToObject(session) {
+    return {
+      sessionId: session.session_id,
+      userId: session.user_id,
+      created: session.created,
+      adBreakDuration: session.ad_break_dur,
+      clientRequest: JSON.parse(session.cli_req),
+      response: session.response,
+    };
+  }
 }
 
-const adapter = new PsqlDBAdapter();
-
-module.exports = adapter;
+module.exports = PsqlDBAdapter;

@@ -1,4 +1,4 @@
-const DBAdapter = require("../controllers/memory-db-adapter");
+const DBAdapter = require("../utils/storage");
 const logger = require("../utils/logger.js");
 const Session = require("./Session.js");
 
@@ -650,9 +650,8 @@ module.exports = (fastify, opt, next) => {
           type: "test-adserver",
           time: new Date().toISOString(),
           event: eventNames[viewProgress],
-          session: `${process.env.HOST || "localhost"}:${
-            process.env.PORT || "8080"
-          }/api/v1/sessions/${sessionId}`,
+          session: `${process.env.HOST || "localhost"}:${process.env.PORT || "8080"
+            }/api/v1/sessions/${sessionId}`,
         };
         console.log(logMsg);
 

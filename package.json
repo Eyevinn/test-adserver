@@ -47,9 +47,13 @@
     "fastify-sensible": "^3.1.1",
     "fastify-swagger": "^4.6.0",
 <<<<<<< HEAD
+<<<<<<< HEAD
     "mocha": "^8.4.0",
 =======
     "knex": "^0.95.4",
+=======
+    "knex": "^0.95.11",
+>>>>>>> 6359014 (chore: changes to psql adapter)
     "pg": "^8.6.0",
 >>>>>>> 3a3c293 (rebase attempt)
     "swagger-jsdoc": "^7.0.0-rc.6",

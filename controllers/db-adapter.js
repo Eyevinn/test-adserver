@@ -1,13 +1,17 @@
 class DBAdapter {
-  async AddSessionToStorage(session) {}
+  async AddSessionToStorage(session) { }
 
-  async getAllSessions(opt) {}
+  async getAllSessions(opt) { }
 
-  async getSessionsByUserId(userId) {}
+  async getSessionsByUserId(userId) { }
 
-  async getSession(sessionId) {}
+  async getSession(sessionId) { }
 
-  async DeleteSession(sessionId) {}
+  async DeleteSession(sessionId) { }
+
+  async _Paginator(opt) { }
+
+  _FromDBToObject(session) { }
 }
 
 module.exports = DBAdapter;
