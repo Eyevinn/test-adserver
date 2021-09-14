@@ -3,7 +3,6 @@ WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'session_db_test')\gex
 
 GRANT ALL PRIVILEGES ON DATABASE session_db_test TO eyevinn;
 
-
 \c session_db_test;
 
 CREATE TABLE public.sessions_table(
@@ -15,5 +14,5 @@ CREATE TABLE public.sessions_table(
     host varchar(225) NOT NULL,
     cli_req text NOT NULL,
     response text NOT NULL,
-    tracked_events text NOT NULL,
+    tracked_events text NOT NULL
 );

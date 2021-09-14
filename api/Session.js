@@ -3,6 +3,7 @@ const EventTracker = require("./EventTracker.js")
 const User = require("./User.js");
 const { VastBuilder } = require("../utils/vast-maker");
 const { v4: uuid } = require("uuid");
+const DOMParser = require('xmldom').DOMParser;
 
 class Session {
   // Public Fields
@@ -17,12 +18,13 @@ class Session {
   #eventTracker
 
   constructor(params) {
+    if (params) {
     // Take a time stamp.
     const timeStamp = new Date().toISOString();
 
     this.created = timeStamp;
     this.sessionId = uuid();
-    this.host = params.host;
+    this.host = params.host || null;
     this.#user = new User(params.uid || "unknown");
 
     this.#clientRequest = new ClientRequest(params);
@@ -40,6 +42,7 @@ class Session {
 
     this.#vastXml = vastObj.xml;
     this.adBreakDuration = vastObj.duration;
+    }
   }
 
   getUser() {
@@ -62,16 +65,16 @@ class Session {
     this.#eventTracker.AddEvent(eventObj);
   }
 
-  toJSON(session) {
+  toJSON() {
     return {
-      session_id: session.sessionId,
-      user_id: session.getUser(),
-      ad_break_dur: session.adBreakDuration,
-      created: session.created,
-      host: session.host,
-      cli_req: JSON.stringify(session.getClientRequest()),
-      response: session.getVastXml().toString(),
-      tracked_events: JSON.stringify(session.getTrackedEvents())
+      session_id: this.sessionId,
+      user_id: this.getUser(),
+      ad_break_dur: this.adBreakDuration,
+      created: this.created,
+      host: this.host,
+      cli_req: JSON.stringify(this.getClientRequest()),
+      response: this.getVastXml().toString(),
+      tracked_events: JSON.stringify(this.getTrackedEvents())
     }
   }
 
@@ -82,7 +85,7 @@ class Session {
     this.host = jsonObj.host;
     this.#user = new User(jsonObj.user_id || "unknown");
     this.#clientRequest = new ClientRequest(JSON.parse(jsonObj.cli_req));
-    this.#eventTracker = new EventTracker(JSON.parse(jsonObj.tracked_events));
+    this.#eventTracker = new EventTracker(JSON.parse(jsonObj.tracked_events)['events']);
     this.adBreakDuration = jsonObj.ad_break_dur;
 
     const parser = new DOMParser();

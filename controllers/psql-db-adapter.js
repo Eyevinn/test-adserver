@@ -5,10 +5,16 @@ const Session = require("../api/Session");
 class PsqlDBAdapter extends DBAdapter {
   async AddSessionToStorage(session) {
     try {
-      const [id] = await db("sessions_table")
+      // Might return array if copies exists.
+      let db_reply = await db("sessions_table") // returns object or undefined
+      .where("session_id", session.sessionId)
+      .update({ tracked_events: JSON.stringify(session.getTrackedEvents())})
+      if (!db_reply) {
+        const [id] = await db("sessions_table")
         .insert(session.toJSON())
         .returning("id");
-      return id;
+        return id;
+      }
     } catch (err) {
       throw err;
     }
@@ -17,13 +23,12 @@ class PsqlDBAdapter extends DBAdapter {
   // Get a list of running test sessions.
   async getAllSessions(opt) {
     try {
-
       let pagi_db_reply = await this._Paginator({
+        targetHost: opt.targetHost,
         database: db,
         pageNum: opt.page,
         pageLimit: opt.limit
       });
-
       // TURN IT BACK TO SESSION CLASS OBJECT
       // (!) Transform data to expected output format.
       pagi_db_reply.data = pagi_db_reply.data.map((session) => {
@@ -51,7 +56,8 @@ class PsqlDBAdapter extends DBAdapter {
       // TURN IT BACK TO SESSION CLASS OBJECT
       db_reply = db_reply.map((session) => {
         let new_session = new Session();
-        return new_session.fromJSON(session);
+        new_session.fromJSON(session);
+        return new_session;
       });
       return db_reply;
     } catch (err) {
@@ -71,7 +77,8 @@ class PsqlDBAdapter extends DBAdapter {
       }
       // TURN IT BACK TO SESSION CLASS OBJECT
       let new_session = new Session();
-      return new_session.fromJSON(db_reply);
+      new_session.fromJSON(db_reply);
+      return new_session;
     } catch (err) {
       throw err;
     }
@@ -104,6 +111,7 @@ class PsqlDBAdapter extends DBAdapter {
       const total = await db("sessions_table").count("* as count").first();
       const rawSessions = await db("sessions_table")
         .select()
+        .where("host", opt.targetHost)
         .orderBy("created", "desc")
         .offset(startAt)
         .limit(limit);
@@ -114,7 +122,7 @@ class PsqlDBAdapter extends DBAdapter {
         nextPage: getNextPage(page, limit, total.count),
         totalPages: getTotalPages(limit, total.count),
         limit: limit,
-        totalItems: total.count,
+        totalItems: parseInt(total.count),
         data: rawSessions,
       };
     } catch (e) {

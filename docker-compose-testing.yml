@@ -1,17 +1,17 @@
 version: "3.9"
 
 services:
-  db:
+  db:  
     image: postgres
     environment:
-      - POSTGRES_USER=eyevinn
       - POSTGRES_PASSWORD=very-secret-stuff
+      - POSTGRES_USER=eyevinn
       - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - ./.pgdata:/var/lib/postgresql/data/pgdata
+      - ./migrations/psql/:/docker-entrypoint-initdb.d/
     ports:
       - 5432:5432
-    volumes:
-      - ./.pgdata:/var/lib/postgresql/data
-      - ./migrations/psql/:/docker-entrypoint-initdb.d/
 
   test-adserver-api:
     build: .
@@ -20,23 +20,18 @@ services:
     environment:
       - PORT=8080
       - API_KEY=secret-key
-      - APP_DB_HOST=db
-      - APP_DB_USER=eyevinn
-      - APP_DB_PASSWORD=very-secret-stuff
-      - APP_DB_NAME=session_db_test
+      - APP_DB_PSQL_URL=postgresql://eyevinn:very-secret-stuff@db:5432/session_db_test
     ports:
       - 8080:8080
     depends_on:
-      - db
+      - db      
 
   test-adserver-api-tests:
     image: adserver-api:local
-    command: dockerize -wait tcp://db:5432  -wait tcp://test-adserver-api:8080 -timeout 60s bash -c "npm run test-chai"
+    command: dockerize -wait tcp://db:5432  -wait tcp://test-adserver-api:8080 -timeout 60s bash -c "npm test"
     environment:
       - APP_URL=http://test-adserver-api:8080
-      - APP_DB_HOST=db
-      - APP_DB_USER=eyevinn
-      - APP_DB_PASSWORD=very-secret-stuff
+      - APP_DB_PSQL_URL=postgresql://eyevinn:very-secret-stuff@db:5432/session_db_test
     depends_on:
       - db
       - test-adserver-api

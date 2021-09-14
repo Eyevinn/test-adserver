@@ -19,8 +19,8 @@ services:
             - POSTGRES_PASSWORD=very-secret-stuff
             - POSTGRES_USER=eyevinn
             - PGDATA=/var/lib/postgresql/data/pgdata
-        ports:
-            - 5432:5432
         volumes:
             - ./.pgdata:/var/lib/postgresql/data/pgdata
             - ./migrations/psql/:/docker-entrypoint-initdb.d/
+        ports:
+            - 5432:5432
