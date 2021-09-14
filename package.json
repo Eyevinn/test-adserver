@@ -7,13 +7,7 @@
     "test": "test"
   },
   "scripts": {
-<<<<<<< HEAD
     "test": "mocha --timeout 10000 --bail",
-=======
-    "test-chai": "mocha --timeout 10000 --bail",
-    "test-spec": "tap -Rspec test/**/*.test.js",
-    "test": "tap test/**/*.test.js",
->>>>>>> ba2d2d0 (test: added chai unittest)
     "dev": "nodemon -L server.js",
     "start": "node server.js",
     "start-fastify": "fastify start -l info app.js",
@@ -46,16 +40,9 @@
     "fastify-plugin": "^3.0.0",
     "fastify-sensible": "^3.1.1",
     "fastify-swagger": "^4.6.0",
-<<<<<<< HEAD
-<<<<<<< HEAD
     "mocha": "^8.4.0",
-=======
     "knex": "^0.95.4",
-=======
-    "knex": "^0.95.11",
->>>>>>> 6359014 (chore: changes to psql adapter)
     "pg": "^8.6.0",
->>>>>>> 3a3c293 (rebase attempt)
     "swagger-jsdoc": "^7.0.0-rc.6",
     "timestamp-to-seconds": "^0.0.2",
     "uuid": "^3.4.0",
