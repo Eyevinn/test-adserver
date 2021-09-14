@@ -62,18 +62,18 @@ class Session {
     this.#eventTracker.AddEvent(eventObj);
   }
 
-  // toJSON(session) {
-  //   return {
-  //     session_id: session.sessionId,
-  //     user_id: session.getUser(),
-  //     ad_break_dur: session.adBreakDuration,
-  //     created: session.created,
-  //     host: session.host,
-  //     cli_req: JSON.stringify(session.getClientRequest()),
-  //     response: session.getVastXml().toString(),
-  //     tracked_events: JSON.stringify(session.getTrackedEvents())
-  //   }
-  // }
+  toJSON(session) {
+    return {
+      session_id: session.sessionId,
+      user_id: session.getUser(),
+      ad_break_dur: session.adBreakDuration,
+      created: session.created,
+      host: session.host,
+      cli_req: JSON.stringify(session.getClientRequest()),
+      response: session.getVastXml().toString(),
+      tracked_events: JSON.stringify(session.getTrackedEvents())
+    }
+  }
 
   // Initialize new Session from its JSON form.
   fromJSON(jsonObj) {
@@ -91,8 +91,7 @@ class Session {
   }
 
   toObject() {
-    console.log(":::::LOGGING HERE:::")
-    let item = {
+    return {
       sessionId: this.sessionId,
       userId: this.getUser(),
       created: this.created,
@@ -100,7 +99,6 @@ class Session {
       clientRequest: this.getClientRequest(),
       response: this.getVastXml().toString(),
     };
-    return item;
   }
 
 }
