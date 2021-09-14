@@ -235,12 +235,12 @@ const schemas = {
         description: "On success return a pagination object",
         type: "object",
         properties: {
-          previousPage: { example: "null",},
-          currentPage: {example: "1",},
-          nextPage: {example: "2",},
-          totalPages: {example: "2",},
-          limit: {example: "5",},
-          totalItems: {example: "10",},
+          previousPage: { example: "null", },
+          currentPage: { example: "1", },
+          nextPage: { example: "2", },
+          totalPages: { example: "2", },
+          limit: { example: "5", },
+          totalItems: { example: "10", },
           data: {
             description: "On success returns an array of sessions",
             type: "array",
@@ -510,7 +510,7 @@ module.exports = (fastify, opt, next) => {
           limit: req.query.limit,
           targetHost: req.headers['host']
         };
-        
+
         const sessionList = await DBAdapter.getAllSessions(options);
         reply.code(200).send(sessionList);
       } catch (exc) {
@@ -570,7 +570,7 @@ module.exports = (fastify, opt, next) => {
     "/sessions/:sessionId/tracking",
     { schema: schemas["GET/sessions/:sessionId/tracking"] },
     async (req, reply) => {
-      try {        
+      try {
         // Get path parameters and query parameters.
         const sessionId = req.params.sessionId;
         const adId = req.query.adId;
@@ -588,7 +588,7 @@ module.exports = (fastify, opt, next) => {
         const session = await DBAdapter.getSession(sessionId);
         if (!session) {
           logger.info(`Session with ID: '${sessionId}' was not found`, { label: req.headers['host'], sessionId: sessionId });
-          reply.code(404).send({message: `Session with ID: '${sessionId}' was not found`});
+          reply.code(404).send({ message: `Session with ID: '${sessionId}' was not found` });
         } else {
           // [LOG]: data to console with special format.
           const logMsg = {
@@ -743,8 +743,9 @@ module.exports = (fastify, opt, next) => {
           logger.info("Returned VAST and created a session", { label: req.headers['host'], sessionId: session.sessionId });
         }
 
-      reply.header("Content-Type", "application/xml; charset=utf-8");
-      reply.code(200).send(vast_xml);
+        reply.header("Content-Type", "application/xml; charset=utf-8");
+        reply.code(200).send(vast_xml);
+      }
     } catch (exc) {
       logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
       reply.code(500).send({ message: exc.message });
