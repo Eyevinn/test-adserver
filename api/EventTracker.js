@@ -1,8 +1,12 @@
 class EventTracker {
   #eventList;
 
-  constructor() {
-    this.#eventList = [];
+  constructor(list) {
+    if (!list) {
+      this.#eventList = [];
+    } else {
+      this.#eventList = list;
+    }
   }
 
   AddEvent(eventObj) {

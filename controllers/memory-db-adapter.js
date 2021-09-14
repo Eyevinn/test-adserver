@@ -11,6 +11,7 @@ class MemoryDBAdapter extends DBAdapter {
 
   // Get a List of running test sessions.
   async getAllSessions(opt) {
+
     let sessionList = Object.values(SESSION_STORE);
 
     // Filter session list on host field.
@@ -31,16 +32,18 @@ class MemoryDBAdapter extends DBAdapter {
     if (!sessionList) {
       return {};
     }
+ 
     sessionList.data = sessionList.data.map((session) => {
-      return this._FromDBToObject(session);
+      return session.toObject();
     });
+
     // Return Pagination Object
     return sessionList;
   }
 
   // Get a List of running test sessions.
   async getSessionsByUserId(userId) {
-    let sessionList = Object.values(SESSION_STORE).filter(
+    let sessionList = await Object.values(SESSION_STORE).filter(
       (session) => userId == session.getUser()
     );
     // If empty, then we have no sessions.
@@ -48,8 +51,10 @@ class MemoryDBAdapter extends DBAdapter {
       return null;
     }
     sessionList.map((session) => {
-      return this._FromDBToObject(session);
+      let i = session.toObject();
+      return i;
     });
+    console.log(JSON.stringify(sessionList))
     return sessionList;
   }
 
@@ -59,7 +64,7 @@ class MemoryDBAdapter extends DBAdapter {
     if (!session) {
       return session;
     }
-    return this._FromDBToObject(session);
+    return session;
   }
 
   async DeleteSession(sessionId) {
@@ -90,17 +95,6 @@ class MemoryDBAdapter extends DBAdapter {
       limit: limit,
       totalItems: totalCount,
       data: sessions,
-    };
-  }
-
-  _FromDBToObject(session) {
-    return {
-      sessionId: session.sessionId,
-      userId: session.getUser(),
-      created: session.created,
-      adBreakDuration: session.adBreakDuration,
-      clientRequest: session.getClientRequest(),
-      response: session.getVastXml().toString(),
     };
   }
 }
