@@ -46,7 +46,12 @@
     "fastify-plugin": "^3.0.0",
     "fastify-sensible": "^3.1.1",
     "fastify-swagger": "^4.6.0",
+<<<<<<< HEAD
     "mocha": "^8.4.0",
+=======
+    "knex": "^0.95.4",
+    "pg": "^8.6.0",
+>>>>>>> 3a3c293 (rebase attempt)
     "swagger-jsdoc": "^7.0.0-rc.6",
     "timestamp-to-seconds": "^0.0.2",
     "uuid": "^3.4.0",
@@ -56,7 +61,11 @@
   "devDependencies": {
     "@commitlint/cli": "^12.1.1",
     "@commitlint/config-conventional": "^12.1.1",
+    "chai": "^4.3.4",
+    "chai-http": "^4.3.0",
+    "chai-match-pattern": "^1.2.0",
     "fast-xml-parser": "^3.19.0",
+    "mocha": "^8.4.0",
     "nodemon": "^2.0.7",
     "tap": "^15.0.4"
   },

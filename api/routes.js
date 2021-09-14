@@ -1,4 +1,4 @@
-const DBAdapter = require("../controllers/memory-db-adapter");
+const DBAdapter = require("../controllers/psql-db-adapter");
 const logger = require("../utils/logger.js");
 const { PaginateMemoryDB, Transform } = require("../utils/utilities");
 const Session = require("./Session.js");
@@ -532,17 +532,9 @@ module.exports = (fastify, opt, next) => {
           reply.code(404).send({
             message: `Session with ID: '${sessionId}' was not found`,
           });
-        } else {
-          const payload = {
-            sessionId: session.sessionId,
-            userId: session.getUser(),
-            created: session.created,
-            adBreakDuration: session.adBreakDuration,
-            clientRequest: session.getClientRequest(),
-            response: session.getVastXml().toString(),
-          };
-          reply.code(200).send(payload);
         }
+        const body = SessionFormatter2(session);
+        reply.code(200).send(body);
       } catch (exc) {
         logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
         reply.code(500).send({ message: exc.message });
@@ -556,15 +548,22 @@ module.exports = (fastify, opt, next) => {
     async (req, reply) => {
       try {
         const sessionId = req.params.sessionId;
+        // Check if session even exists.
         const session = await DBAdapter.getSession(sessionId);
         if (!session) {
           reply.code(404).send({
             message: `Session with ID: '${sessionId}' was not found`,
           });
+<<<<<<< HEAD
         } else {
           await DBAdapter.DeleteSession(sessionId);
           reply.send(204);
+=======
+>>>>>>> 3a3c293 (rebase attempt)
         }
+
+        await DBAdapter.DeleteSession(sessionId);
+        reply.send(204); // Decide what to do here. 200 || 204
       } catch (exc) {
         logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
         reply.code(500).send({ message: exc.message });
@@ -647,6 +646,22 @@ module.exports = (fastify, opt, next) => {
           // Reply with 200 OK and acknowledgment message. Client Ignores this?
           reply.code(200).send(eventsList);
         }
+
+        // [LOG]: data to console with special format.
+        const logMsg = {
+          type: "test-adserver",
+          time: new Date().toISOString(),
+          event: eventNames[viewProgress],
+          session: `${process.env.HOST || "localhost"}:${
+            process.env.PORT || "8080"
+          }/api/v1/sessions/${sessionId}`,
+        };
+        console.log(logMsg);
+
+        // Reply with 200 OK and acknowledgment message. Client Ignores this?
+        reply.code(200).send({
+          message: `Tracking Data Recieved [ ADID:${adID}, PROGRESS:${viewProgress} ]`,
+        });
       } catch (exc) {
         logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
         reply.code(500).send({ message: exc.message });
@@ -660,31 +675,22 @@ module.exports = (fastify, opt, next) => {
     { schema: schemas["GET/users/:userId"] },
     async (req, reply) => {
       try {
-        // Get Session List via db-controller function.
         let sessionList = await DBAdapter.getSessionsByUserId(
           req.params.userId
         );
-
         // Check if List is null, If so assume no sessions with that user ID exists.
         if (!sessionList) {
           logger.info(`Sessions under User-ID: '${req.params.userId}' were not found`, { label: req.headers['host'] });
           reply.code(404).send({
             message: `Sessions under User-ID: '${req.params.userId}' were not found`,
           });
-        } else {
-          // Send Array of: items -> containing all session information.
-          sessionList = sessionList.map((session) => {
-            return {
-              sessionId: session.sessionId,
-              userId: session.getUser(),
-              created: session.created,
-              adBreakDuration: session.adBreakDuration,
-              clientRequest: session.getClientRequest(),
-              response: session.getVastXml().toString(),
-            };
-          });
-          reply.code(200).send(sessionList);
         }
+
+        // Send Array of: items -> containing all session information.
+        sessionList = sessionList.map((session) => {
+          return SessionFormatter2(session);
+        });
+        reply.code(200).send(sessionList);
       } catch (exc) {
         logger.error(exc, { label: req.headers['host'] });
         reply.code(500).send({ message: exc.message });
@@ -740,6 +746,7 @@ module.exports = (fastify, opt, next) => {
         reply.code(404).send({
           message: `VAST not found`,
         });
+<<<<<<< HEAD
       } else {
         logger.debug(vast_xml.toString(), { label: host, sessionId: session.sessionId });
         if (vast_xml.toString() === EMPTY_VAST_STR) {
@@ -747,10 +754,19 @@ module.exports = (fastify, opt, next) => {
         } else {
           logger.info("Returned VAST and created a session", { label: req.headers['host'], sessionId: session.sessionId });
         }
-
-        reply.header("Content-Type", "application/xml; charset=utf-8");
-        reply.code(200).send(vast_xml);
+=======
       }
+>>>>>>> 3a3c293 (rebase attempt)
+
+      // [LOG]: VAST-XML to console.
+      if (vast_xml.toString() === EMPTY_VAST_STR) {
+        console.log(EMPTY_VAST_MSG + vast_xml);
+      } else {
+        console.log("...VAST RESPONSE:\n\n" + vast_xml);
+      }
+
+      reply.header("Content-Type", "application/xml; charset=utf-8");
+      reply.code(200).send(vast_xml);
     } catch (exc) {
       logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
       reply.code(500).send({ message: exc.message });
