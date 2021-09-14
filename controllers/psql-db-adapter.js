@@ -1,4 +1,5 @@
 const DBAdapter = require("./db-adapter");
+const { SQL2Session } = require("../utils/formatters");
 const db = require("../db/psql-db");
 
 class PsqlDBAdapter extends DBAdapter {
@@ -57,7 +58,8 @@ class PsqlDBAdapter extends DBAdapter {
       if (!db_reply) {
         return null;
       }
-      return db_reply;
+      console.log(db_reply);
+      return SQL2Session(db_reply);
     } catch (err) {
       throw err;
     }
