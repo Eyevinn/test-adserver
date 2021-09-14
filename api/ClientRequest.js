@@ -15,7 +15,7 @@ class ClientRequest {
   #host;
   #rawParameters;
 
-  constructor(obj) {
+  constructor(params) {
     this.#consent = params.c || null;
     this.#requestedDuration = params.dur || null;
     this.#userId = params.uid || null;
