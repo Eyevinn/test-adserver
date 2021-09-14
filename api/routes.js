@@ -510,8 +510,8 @@ module.exports = (fastify, opt, next) => {
           limit: req.query.limit,
           targetHost: req.headers['host']
         };
-
-        const sessionList = await DBAdapter.getAllSessions(options);
+        let sessionList = await DBAdapter.getAllSessions(options);
+        sessionList.data = sessionList.data.map( session => session.toObject() );
         reply.code(200).send(sessionList);
       } catch (exc) {
         logger.error(exc, { label: req.headers['host'] });
@@ -532,10 +532,10 @@ module.exports = (fastify, opt, next) => {
             message: `Session with ID: '${sessionId}' was not found`,
           });
         }
-        const result = session.toObject();
-        reply.code(200).send(result);
+        const sessionObj = session.toObject();
+        reply.code(200).send(sessionObj);
       } catch (exc) {
-        logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
+        logger.error(exc, { label: req.headers['host'], sessionId: req.params.sessionId });
         reply.code(500).send({ message: exc.message });
       }
     }
@@ -558,7 +558,7 @@ module.exports = (fastify, opt, next) => {
           reply.send(204);
         }
       } catch (exc) {
-        logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
+        logger.error(exc, { label: req.headers['host'], sessionId: req.params.sessionId });
         reply.code(500).send({ message: exc.message });
       }
     }
@@ -568,7 +568,6 @@ module.exports = (fastify, opt, next) => {
     "/sessions/:sessionId/tracking",
     { schema: schemas["GET/sessions/:sessionId/tracking"] },
     async (req, reply) => {
-      let session;
       try {
         // Get path parameters and query parameters.
         const sessionId = req.params.sessionId;
@@ -584,7 +583,7 @@ module.exports = (fastify, opt, next) => {
         };
 
         // Check if session exists.
-        session = await DBAdapter.getSession(sessionId);
+        const session = await DBAdapter.getSession(sessionId);
         if (!session) {
           logger.info(`Session with ID: '${sessionId}' was not found`, { label: req.headers['host'], sessionId: sessionId });
           reply.code(404).send({ message: `Session with ID: '${sessionId}' was not found` });
@@ -594,6 +593,7 @@ module.exports = (fastify, opt, next) => {
             host: req.headers['host'],
             event: eventNames[viewProgress],
             adId: adId,
+            time: new Date().toISOString()
           };
           logger.info(logMsg, { label: req.headers['host'], sessionId: sessionId });
 
@@ -614,7 +614,7 @@ module.exports = (fastify, opt, next) => {
           });
         }
       } catch (exc) {
-        logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
+        logger.error(exc, { label: req.headers['host'], sessionId: req.params.sessionId });
         reply.code(500).send({ message: exc.message });
       }
     }
@@ -640,21 +640,6 @@ module.exports = (fastify, opt, next) => {
           // Reply with 200 OK and acknowledgment message. Client Ignores this?
           reply.code(200).send(eventsList);
         }
-
-        // [LOG]: data to console with special format.
-        const logMsg = {
-          type: "test-adserver",
-          time: new Date().toISOString(),
-          event: eventNames[viewProgress],
-          session: `${process.env.HOST || "localhost"}:${process.env.PORT || "8080"
-            }/api/v1/sessions/${sessionId}`,
-        };
-        console.log(logMsg);
-
-        // Reply with 200 OK and acknowledgment message. Client Ignores this?
-        reply.code(200).send({
-          message: `Tracking Data Recieved [ ADID:${adID}, PROGRESS:${viewProgress} ]`,
-        });
       } catch (exc) {
         logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
         reply.code(500).send({ message: exc.message });
@@ -676,6 +661,7 @@ module.exports = (fastify, opt, next) => {
             message: `Sessions under User-ID: '${req.params.userId}' were not found`,
           });
         }
+        sessionList = sessionList.map( session => session.toObject() );
         reply.code(200).send(sessionList);
       } catch (exc) {
         logger.error(exc, { label: req.headers['host'] });

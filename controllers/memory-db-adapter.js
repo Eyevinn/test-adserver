@@ -1,3 +1,4 @@
+const Session = require("../api/Session");
 const DBAdapter = require("./db-adapter");
 
 SESSION_STORE = {};
@@ -32,11 +33,6 @@ class MemoryDBAdapter extends DBAdapter {
     if (!sessionList) {
       return {};
     }
- 
-    sessionList.data = sessionList.data.map((session) => {
-      return session.toObject();
-    });
-
     // Return Pagination Object
     return sessionList;
   }
@@ -50,11 +46,6 @@ class MemoryDBAdapter extends DBAdapter {
     if (sessionList.length === 0) {
       return null;
     }
-    sessionList.map((session) => {
-      let i = session.toObject();
-      return i;
-    });
-    console.log(JSON.stringify(sessionList))
     return sessionList;
   }
 

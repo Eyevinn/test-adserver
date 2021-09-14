@@ -29,7 +29,7 @@ class PsqlDBAdapter extends DBAdapter {
       pagi_db_reply.data = pagi_db_reply.data.map((session) => {
         let new_session = new Session();
         new_session.fromJSON(session);
-        return new_session.toObject();
+        return new_session;
       });
 
       return pagi_db_reply;
@@ -51,7 +51,7 @@ class PsqlDBAdapter extends DBAdapter {
       // TURN IT BACK TO SESSION CLASS OBJECT
       db_reply = db_reply.map((session) => {
         let new_session = new Session();
-        return new_session.fromJSON(session).toObject();
+        return new_session.fromJSON(session);
       });
       return db_reply;
     } catch (err) {
