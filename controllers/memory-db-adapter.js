@@ -11,23 +11,16 @@ class MemoryDBAdapter extends DBAdapter {
 
   // Get a List of running test sessions.
   async getAllSessions(opt) {
-<<<<<<< HEAD
-<<<<<<< HEAD
     let sessionList = Object.values(SESSION_STORE);
 
     // Filter session list on host field.
     if (opt && opt.targetHost && opt.targetHost != "") {
       sessionList = sessionList.filter( session => session.host.localeCompare(opt.targetHost) === 0);
     }
-     // Sort by newest first
-=======
-    let sessionList = Object.values(SESSION_STORE).slice(0, 1);
-    console.log("session list size= " + sessionList.length);
-=======
+    
     let sessionList = Object.values(SESSION_STORE);
->>>>>>> 24ed745 (chore: clean up)
+
     // Sort by newest first
->>>>>>> b2f94e8 (feat: pagination on psql version)
     sessionList.sort((a, b) => {
       const dateA = new Date(a["created"]);
       const dateB = new Date(b["created"]);

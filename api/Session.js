@@ -19,32 +19,14 @@ class Session {
   constructor(params) {
     // Take a time stamp.
     const timeStamp = new Date().toISOString();
-
-<<<<<<< HEAD
-<<<<<<< HEAD
     this.created = timeStamp;
     this.sessionId = uuid();
     this.host = params.host;
     this.#user = new User(params.uid || null);
-=======
-    this.created = queryParams || timeStamp;
-    this.sessionId = queryParams.sessionId || uuid();
-    this.#user = new User(queryParams.uid || null);
->>>>>>> a8bffbf (test: added unittest for session)
-=======
+
     this.created = queryParams.created || timeStamp;
     this.sessionId = queryParams.sessionId || uuid();
-<<<<<<< HEAD
-<<<<<<< HEAD
-    this.#user = new User(queryParams.userId || queryParams.uid || null);
->>>>>>> 73c22ee (rebase attempt cont.)
-=======
-    this.#user = new User(queryParams.userId || queryParams.uid || 'NOT FOUND');// null); // <-- because init.sql make a NOT NULL for uid
->>>>>>> b2f94e8 (feat: pagination on psql version)
-=======
     this.#user = new User(queryParams.userId || queryParams.uid || 'default-user-id');// null); // <-- because init.sql make a NOT NULL for uid
->>>>>>> c55b357 (fix: changed uid default value)
-
     this.#clientRequest = new ClientRequest(params);
     this.#eventTracker = new EventTracker();
 
