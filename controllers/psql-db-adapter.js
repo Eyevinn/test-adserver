@@ -1,6 +1,7 @@
 const DBAdapter = require("./db-adapter");
 const { SQLReply2Session } = require("../utils/formatters");
 const db = require("../db/psql-db");
+const { PaginatePsqlDB, PsqlTransform } = require("../utils/utilities");
 
 class PsqlDBAdapter extends DBAdapter {
   async AddSessionToStorage(session) {
@@ -22,16 +23,22 @@ class PsqlDBAdapter extends DBAdapter {
   }
 
   // Get a list of running test sessions.
-  async getAllSessions() {
+  async getAllSessions(opt) {
     try {
-      let db_reply = await db("sessions_table").select();
+      //let db_reply = await db("sessions_table").select().orderBy('created', 'desc').offset(0).limit(1);
       // Can possibly return an empty array.
 
+      // TODO: PAGINATION AND SORT
+      let pagi_db_reply = await PaginatePsqlDB(db, opt.page, opt.limit);
+
       // TURN IT BACK TO SESSION CLASS OBJECT
-      db_reply = db_reply.map((reply) => {
-        return SQLReply2Session(reply);
+      // (!) Transform data to expected output format.
+      pagi_db_reply.data = pagi_db_reply.data.map((session) => {
+        return PsqlTransform(session);
       });
-      return db_reply;
+
+      // (!) They are expecting a pagination object
+      return pagi_db_reply;
     } catch (err) {
       throw err;
     }
@@ -47,9 +54,9 @@ class PsqlDBAdapter extends DBAdapter {
       if (db_reply.length === 0) {
         return null;
       }
-       // TURN IT BACK TO SESSION CLASS OBJECT
-       db_reply = db_reply.map((reply) => {
-        return SQLReply2Session(reply);
+      // TURN IT BACK TO SESSION CLASS OBJECT
+      db_reply = db_reply.map((session) => {
+        return PsqlTransform(session);
       });
       return db_reply;
     } catch (err) {
@@ -68,7 +75,7 @@ class PsqlDBAdapter extends DBAdapter {
         return null;
       }
       // TURN IT BACK TO SESSION CLASS OBJECT
-      return SQLReply2Session(db_reply);
+      return PsqlTransform(db_reply);
     } catch (err) {
       throw err;
     }

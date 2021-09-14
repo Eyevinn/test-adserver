@@ -2,17 +2,62 @@
 
 /**
  *
+ * @param {Array} knex_db - Knex DB instance, the one making the SQL queries.
+ * @param {string} page - Desired page number.
+ * @param {string} limit - Limit for amount of objects on each page.
+ *
+ * @example
+ * knex_db = require("knex")({
+              client: "pg",
+              connection:process.env.APP_DB_URL
+            });
+  
+ * page = '2'
+ * limit = '5'
+ *
+ */
+async function PaginatePsqlDB(knex_db, pageNum, pageLimit) {
+  const limit = parseInt(pageLimit, 10) || 80;
+  const page = parseInt(pageNum, 10) || 1;
+
+  const startAt = (page - 1) * limit;
+
+  try {
+    const total = await knex_db("sessions_table").count("* as count").first(),
+      // TODO: IMPLEMENT select where offset + limit
+      rawSessions = await knex_db("sessions_table")
+        .select()
+        .orderBy("created", "desc")
+        .offset(startAt)
+        .limit(limit);
+
+    return {
+      previousPage: getPreviousPage(page),
+      currentPage: page,
+      nextPage: getNextPage(page, limit, total.count),
+      totalPages: getTotalPages(limit, total.count),
+      limit: limit,
+      totalItems: total.count,
+      data: rawSessions,
+    };
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+}
+
+/**
+ *
  * @param {Array} list - Full list of objects.
  * @param {string} page - Desired page number.
- * @param {string} limit - Limit for amount of objects on each page. 
- * 
+ * @param {string} limit - Limit for amount of objects on each page.
+ *
  * @example
  * list = [{...}, {...}, {...}]
  * page = '2'
  * limit = '5'
- * 
+ *
  */
-
 function PaginateMemoryDB(list = [], pageNum, pageLimit) {
   const limit = parseInt(pageLimit, 10) || 80;
   const page = parseInt(pageNum, 10) || 1;
@@ -65,4 +110,19 @@ function Transform(session) {
     response: session.getVastXml().toString(),
   };
 }
-module.exports = { PaginateMemoryDB, Transform };
+
+function PsqlTransform(session) {
+  // return a JSON
+  let obj = {
+    sessionId: session.session_id,
+    userId: session.user_id,
+    created: session.created,
+    adBreakDuration: session.ad_break_dur,
+    clientRequest: JSON.parse(session.cli_req),
+    response: session.response,
+  };
+  let result = JSON.parse(JSON.stringify(obj));
+  return result;
+}
+
+module.exports = { PaginateMemoryDB, Transform, PaginatePsqlDB, PsqlTransform };

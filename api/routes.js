@@ -1,4 +1,4 @@
-const DBAdapter = require("../controllers/memory-db-adapter");
+const DBAdapter = require("../controllers/psql-db-adapter");
 const logger = require("../utils/logger.js");
 const { PaginateMemoryDB, Transform } = require("../utils/utilities");
 const Session = require("./Session.js");
@@ -533,8 +533,7 @@ module.exports = (fastify, opt, next) => {
             message: `Session with ID: '${sessionId}' was not found`,
           });
         }
-        const body = SessionFormatter(session);
-        reply.code(200).send(body);
+        reply.code(200).send(session);
       } catch (exc) {
         logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
         reply.code(500).send({ message: exc.message });
@@ -685,11 +684,6 @@ module.exports = (fastify, opt, next) => {
             message: `Sessions under User-ID: '${req.params.userId}' were not found`,
           });
         }
-
-        // Send Array of: items -> containing all session information.
-        sessionList = sessionList.map((session) => {
-          return SessionFormatter(session);
-        });
         reply.code(200).send(sessionList);
       } catch (exc) {
         logger.error(exc, { label: req.headers['host'] });
