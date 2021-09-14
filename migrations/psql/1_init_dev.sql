@@ -9,6 +9,6 @@ CREATE TABLE public.sessions_table(
     user_id varchar(255) NOT NULL,
     ad_break_dur varchar(255) NOT NULL,
     created varchar(255) NOT NULL,
-    cli_req varchar(255) NOT NULL,
-    response varchar(255) NOT NULL
+    cli_req text NOT NULL,
+    response text NOT NULL
 );

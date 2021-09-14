@@ -1,27 +1,77 @@
 const DBAdapter = require("./db-adapter");
+const db = require("../db/psql-db");
 
 class PsqlDBAdapter extends DBAdapter {
   async AddSessionToStorage(session) {
-    // TODO ...
+    try {
+      const [id] = await db("sessions_table")
+        .insert({
+          session_id: session.sessionId,
+          user_id: session.getUser(),
+          ad_break_dur: session.adBreakDuration,
+          created: session.created,
+          cli_req: JSON.stringify(session.getClientRequest()),
+          response: session.getVastXml().toString(),
+        })
+        .returning("id");
+      return id;
+    } catch (err) {
+      throw err;
+    }
   }
 
   // Get a list of running test sessions.
-  async getAllSessions(opt) {
-    // TODO ...
+  async getAllSessions() {
+    try {
+      let db_reply = await db("sessions_table").select();
+      // Can possibly return an empty array.
+      return db_reply;
+    } catch (err) {
+      throw err;
+    }
   }
 
   // Get a list of running test sessions.
   async getSessionsByUserId(userId) {
-    // TODO ...
+    try {
+      let db_reply = await db("sessions_table")
+        .select()
+        .where("user_id", userId);
+      // TODO: decide if should respond with 404 || []
+      if (db_reply.length === 0) {
+        return null;
+      }
+      return db_reply;
+    } catch (err) {
+      throw err;
+    }
   }
 
   // Get information of a specific test session.
   async getSession(sessionId) {
-    // TODO ...
+    try {
+      // Might return array if copies exists.
+      let [db_reply] = await db("sessions_table") // returns object or undefined
+        .select()
+        .where("session_id", sessionId);
+      if (!db_reply) {
+        return null;
+      }
+      return db_reply;
+    } catch (err) {
+      throw err;
+    }
   }
 
   async DeleteSession(sessionId) {
-    // TODO ...
+    try {
+      let db_reply = await db("sessions_table")
+        .where("session_id", sessionId)
+        .del();
+      return db_reply; // 1
+    } catch (err) {
+      return err;
+    }
   }
 }
 
