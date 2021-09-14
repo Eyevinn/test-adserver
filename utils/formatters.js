@@ -1,3 +1,4 @@
+const Session = require("../api/Session.js");
 
 function SessionFormatter(session) {
   // return a JSON
@@ -27,4 +28,10 @@ function SessionFormatter2(session) {
   return result;
 }
 
-module.exports = { SessionFormatter, SessionFormatter2 };
+function SQL2Session(sql) {
+  console.log(SessionFormatter2(sql));
+  const new_session = new Session(SessionFormatter2(sql));
+  return new_session;
+}
+
+module.exports = { SessionFormatter, SessionFormatter2, SQL2Session };

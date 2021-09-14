@@ -533,7 +533,7 @@ module.exports = (fastify, opt, next) => {
             message: `Session with ID: '${sessionId}' was not found`,
           });
         }
-        const body = SessionFormatter2(session);
+        const body = SessionFormatter(session);
         reply.code(200).send(body);
       } catch (exc) {
         logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
