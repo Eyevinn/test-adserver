@@ -11,7 +11,6 @@ class DBAdapter {
 
   async _Paginator(opt) { }
 
-  _FromDBToObject(session) { }
 }
 
 module.exports = DBAdapter;

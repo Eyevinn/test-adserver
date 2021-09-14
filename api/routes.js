@@ -532,7 +532,8 @@ module.exports = (fastify, opt, next) => {
             message: `Session with ID: '${sessionId}' was not found`,
           });
         }
-        reply.code(200).send(session);
+        const result = session.toObject();
+        reply.code(200).send(result);
       } catch (exc) {
         logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
         reply.code(500).send({ message: exc.message });
@@ -556,9 +557,6 @@ module.exports = (fastify, opt, next) => {
           await DBAdapter.DeleteSession(sessionId);
           reply.send(204);
         }
-
-        await DBAdapter.DeleteSession(sessionId);
-        reply.send(204); // Decide what to do here. 200 || 204
       } catch (exc) {
         logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
         reply.code(500).send({ message: exc.message });
@@ -570,6 +568,7 @@ module.exports = (fastify, opt, next) => {
     "/sessions/:sessionId/tracking",
     { schema: schemas["GET/sessions/:sessionId/tracking"] },
     async (req, reply) => {
+      let session;
       try {
         // Get path parameters and query parameters.
         const sessionId = req.params.sessionId;
@@ -585,7 +584,7 @@ module.exports = (fastify, opt, next) => {
         };
 
         // Check if session exists.
-        const session = await DBAdapter.getSession(sessionId);
+        session = await DBAdapter.getSession(sessionId);
         if (!session) {
           logger.info(`Session with ID: '${sessionId}' was not found`, { label: req.headers['host'], sessionId: sessionId });
           reply.code(404).send({ message: `Session with ID: '${sessionId}' was not found` });
@@ -669,9 +668,7 @@ module.exports = (fastify, opt, next) => {
     { schema: schemas["GET/users/:userId"] },
     async (req, reply) => {
       try {
-        let sessionList = await DBAdapter.getSessionsByUserId(
-          req.params.userId
-        );
+        let sessionList = await DBAdapter.getSessionsByUserId(req.params.userId);
         // Check if List is null, If so assume no sessions with that user ID exists.
         if (!sessionList) {
           logger.info(`Sessions under User-ID: '${req.params.userId}' were not found`, { label: req.headers['host'] });
@@ -694,6 +691,7 @@ module.exports = (fastify, opt, next) => {
    */
   // Vast - routes
   fastify.get("/vast", { schema: schemas["GET/vast"] }, async (req, reply) => {
+    let session;
     try {
       // [LOG]: requested query parameters with a timestamp.
       logger.info(req.query, { label: req.headers['host'] });
@@ -722,7 +720,7 @@ module.exports = (fastify, opt, next) => {
 
       const params = Object.assign(req.query, { acceptLang: acceptLanguage, host: host });
       // Create new session, then add to session DB.
-      const session = new Session(params);
+      session = new Session(params);
       const result = await DBAdapter.AddSessionToStorage(session);
       if (!result) {
         logger.error("Could not store new session", { label: host, sessionId: session.sessionId })

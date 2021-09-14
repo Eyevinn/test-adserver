@@ -1,18 +1,12 @@
 const DBAdapter = require("./db-adapter");
 const db = require("../db/psql-db");
+const Session = require("../api/Session");
 
 class PsqlDBAdapter extends DBAdapter {
   async AddSessionToStorage(session) {
     try {
       const [id] = await db("sessions_table")
-        .insert({
-          session_id: session.sessionId,
-          user_id: session.getUser(),
-          ad_break_dur: session.adBreakDuration,
-          created: session.created,
-          cli_req: JSON.stringify(session.getClientRequest()),
-          response: session.getVastXml().toString(),
-        })
+        .insert(session.toJSON())
         .returning("id");
       return id;
     } catch (err) {
@@ -23,10 +17,7 @@ class PsqlDBAdapter extends DBAdapter {
   // Get a list of running test sessions.
   async getAllSessions(opt) {
     try {
-      //let db_reply = await db("sessions_table").select().orderBy('created', 'desc').offset(0).limit(1);
-      // Can possibly return an empty array.
 
-      // TODO: PAGINATION AND SORT
       let pagi_db_reply = await this._Paginator({
         database: db,
         pageNum: opt.page,
@@ -36,11 +27,11 @@ class PsqlDBAdapter extends DBAdapter {
       // TURN IT BACK TO SESSION CLASS OBJECT
       // (!) Transform data to expected output format.
       pagi_db_reply.data = pagi_db_reply.data.map((session) => {
-        return this._FromDBToObject(session);
+        let new_session = new Session();
+        new_session.fromJSON(session);
+        return new_session.toObject();
       });
 
-      // (!) They are expecting a pagination object
-      console.log(JSON.stringify(pagi_db_reply));
       return pagi_db_reply;
     } catch (err) {
       throw err;
@@ -59,7 +50,8 @@ class PsqlDBAdapter extends DBAdapter {
       }
       // TURN IT BACK TO SESSION CLASS OBJECT
       db_reply = db_reply.map((session) => {
-        return this._FromDBToObject(session);
+        let new_session = new Session();
+        return new_session.fromJSON(session).toObject();
       });
       return db_reply;
     } catch (err) {
@@ -78,7 +70,8 @@ class PsqlDBAdapter extends DBAdapter {
         return null;
       }
       // TURN IT BACK TO SESSION CLASS OBJECT
-      return this._FromDBToObject(db_reply);
+      let new_session = new Session();
+      return new_session.fromJSON(db_reply);
     } catch (err) {
       throw err;
     }
@@ -128,17 +121,6 @@ class PsqlDBAdapter extends DBAdapter {
       console.log(e);
       throw e;
     }
-  }
-
-  _FromDBToObject(session) {
-    return {
-      sessionId: session.session_id,
-      userId: session.user_id,
-      created: session.created,
-      adBreakDuration: session.ad_break_dur,
-      clientRequest: JSON.parse(session.cli_req),
-      response: session.response,
-    };
   }
 }
 
