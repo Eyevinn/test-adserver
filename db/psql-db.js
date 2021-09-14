@@ -1,12 +1,20 @@
-const db = require("knex")({
-    client: "pg",
-    connection: {
-      host: process.env.APP_DB_HOST || "127.0.0.1",
-      user: process.env.APP_DB_USER || "eyevinn",
-      password: process.env.APP_DB_PASSWORD || "very-secret-stuff",
-      database: process.env.APP_DB_NAME || "session_db_dev",
-    }, //connection:"postgresql://postgres:very-secret-stuff@localhost:5432/session_db_dev"
-  });
-  
-  module.exports = db;
-  
+
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
+}
+
+let db = null;
+if (process.env.APP_DB_PSQL_URL) {
+  try {
+    db = require("knex")({
+      client: "pg",
+      connection: process.env.APP_DB_PSQL_URL
+    });
+  } catch (err) {
+    console.error("Problem Connecting to Postgresql Database");
+    throw new Error(err);
+  }
+}
+
+
+module.exports = db;

@@ -1,4 +1,7 @@
 version: "3.9"
+networks:
+  vc-net:
+    driver: bridge
 
 services:
     test-adserver-api:
@@ -8,13 +11,13 @@ services:
         environment:
             - PORT=8080
             - API_KEY=secret-key
-            - APP_DB_HOST=db
-            - APP_DB_USER=eyevinn
-            - APP_DB_PASSWORD=very-secret-stuff
+            - APP_DB_PSQL_URL=postgresql://eyevinn:very-secret-stuff@db:5432/session_db_dev
         ports:
             - 8080:8080
         depends_on:
-        - db
+            - db
+        networks:
+            - vc-net        
 
     db:
         image: postgres
@@ -27,3 +30,5 @@ services:
         volumes:
             - ./.pgdata:/var/lib/postgresql/data
             - ./migrations/psql/:/docker-entrypoint-initdb.d/
+        networks:
+            - vc-net
