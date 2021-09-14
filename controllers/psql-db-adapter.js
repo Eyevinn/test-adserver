@@ -1,5 +1,5 @@
 const DBAdapter = require("./db-adapter");
-const { SQL2Session } = require("../utils/formatters");
+const { SQLReply2Session } = require("../utils/formatters");
 const db = require("../db/psql-db");
 
 class PsqlDBAdapter extends DBAdapter {
@@ -26,6 +26,11 @@ class PsqlDBAdapter extends DBAdapter {
     try {
       let db_reply = await db("sessions_table").select();
       // Can possibly return an empty array.
+
+      // TURN IT BACK TO SESSION CLASS OBJECT
+      db_reply = db_reply.map((reply) => {
+        return SQLReply2Session(reply);
+      });
       return db_reply;
     } catch (err) {
       throw err;
@@ -42,6 +47,10 @@ class PsqlDBAdapter extends DBAdapter {
       if (db_reply.length === 0) {
         return null;
       }
+       // TURN IT BACK TO SESSION CLASS OBJECT
+       db_reply = db_reply.map((reply) => {
+        return SQLReply2Session(reply);
+      });
       return db_reply;
     } catch (err) {
       throw err;
@@ -58,8 +67,8 @@ class PsqlDBAdapter extends DBAdapter {
       if (!db_reply) {
         return null;
       }
-      console.log(db_reply);
-      return SQL2Session(db_reply);
+      // TURN IT BACK TO SESSION CLASS OBJECT
+      return SQLReply2Session(db_reply);
     } catch (err) {
       throw err;
     }
