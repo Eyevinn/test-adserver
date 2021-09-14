@@ -1,21 +1,28 @@
 version: "3.9"
 
 services:
-  test-adserver-api:
-    build: .
-    image: adserver-api:local
-    environment:
-      - PORT=8080
-      - API_KEY=secret-key
-    ports:
-      - 8080:8080
-    depends_on:
-      - db
+    test-adserver-api:
+        build: .
+        image: adserver-api:local
+        command: npm start
+        environment:
+            - PORT=8080
+            - API_KEY=secret-key
+            - APP_DB_HOST=db
+            - APP_DB_USER=postgres
+            - APP_DB_PASSWORD=very-secret-stuff
+        ports:
+            - 8080:8080
+        depends_on:
+        - db
 
-  db:
-    image: postgres
-    environment:
-      - POSTGRES_PASSWORD=very-secret-stuff
-      - PGDATA=/var/lib/postgresql/data/pgdata
-    volumes: 
-      - ./.pgdata:/var/lib/postgresql/data
+    db:
+        image: postgres
+        environment:
+            - POSTGRES_PASSWORD=very-secret-stuff
+            - PGDATA=/var/lib/postgresql/data/pgdata
+        ports:
+            - 5432:5432
+        volumes:
+            - ./.pgdata:/var/lib/postgresql/data
+            - ./migrations/psql/:/docker-entrypoint-initdb.d/
