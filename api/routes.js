@@ -552,12 +552,9 @@ module.exports = (fastify, opt, next) => {
           reply.code(404).send({
             message: `Session with ID: '${sessionId}' was not found`,
           });
-<<<<<<< HEAD
         } else {
           await DBAdapter.DeleteSession(sessionId);
           reply.send(204);
-=======
->>>>>>> 3a3c293 (rebase attempt)
         }
 
         await DBAdapter.DeleteSession(sessionId);
@@ -738,7 +735,6 @@ module.exports = (fastify, opt, next) => {
         reply.code(404).send({
           message: `VAST not found`,
         });
-<<<<<<< HEAD
       } else {
         logger.debug(vast_xml.toString(), { label: host, sessionId: session.sessionId });
         if (vast_xml.toString() === EMPTY_VAST_STR) {
@@ -746,9 +742,6 @@ module.exports = (fastify, opt, next) => {
         } else {
           logger.info("Returned VAST and created a session", { label: req.headers['host'], sessionId: session.sessionId });
         }
-=======
-      }
->>>>>>> 3a3c293 (rebase attempt)
 
       // [LOG]: VAST-XML to console.
       if (vast_xml.toString() === EMPTY_VAST_STR) {
