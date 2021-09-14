@@ -688,7 +688,7 @@ module.exports = (fastify, opt, next) => {
 
         // Send Array of: items -> containing all session information.
         sessionList = sessionList.map((session) => {
-          return SessionFormatter2(session);
+          return SessionFormatter(session);
         });
         reply.code(200).send(sessionList);
       } catch (exc) {

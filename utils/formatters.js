@@ -14,7 +14,7 @@ function SessionFormatter(session) {
   return result;
 }
 
-function SessionFormatter2(session) {
+function PSQLFormatter(session) {
   // return a JSON
   let obj = {
     sessionId: session.session_id,
@@ -28,10 +28,9 @@ function SessionFormatter2(session) {
   return result;
 }
 
-function SQL2Session(sql) {
-  console.log(SessionFormatter2(sql));
-  const new_session = new Session(SessionFormatter2(sql));
+function SQLReply2Session(sql) {
+  const new_session = new Session(PSQLFormatter(sql));
   return new_session;
 }
 
-module.exports = { SessionFormatter, SessionFormatter2, SQL2Session };
+module.exports = { SessionFormatter, PSQLFormatter, SQLReply2Session };

@@ -21,6 +21,7 @@ class Session {
     const timeStamp = new Date().toISOString();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     this.created = timeStamp;
     this.sessionId = uuid();
     this.host = params.host;
@@ -30,6 +31,11 @@ class Session {
     this.sessionId = queryParams.sessionId || uuid();
     this.#user = new User(queryParams.uid || null);
 >>>>>>> a8bffbf (test: added unittest for session)
+=======
+    this.created = queryParams.created || timeStamp;
+    this.sessionId = queryParams.sessionId || uuid();
+    this.#user = new User(queryParams.userId || queryParams.uid || null);
+>>>>>>> 73c22ee (rebase attempt cont.)
 
     this.#clientRequest = new ClientRequest(params);
     this.#eventTracker = new EventTracker();
