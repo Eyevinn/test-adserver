@@ -16,12 +16,6 @@ class ClientRequest {
   #rawParameters;
 
   constructor(obj) {
-    let params;
-    if (obj.sessionId) {
-      params = obj.clientRequest;
-    } else {
-      params = obj;
-    }
     this.#consent = params.c || null;
     this.#requestedDuration = params.dur || null;
     this.#userId = params.uid || null;
