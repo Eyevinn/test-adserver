@@ -1,6 +1,6 @@
 node_modules/
 .nyc_output/
-.pgdata
+./.pgdata
 test_vast.xml
 commitlint.config.js
-.env
+./.env
