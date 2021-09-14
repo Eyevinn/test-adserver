@@ -12,6 +12,7 @@ class MemoryDBAdapter extends DBAdapter {
 
   // Get a List of running test sessions.
   async getAllSessions(opt) {
+<<<<<<< HEAD
     let sessionList = Object.values(SESSION_STORE);
 
     // Filter session list on host field.
@@ -19,12 +20,17 @@ class MemoryDBAdapter extends DBAdapter {
       sessionList = sessionList.filter( session => session.host.localeCompare(opt.targetHost) === 0);
     }
      // Sort by newest first
+=======
+    let sessionList = Object.values(SESSION_STORE).slice(0, 1);
+    console.log("session list size= " + sessionList.length);
+    // Sort by newest first
+>>>>>>> b2f94e8 (feat: pagination on psql version)
     sessionList.sort((a, b) => {
       const dateA = new Date(a["created"]);
       const dateB = new Date(b["created"]);
       return dateB - dateA;
     });
-    
+
     // Assuming We are to always respond with a pagination.
     // Paginate w/ query params, deafult values used otherwise.
     sessionList = PaginateMemoryDB(sessionList, opt.page, opt.limit);
@@ -44,13 +50,19 @@ class MemoryDBAdapter extends DBAdapter {
     if (sessionList.length === 0) {
       return null;
     }
+    sessionList.map((session) => {
+      return Transform(session);
+    });
     return sessionList;
   }
 
   // Get information of a specific test session.
   async getSession(sessionId) {
     const session = SESSION_STORE[sessionId];
-    return session;
+    if (!session) {
+      return session;
+    }
+    return Transform(session);
   }
 
   async DeleteSession(sessionId) {
