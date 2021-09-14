@@ -35,11 +35,15 @@ class Session {
     this.created = queryParams.created || timeStamp;
     this.sessionId = queryParams.sessionId || uuid();
 <<<<<<< HEAD
+<<<<<<< HEAD
     this.#user = new User(queryParams.userId || queryParams.uid || null);
 >>>>>>> 73c22ee (rebase attempt cont.)
 =======
     this.#user = new User(queryParams.userId || queryParams.uid || 'NOT FOUND');// null); // <-- because init.sql make a NOT NULL for uid
 >>>>>>> b2f94e8 (feat: pagination on psql version)
+=======
+    this.#user = new User(queryParams.userId || queryParams.uid || 'default-user-id');// null); // <-- because init.sql make a NOT NULL for uid
+>>>>>>> c55b357 (fix: changed uid default value)
 
     this.#clientRequest = new ClientRequest(params);
     this.#eventTracker = new EventTracker();
