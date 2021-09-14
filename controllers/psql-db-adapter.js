@@ -5,7 +5,6 @@ const Session = require("../api/Session");
 class PsqlDBAdapter extends DBAdapter {
   async AddSessionToStorage(session) {
     try {
-      // Might return array if copies exists.
       let db_reply = await db("sessions_table") // returns object or undefined
       .where("session_id", session.sessionId)
       .update({ tracked_events: JSON.stringify(session.getTrackedEvents())})
@@ -30,7 +29,6 @@ class PsqlDBAdapter extends DBAdapter {
         pageLimit: opt.limit
       });
       // TURN IT BACK TO SESSION CLASS OBJECT
-      // (!) Transform data to expected output format.
       pagi_db_reply.data = pagi_db_reply.data.map((session) => {
         let new_session = new Session();
         new_session.fromJSON(session);
@@ -89,7 +87,7 @@ class PsqlDBAdapter extends DBAdapter {
       let db_reply = await db("sessions_table")
         .where("session_id", sessionId)
         .del();
-      return db_reply; // 1
+      return db_reply; 
     } catch (err) {
       return err;
     }
