@@ -515,7 +515,7 @@ module.exports = (fastify, opt, next) => {
         const sessionList = await DBAdapter.getAllSessions(options);
         reply.code(200).send(sessionList);
       } catch (exc) {
-        logger.error(exc, { label: req.headers['host'] });
+        logger.error(exc.message, { label: req.headers['host'] });
         reply.code(500).send({ message: exc.message });
       }
     }
@@ -544,7 +544,7 @@ module.exports = (fastify, opt, next) => {
           reply.code(200).send(payload);
         }
       } catch (exc) {
-        logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
+        logger.error(exc.message, { label: req.headers['host'], sessionId: req.params.sessionId });
         reply.code(500).send({ message: exc.message });
       }
     }
@@ -566,7 +566,7 @@ module.exports = (fastify, opt, next) => {
           reply.send(204);
         }
       } catch (exc) {
-        logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
+        logger.error(exc.message, { label: req.headers['host'], sessionId: req.params.sessionId });
         reply.code(500).send({ message: exc.message });
       }
     }
@@ -601,6 +601,7 @@ module.exports = (fastify, opt, next) => {
             host: req.headers['host'],
             event: eventNames[viewProgress],
             adId: adId,
+            time: new Date().toISOString()
           };
           logger.info(logMsg, { label: req.headers['host'], sessionId: sessionId });
 
@@ -621,7 +622,7 @@ module.exports = (fastify, opt, next) => {
           });
         }
       } catch (exc) {
-        logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
+        logger.error(exc.message, { label: req.headers['host'], sessionId: req.params.sessionId });
         reply.code(500).send({ message: exc.message });
       }
     }
@@ -648,7 +649,7 @@ module.exports = (fastify, opt, next) => {
           reply.code(200).send(eventsList);
         }
       } catch (exc) {
-        logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
+        logger.error(exc.message, { label: req.headers['host'], sessionId: req.params.sessionId });
         reply.code(500).send({ message: exc.message });
       }
     }
@@ -686,7 +687,7 @@ module.exports = (fastify, opt, next) => {
           reply.code(200).send(sessionList);
         }
       } catch (exc) {
-        logger.error(exc, { label: req.headers['host'] });
+        logger.error(exc.message, { label: req.headers['host'] });
         reply.code(500).send({ message: exc.message });
       }
     }
@@ -699,6 +700,7 @@ module.exports = (fastify, opt, next) => {
    */
   // Vast - routes
   fastify.get("/vast", { schema: schemas["GET/vast"] }, async (req, reply) => {
+    let session;
     try {
       // [LOG]: requested query parameters with a timestamp.
       logger.info(req.query, { label: req.headers['host'] });
@@ -727,7 +729,7 @@ module.exports = (fastify, opt, next) => {
 
       const params = Object.assign(req.query, { acceptLang: acceptLanguage, host: host });
       // Create new session, then add to session DB.
-      const session = new Session(params);
+      session = new Session(params);
       const result = await DBAdapter.AddSessionToStorage(session);
       if (!result) {
         logger.error("Could not store new session", { label: host, sessionId: session.sessionId })
@@ -752,7 +754,7 @@ module.exports = (fastify, opt, next) => {
         reply.code(200).send(vast_xml);
       }
     } catch (exc) {
-      logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
+      logger.error(exc.message, { label: req.headers['host'], sessionId: session.sessionId });
       reply.code(500).send({ message: exc.message });
     }
   });
