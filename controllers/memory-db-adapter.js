@@ -17,8 +17,6 @@ class MemoryDBAdapter extends DBAdapter {
     if (opt && opt.targetHost && opt.targetHost != "") {
       sessionList = sessionList.filter( session => session.host.localeCompare(opt.targetHost) === 0);
     }
-    
-    let sessionList = Object.values(SESSION_STORE);
 
     // Sort by newest first
     sessionList.sort((a, b) => {
