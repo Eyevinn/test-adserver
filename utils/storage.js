@@ -7,12 +7,11 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 let DBAdapter = null;
-console.log("HELLO:::: NOW LETS CHOOOSE STORE::::")
 if (process.env.APP_DB_PSQL_URL) {
-    console.log("RUNNING IN PSQL-MODE")
+    console.log("Test-Adserver using PSQL storage...")
     DBAdapter = new PsqlDBAdapter();
 } else {
-    console.log("RUNNING IN MEMORY-MODE")
+    console.log("Test-Adserver using MEMORY storage...")
     DBAdapter = new MemoryDBAdapter();
 }
 
