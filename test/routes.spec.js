@@ -17,6 +17,13 @@ const PATTERN = {
   response: _.isString,
 };
 
+const EVENT_PATTERN = { 
+  type: _.isString,
+  issuedAt: _.isString,
+  onAd: _.isString,
+  userAgent: _.isString
+};
+
 const UID = "TESTER-ID";
 let SID;
 
@@ -400,6 +407,13 @@ describe(" MY ROUTES", () => {
     });
     it("should send an object", () => {
       reply.body.should.be.a("object");
+    });
+    it("should have object with array where items match EVENT_PATTERN", () => {
+      let eventsList = reply.body['events'];
+      for (var i = 0; i < eventsList; i++) {
+        eventsList[i].should.be.a("object");
+        eventsList[i].should.matchPattern(EVENT_PATTERN);
+      }
     });
     it("should be content-type: application/json ", () => {
       reply.should.have.header(
