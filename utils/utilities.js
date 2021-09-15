@@ -54,6 +54,13 @@ const getPreviousPage = (page) => {
   return page - 1;
 };
 
+const CloudWatchLog = (type, host, logEntry) => {
+  logEntry.type = type;
+  logEntry.host = host;
+  logEntry.time = (new Date()).toISOString();
+  console.log(JSON.stringify(logEntry));
+};
+
 // Function that allows you to specify how to return the data to the client
 function Transform(session) {
   return {
@@ -65,4 +72,4 @@ function Transform(session) {
     response: session.getVastXml().toString(),
   };
 }
-module.exports = { PaginateMemoryDB, Transform };
+module.exports = { PaginateMemoryDB, Transform, CloudWatchLog };
