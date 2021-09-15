@@ -544,7 +544,7 @@ module.exports = (fastify, opt, next) => {
           reply.code(200).send(payload);
         }
       } catch (exc) {
-        logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
+        logger.error(exc, { label: req.headers['host'], sessionId: sessionId });
         reply.code(500).send({ message: exc.message });
       }
     }
@@ -566,7 +566,7 @@ module.exports = (fastify, opt, next) => {
           reply.send(204);
         }
       } catch (exc) {
-        logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
+        logger.error(exc, { label: req.headers['host'], sessionId: sessionId });
         reply.code(500).send({ message: exc.message });
       }
     }
@@ -621,7 +621,7 @@ module.exports = (fastify, opt, next) => {
           });
         }
       } catch (exc) {
-        logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
+        logger.error(exc, { label: req.headers['host'], sessionId: sessionId });
         reply.code(500).send({ message: exc.message });
       }
     }
@@ -648,7 +648,7 @@ module.exports = (fastify, opt, next) => {
           reply.code(200).send(eventsList);
         }
       } catch (exc) {
-        logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
+        logger.error(exc, { label: req.headers['host'], sessionId: sessionId });
         reply.code(500).send({ message: exc.message });
       }
     }
