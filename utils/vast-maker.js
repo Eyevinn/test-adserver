@@ -48,6 +48,16 @@ const AdList = [
     height: "480",
     codec: "H.264" 
   },
+  {
+    universalId: "AAA/FFFF123/",
+    id: "stswe",
+    url: "https://testcontent.eyevinn.technology/ads/stswe-ad-30sec.mp4",
+    duration: "00:00:30",
+    bitrate: "10041",
+    width: "1920",
+    height: "1080",
+    codec: "H.264"
+  }
 ];
 
 /**
@@ -95,7 +105,7 @@ function AttachStandAloneAds(vast4, ads, params, podSize) {
       .addAdTitle(`Ad That Test-Adserver Wants Player To See #${i + podSize}`)
       .attachCreatives()
       .attachCreative({
-        id: `CRETIVE-ID_00${i + podSize}`,
+        id: `CREATIVE-ID_00${i + podSize}`,
         adId: `${ads[i].id}`,
         sequence: `${i + podSize}`
       })
