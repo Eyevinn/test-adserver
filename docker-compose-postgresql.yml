@@ -1,4 +1,7 @@
 version: "3.9"
+networks:
+  vc-net:
+    driver: bridge
 
 services:
     test-adserver-api:
