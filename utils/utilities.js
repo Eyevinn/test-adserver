@@ -10,3 +10,4 @@ const CloudWatchLog = (type, host, logEntry) => {
 
 
 module.exports = { CloudWatchLog };
+
