@@ -20,8 +20,7 @@ class Session {
   constructor(params) {
     if (params) {
     // Take a time stamp.
-    const timeStamp = new Date().toISOString();
-    this.created = timeStamp;
+    this.created = (new Date()).toISOString();
     this.sessionId = uuid();
     this.host = params.host || null;
     this.#user = new User(params.uid || "unknown");
