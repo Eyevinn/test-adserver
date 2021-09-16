@@ -594,7 +594,7 @@ module.exports = (fastify, opt, next) => {
             host: req.headers['host'],
             event: eventNames[viewProgress],
             adId: adId,
-            time: new Date().toISOString()
+            time: (new Date()).toISOString()
           };
           logger.info(logMsg, { label: req.headers['host'], sessionId: sessionId });
 
