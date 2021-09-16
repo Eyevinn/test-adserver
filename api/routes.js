@@ -1,5 +1,6 @@
 const DBAdapter = require("../utils/storage");
 const logger = require("../utils/logger.js");
+const { PaginateMemoryDB, Transform, CloudWatchLog } = require("../utils/utilities");
 const Session = require("./Session.js");
 
 /**
@@ -535,7 +536,7 @@ module.exports = (fastify, opt, next) => {
         const sessionObj = session.toObject();
         reply.code(200).send(sessionObj);
       } catch (exc) {
-        logger.error(exc.message, { label: req.headers['host'], sessionId: req.params.sessionId });
+        logger.error(exc, { label: req.headers['host'], sessionId: sessionId });
         reply.code(500).send({ message: exc.message });
       }
     }
@@ -558,7 +559,7 @@ module.exports = (fastify, opt, next) => {
           reply.send(204);
         }
       } catch (exc) {
-        logger.error(exc.message, { label: req.headers['host'], sessionId: req.params.sessionId });
+        logger.error(exc, { label: req.headers['host'], sessionId: sessionId });
         reply.code(500).send({ message: exc.message });
       }
     }
@@ -614,7 +615,7 @@ module.exports = (fastify, opt, next) => {
           });
         }
       } catch (exc) {
-        logger.error(exc.message, { label: req.headers['host'], sessionId: req.params.sessionId });
+        logger.error(exc, { label: req.headers['host'], sessionId: sessionId });
         reply.code(500).send({ message: exc.message });
       }
     }
@@ -641,7 +642,7 @@ module.exports = (fastify, opt, next) => {
           reply.code(200).send(eventsList);
         }
       } catch (exc) {
-        logger.error(exc.message, { label: req.headers['host'], sessionId: session.sessionId });
+        logger.error(exc, { label: req.headers['host'], sessionId: sessionId });
         reply.code(500).send({ message: exc.message });
       }
     }
@@ -681,6 +682,7 @@ module.exports = (fastify, opt, next) => {
     try {
       // [LOG]: requested query parameters with a timestamp.
       logger.info(req.query, { label: req.headers['host'] });
+      CloudWatchLog("ADS_REQUESTED", req.headers['host'], { dur: req.query['dur'] });
 
       // If client didn't send IP as query, then use IP in header
       if (!req.query['uip']) {
@@ -725,13 +727,18 @@ module.exports = (fastify, opt, next) => {
           logger.info("Empty VAST returned", { label: host });
         } else {
           logger.info("Returned VAST and created a session", { label: req.headers['host'], sessionId: session.sessionId });
+          CloudWatchLog("ADS_RETURNED", req.headers['host'], { dur: session.adBreakDuration, session: session.sessionId });
         }
 
         reply.header("Content-Type", "application/xml; charset=utf-8");
         reply.code(200).send(vast_xml);
       }
     } catch (exc) {
-      logger.error(exc.message, { label: req.headers['host'], sessionId: session.sessionId });
+      if (session) {
+        logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
+      } else {
+        logger.error(exc, { label: req.headers['host'] });
+      }
       reply.code(500).send({ message: exc.message });
     }
   });
