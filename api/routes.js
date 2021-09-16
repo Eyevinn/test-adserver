@@ -1,6 +1,6 @@
 const DBAdapter = require("../utils/storage");
 const logger = require("../utils/logger.js");
-const { PaginateMemoryDB, Transform, CloudWatchLog } = require("../utils/utilities");
+const { CloudWatchLog } = require("../utils/utilities");
 const Session = require("./Session.js");
 
 /**

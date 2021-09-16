@@ -46,6 +46,9 @@ class MemoryDBAdapter extends DBAdapter {
     if (sessionList.length === 0) {
       return null;
     }
+    sessionList.map((session) => {
+      return Transform(session);
+    });
     return sessionList;
   }
 
