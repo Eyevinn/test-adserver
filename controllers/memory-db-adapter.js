@@ -1,4 +1,3 @@
-const Session = require("../api/Session");
 const DBAdapter = require("./db-adapter");
 
 SESSION_STORE = {};
