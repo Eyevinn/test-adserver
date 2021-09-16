@@ -22,10 +22,21 @@ class Session {
     // Take a time stamp.
     const timeStamp = new Date().toISOString();
 
+<<<<<<< HEAD
     this.created = timeStamp;
     this.sessionId = uuid();
+<<<<<<< HEAD
     this.host = params.host || null;
     this.#user = new User(params.uid || "unknown");
+=======
+    this.host = params.host;
+    this.#user = new User(params.uid || null);
+=======
+    this.created = queryParams || timeStamp;
+    this.sessionId = queryParams.sessionId || uuid();
+    this.#user = new User(queryParams.uid || null);
+>>>>>>> a8bffbf (test: added unittest for session)
+>>>>>>> ca29970 (chore:)
 
     this.#clientRequest = new ClientRequest(params);
     this.#eventTracker = new EventTracker();

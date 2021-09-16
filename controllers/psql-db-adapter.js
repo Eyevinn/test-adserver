@@ -1,4 +1,5 @@
 const DBAdapter = require("./db-adapter");
+const { SQL2Session } = require("../utils/formatters");
 const db = require("../db/psql-db");
 const Session = require("../api/Session");
 
