@@ -22,7 +22,6 @@ class PsqlDBAdapter extends DBAdapter {
   // Get a list of running test sessions.
   async getAllSessions(opt) {
     try {
-
       let pagi_db_reply = await this._Paginator({
         targetHost: opt.targetHost,
         database: db,

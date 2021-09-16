@@ -678,7 +678,6 @@ module.exports = (fastify, opt, next) => {
    */
   // Vast - routes
   fastify.get("/vast", { schema: schemas["GET/vast"] }, async (req, reply) => {
-    let session;
     try {
       // [LOG]: requested query parameters with a timestamp.
       logger.info(req.query, { label: req.headers['host'] });
@@ -708,7 +707,7 @@ module.exports = (fastify, opt, next) => {
 
       const params = Object.assign(req.query, { acceptLang: acceptLanguage, host: host });
       // Create new session, then add to session DB.
-      session = new Session(params);
+      const session = new Session(params);
       const result = await DBAdapter.AddSessionToStorage(session);
       if (!result) {
         logger.error("Could not store new session", { label: host, sessionId: session.sessionId })
