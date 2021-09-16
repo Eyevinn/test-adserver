@@ -12,6 +12,7 @@ class MemoryDBAdapter extends DBAdapter {
 
   // Get a List of running test sessions.
   async getAllSessions(opt) {
+
     let sessionList = Object.values(SESSION_STORE);
 
     // Filter session list on host field.
@@ -46,8 +47,10 @@ class MemoryDBAdapter extends DBAdapter {
       return null;
     }
     sessionList.map((session) => {
-      return this._FromDBToObject(session);
+      let i = session.toObject();
+      return i;
     });
+    console.log(JSON.stringify(sessionList))
     return sessionList;
   }
 
