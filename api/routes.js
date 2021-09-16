@@ -569,7 +569,6 @@ module.exports = (fastify, opt, next) => {
     "/sessions/:sessionId/tracking",
     { schema: schemas["GET/sessions/:sessionId/tracking"] },
     async (req, reply) => {
-      let session;
       try {
         // Get path parameters and query parameters.
         const sessionId = req.params.sessionId;
@@ -585,7 +584,7 @@ module.exports = (fastify, opt, next) => {
         };
 
         // Check if session exists.
-        session = await DBAdapter.getSession(sessionId);
+        const session = await DBAdapter.getSession(sessionId);
         if (!session) {
           logger.info(`Session with ID: '${sessionId}' was not found`, { label: req.headers['host'], sessionId: sessionId });
           reply.code(404).send({ message: `Session with ID: '${sessionId}' was not found` });
@@ -642,21 +641,6 @@ module.exports = (fastify, opt, next) => {
           // Reply with 200 OK and acknowledgment message. Client Ignores this?
           reply.code(200).send(eventsList);
         }
-
-        // [LOG]: data to console with special format.
-        const logMsg = {
-          type: "test-adserver",
-          time: new Date().toISOString(),
-          event: eventNames[viewProgress],
-          session: `${process.env.HOST || "localhost"}:${process.env.PORT || "8080"
-            }/api/v1/sessions/${sessionId}`,
-        };
-        console.log(logMsg);
-
-        // Reply with 200 OK and acknowledgment message. Client Ignores this?
-        reply.code(200).send({
-          message: `Tracking Data Recieved [ ADID:${adID}, PROGRESS:${viewProgress} ]`,
-        });
       } catch (exc) {
         logger.error(exc, { label: req.headers['host'], sessionId: sessionId });
         reply.code(500).send({ message: exc.message });

@@ -63,7 +63,6 @@ class Session {
     this.#eventTracker.AddEvent(eventObj);
   }
 
-<<<<<<< HEAD
   toJSON() {
     return {
       session_id: this.sessionId,
@@ -76,20 +75,6 @@ class Session {
       tracked_events: JSON.stringify(this.getTrackedEvents())
     }
   }
-=======
-  // toJSON(session) {
-  //   return {
-  //     session_id: session.sessionId,
-  //     user_id: session.getUser(),
-  //     ad_break_dur: session.adBreakDuration,
-  //     created: session.created,
-  //     host: session.host,
-  //     cli_req: JSON.stringify(session.getClientRequest()),
-  //     response: session.getVastXml().toString(),
-  //     tracked_events: JSON.stringify(session.getTrackedEvents())
-  //   }
-  // }
->>>>>>> 54e3f1f (rebase:)
 
   // Initialize new Session from its JSON form.
   fromJSON(jsonObj) {
@@ -98,11 +83,7 @@ class Session {
     this.host = jsonObj.host;
     this.#user = new User(jsonObj.user_id || "unknown");
     this.#clientRequest = new ClientRequest(JSON.parse(jsonObj.cli_req));
-<<<<<<< HEAD
     this.#eventTracker = new EventTracker(JSON.parse(jsonObj.tracked_events)['events']);
-=======
-    this.#eventTracker = new EventTracker(JSON.parse(jsonObj.tracked_events));
->>>>>>> 54e3f1f (rebase:)
     this.adBreakDuration = jsonObj.ad_break_dur;
 
     const parser = new DOMParser();
@@ -111,12 +92,7 @@ class Session {
   }
 
   toObject() {
-<<<<<<< HEAD
     return {
-=======
-    console.log(":::::LOGGING HERE:::")
-    let item = {
->>>>>>> 54e3f1f (rebase:)
       sessionId: this.sessionId,
       userId: this.getUser(),
       created: this.created,
@@ -124,10 +100,6 @@ class Session {
       clientRequest: this.getClientRequest(),
       response: this.getVastXml().toString(),
     };
-<<<<<<< HEAD
-=======
-    return item;
->>>>>>> 54e3f1f (rebase:)
   }
 
 }

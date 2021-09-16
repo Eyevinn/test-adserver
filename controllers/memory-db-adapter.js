@@ -46,11 +46,6 @@ class MemoryDBAdapter extends DBAdapter {
     if (sessionList.length === 0) {
       return null;
     }
-    sessionList.map((session) => {
-      let i = session.toObject();
-      return i;
-    });
-    console.log(JSON.stringify(sessionList))
     return sessionList;
   }
 
