@@ -558,6 +558,9 @@ module.exports = (fastify, opt, next) => {
           await DBAdapter.DeleteSession(sessionId);
           reply.send(204);
         }
+
+        await DBAdapter.DeleteSession(sessionId);
+        reply.send(204); // Decide what to do here. 200 || 204
       } catch (exc) {
         logger.error(exc, { label: req.headers['host'], sessionId: sessionId });
         reply.code(500).send({ message: exc.message });
@@ -641,6 +644,21 @@ module.exports = (fastify, opt, next) => {
           // Reply with 200 OK and acknowledgment message. Client Ignores this?
           reply.code(200).send(eventsList);
         }
+
+        // [LOG]: data to console with special format.
+        const logMsg = {
+          type: "test-adserver",
+          time: new Date().toISOString(),
+          event: eventNames[viewProgress],
+          session: `${process.env.HOST || "localhost"}:${process.env.PORT || "8080"
+            }/api/v1/sessions/${sessionId}`,
+        };
+        console.log(logMsg);
+
+        // Reply with 200 OK and acknowledgment message. Client Ignores this?
+        reply.code(200).send({
+          message: `Tracking Data Recieved [ ADID:${adID}, PROGRESS:${viewProgress} ]`,
+        });
       } catch (exc) {
         logger.error(exc, { label: req.headers['host'], sessionId: sessionId });
         reply.code(500).send({ message: exc.message });
@@ -728,6 +746,13 @@ module.exports = (fastify, opt, next) => {
         } else {
           logger.info("Returned VAST and created a session", { label: req.headers['host'], sessionId: session.sessionId });
           CloudWatchLog("ADS_RETURNED", req.headers['host'], { dur: session.adBreakDuration, session: session.sessionId });
+        }
+
+        // [LOG]: VAST-XML to console.
+        if (vast_xml.toString() === EMPTY_VAST_STR) {
+          console.log(EMPTY_VAST_MSG + vast_xml);
+        } else {
+          console.log("...VAST RESPONSE:\n\n" + vast_xml);
         }
 
         reply.header("Content-Type", "application/xml; charset=utf-8");
