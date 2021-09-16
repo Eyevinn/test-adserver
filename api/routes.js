@@ -745,17 +745,9 @@ module.exports = (fastify, opt, next) => {
           logger.info("Returned VAST and created a session", { label: req.headers['host'], sessionId: session.sessionId });
           CloudWatchLog("ADS_RETURNED", req.headers['host'], { dur: session.adBreakDuration, session: session.sessionId });
         }
-
-        // [LOG]: VAST-XML to console.
-        if (vast_xml.toString() === EMPTY_VAST_STR) {
-          console.log(EMPTY_VAST_MSG + vast_xml);
-        } else {
-          console.log("...VAST RESPONSE:\n\n" + vast_xml);
-        }
-
-        reply.header("Content-Type", "application/xml; charset=utf-8");
-        reply.code(200).send(vast_xml);
       }
+      reply.header("Content-Type", "application/xml; charset=utf-8");
+      reply.code(200).send(vast_xml);
     } catch (exc) {
       if (session) {
         logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
