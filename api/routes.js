@@ -736,9 +736,7 @@ module.exports = (fastify, opt, next) => {
       vast_xml = session.getVastXml();
       if (!vast_xml) {
         logger.error("VAST not found", { label: host, sessionId: session.sessionId })
-        reply.code(404).send({
-          message: `VAST not found`,
-        });
+        reply.code(404).send({ message: `VAST not found` });
       } else {
         logger.debug(vast_xml.toString(), { label: host, sessionId: session.sessionId });
         if (vast_xml.toString() === EMPTY_VAST_STR) {
