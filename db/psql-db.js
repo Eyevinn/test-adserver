@@ -16,4 +16,8 @@ if (process.env.APP_DB_PSQL_URL) {
   }
 }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 2d133a4 (rebase:)
 module.exports = db;

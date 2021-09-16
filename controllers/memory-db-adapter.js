@@ -33,6 +33,12 @@ class MemoryDBAdapter extends DBAdapter {
     if (!sessionList) {
       return {};
     }
+<<<<<<< HEAD
+=======
+    sessionList.data = sessionList.data.map((session) => {
+      return this._FromDBToObject(session);
+    });
+>>>>>>> 2d133a4 (rebase:)
     // Return Pagination Object
     return sessionList;
   }
@@ -47,7 +53,7 @@ class MemoryDBAdapter extends DBAdapter {
       return null;
     }
     sessionList.map((session) => {
-      return Transform(session);
+      return this._FromDBToObject(session);
     });
     return sessionList;
   }
@@ -58,7 +64,11 @@ class MemoryDBAdapter extends DBAdapter {
     if (!session) {
       return session;
     }
+<<<<<<< HEAD
     return session;
+=======
+    return this._FromDBToObject(session);
+>>>>>>> 2d133a4 (rebase:)
   }
 
   async DeleteSession(sessionId) {
@@ -91,6 +101,20 @@ class MemoryDBAdapter extends DBAdapter {
       data: sessions,
     };
   }
+<<<<<<< HEAD
+=======
+
+  _FromDBToObject(session) {
+    return {
+      sessionId: session.sessionId,
+      userId: session.getUser(),
+      created: session.created,
+      adBreakDuration: session.adBreakDuration,
+      clientRequest: session.getClientRequest(),
+      response: session.getVastXml().toString(),
+    };
+  }
+>>>>>>> 2d133a4 (rebase:)
 }
 
 module.exports = MemoryDBAdapter;
