@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "mocha --timeout 10000 --bail",
+    "test": "mocha --timeout 10000 --bail --exit",
     "dev": "nodemon -L server.js",
     "start": "node server.js",
     "start-fastify": "fastify start -l info app.js",
@@ -40,6 +40,7 @@
     "fastify-plugin": "^3.0.0",
     "fastify-sensible": "^3.1.1",
     "fastify-swagger": "^4.6.0",
+    "knex": "^0.95.11",
     "mocha": "^8.4.0",
     "swagger-jsdoc": "^7.0.0-rc.6",
     "timestamp-to-seconds": "^0.0.2",

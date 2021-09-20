@@ -1,5 +1,4 @@
 const DBAdapter = require("./db-adapter");
-const { PaginateMemoryDB, Transform } = require("../utils/utilities");
 
 SESSION_STORE = {};
 
@@ -12,32 +11,34 @@ class MemoryDBAdapter extends DBAdapter {
 
   // Get a List of running test sessions.
   async getAllSessions(opt) {
+
     let sessionList = Object.values(SESSION_STORE);
 
     // Filter session list on host field.
     if (opt && opt.targetHost && opt.targetHost != "") {
       sessionList = sessionList.filter( session => session.host.localeCompare(opt.targetHost) === 0);
     }
-     // Sort by newest first
+
+    // Sort by newest first
     sessionList.sort((a, b) => {
       const dateA = new Date(a["created"]);
       const dateB = new Date(b["created"]);
       return dateB - dateA;
     });
-    
+
     // Assuming We are to always respond with a pagination.
     // Paginate w/ query params, deafult values used otherwise.
-    sessionList = PaginateMemoryDB(sessionList, opt.page, opt.limit);
-    sessionList.data = sessionList.data.map((session) => {
-      return Transform(session);
-    });
+    sessionList = await this._Paginator({ list: sessionList, pageNum: opt.page, pageLimit: opt.limit });
+    if (!sessionList) {
+      return {};
+    }
     // Return Pagination Object
     return sessionList;
   }
 
   // Get a List of running test sessions.
   async getSessionsByUserId(userId) {
-    let sessionList = Object.values(SESSION_STORE).filter(
+    let sessionList = await Object.values(SESSION_STORE).filter(
       (session) => userId == session.getUser()
     );
     // If empty, then we have no sessions.
@@ -50,6 +51,9 @@ class MemoryDBAdapter extends DBAdapter {
   // Get information of a specific test session.
   async getSession(sessionId) {
     const session = SESSION_STORE[sessionId];
+    if (!session) {
+      return session;
+    }
     return session;
   }
 
@@ -57,8 +61,32 @@ class MemoryDBAdapter extends DBAdapter {
     delete SESSION_STORE[sessionId];
     return 1;
   }
+
+  async _Paginator(opt) {
+    if (!opt) {
+      return false;
+    }
+    let list = opt.list || [];
+    const limit = parseInt(opt.pageLimit, 10) || 80;
+    const page = parseInt(opt.pageNum, 10) || 1;
+    const startAt = (page - 1) * limit;
+    const endAt = page * limit;
+    const totalCount = list.length;
+    const getTotalPages = (limit, totalCount) => Math.ceil(totalCount / limit);
+    const getNextPage = (page, limit, total) => (total / limit) > page ? page + 1 : null;
+    const getPreviousPage = page => page <= 1 ? null : page - 1;
+    let sessions = list.slice(startAt, endAt);
+
+    return {
+      previousPage: getPreviousPage(page),
+      currentPage: page,
+      nextPage: getNextPage(page, limit, totalCount),
+      totalPages: getTotalPages(limit, totalCount),
+      limit: limit,
+      totalItems: totalCount,
+      data: sessions,
+    };
+  }
 }
 
-const adapter = new MemoryDBAdapter();
-
-module.exports = adapter;
+module.exports = MemoryDBAdapter;
