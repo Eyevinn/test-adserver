@@ -3,6 +3,7 @@ const EventTracker = require("./EventTracker.js")
 const User = require("./User.js");
 const { VastBuilder } = require("../utils/vast-maker");
 const { v4: uuid } = require("uuid");
+const DOMParser = require('xmldom').DOMParser;
 
 class Session {
   // Public Fields

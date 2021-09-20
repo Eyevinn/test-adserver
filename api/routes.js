@@ -1,6 +1,6 @@
-const DBAdapter = require("../controllers/memory-db-adapter");
+const DBAdapter = require("../utils/storage");
 const logger = require("../utils/logger.js");
-const { PaginateMemoryDB, Transform, CloudWatchLog } = require("../utils/utilities");
+const { CloudWatchLog } = require("../utils/utilities");
 const Session = require("./Session.js");
 
 /**
@@ -511,8 +511,8 @@ module.exports = (fastify, opt, next) => {
           limit: req.query.limit,
           targetHost: req.headers['host']
         };
-        
-        const sessionList = await DBAdapter.getAllSessions(options);
+        let sessionList = await DBAdapter.getAllSessions(options);
+        sessionList.data = sessionList.data.map(session => session.toObject());
         reply.code(200).send(sessionList);
       } catch (exc) {
         logger.error(exc, { label: req.headers['host'] });
@@ -532,17 +532,9 @@ module.exports = (fastify, opt, next) => {
           reply.code(404).send({
             message: `Session with ID: '${sessionId}' was not found`,
           });
-        } else {
-          const payload = {
-            sessionId: session.sessionId,
-            userId: session.getUser(),
-            created: session.created,
-            adBreakDuration: session.adBreakDuration,
-            clientRequest: session.getClientRequest(),
-            response: session.getVastXml().toString(),
-          };
-          reply.code(200).send(payload);
         }
+        const sessionObj = session.toObject();
+        reply.code(200).send(sessionObj);
       } catch (exc) {
         logger.error(exc, { label: req.headers['host'], sessionId: sessionId });
         reply.code(500).send({ message: exc.message });
@@ -662,30 +654,17 @@ module.exports = (fastify, opt, next) => {
     async (req, reply) => {
       try {
         // Get Session List via db-controller function.
-        let sessionList = await DBAdapter.getSessionsByUserId(
-          req.params.userId
-        );
-
+        
+        let sessionList = await DBAdapter.getSessionsByUserId(req.params.userId);
         // Check if List is null, If so assume no sessions with that user ID exists.
         if (!sessionList) {
           logger.info(`Sessions under User-ID: '${req.params.userId}' were not found`, { label: req.headers['host'] });
           reply.code(404).send({
             message: `Sessions under User-ID: '${req.params.userId}' were not found`,
           });
-        } else {
-          // Send Array of: items -> containing all session information.
-          sessionList = sessionList.map((session) => {
-            return {
-              sessionId: session.sessionId,
-              userId: session.getUser(),
-              created: session.created,
-              adBreakDuration: session.adBreakDuration,
-              clientRequest: session.getClientRequest(),
-              response: session.getVastXml().toString(),
-            };
-          });
-          reply.code(200).send(sessionList);
         }
+        sessionList = sessionList.map(session => session.toObject());
+        reply.code(200).send(sessionList);
       } catch (exc) {
         logger.error(exc, { label: req.headers['host'] });
         reply.code(500).send({ message: exc.message });
