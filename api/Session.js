@@ -3,7 +3,7 @@ const EventTracker = require("./EventTracker.js")
 const User = require("./User.js");
 const { VastBuilder } = require("../utils/vast-maker");
 const { v4: uuid } = require("uuid");
-const DOMParser = require('xmldom').DOMParser;
+const xml = require("xml-parse");
 
 class Session {
   // Public Fields
@@ -86,9 +86,8 @@ class Session {
     this.#eventTracker = new EventTracker(JSON.parse(jsonObj.tracked_events)['events']);
     this.adBreakDuration = jsonObj.ad_break_dur;
 
-    const parser = new DOMParser();
-    const vastXml = parser.parseFromString(jsonObj.response, "text/xml");
-    this.#vastXml = vastXml;
+    const parsedXML = xml.parse(jsonObj.response.toString());
+    this.#vastXml = parsedXML;
   }
 
   toObject() {
