@@ -1,4 +1,4 @@
-const DBAdapter = require("../utils/storage");
+const DBAdapter = require("../db/storage");
 const logger = require("../utils/logger.js");
 const { CloudWatchLog } = require("../utils/utilities");
 const Session = require("./Session.js");
