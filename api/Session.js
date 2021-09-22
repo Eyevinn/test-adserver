@@ -38,6 +38,7 @@ class Session {
         podSize: params.ps || null
       });
   
+    
       this.#vastXml = vastObj.xml;
       this.adBreakDuration = vastObj.duration;
       }

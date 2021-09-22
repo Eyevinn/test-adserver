@@ -1,8 +1,4 @@
 const Session = require("../api/Session");
-const chai = require("chai");
-const should = chai.should();
-const chaiMatchPattern = require("chai-match-pattern");
-const _ = chaiMatchPattern.getLodashModule();
 
 mockClientParams1 = {
   console: true,
