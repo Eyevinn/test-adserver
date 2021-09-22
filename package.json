@@ -45,6 +45,7 @@
     "mocha": "^8.4.0",
     "pg": "^8.6.0",
     "swagger-jsdoc": "^7.0.0-rc.6",
+    "tap": "^15.0.10",
     "timestamp-to-seconds": "^0.0.2",
     "uuid": "^3.4.0",
     "vast-builder": "^4.0.1",
