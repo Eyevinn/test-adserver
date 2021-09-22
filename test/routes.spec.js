@@ -1,6 +1,8 @@
 const chai = require("chai");
 const chaiHttp = require("chai-http");
+const should = chai.should();
 const chaiMatchPattern = require("chai-match-pattern");
+const { default: fastify } = require("fastify");
 const builder = require("../app");
 const _ = chaiMatchPattern.getLodashModule();
 
