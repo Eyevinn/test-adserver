@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "mocha --timeout 10000 --bail --exit",
+    "test": "mocha --timeout 10000 --bail",
     "dev": "nodemon -L server.js",
     "start": "node server.js",
     "start-fastify": "fastify start -l info app.js",
@@ -31,7 +31,6 @@
     "chai": "^4.3.4",
     "chai-http": "^4.3.0",
     "chai-match-pattern": "^1.2.0",
-    "chokidar": "^3.5.1",
     "dotenv": "^8.2.0",
     "dotenv-vars": "^2.1.0",
     "fastify": "^3.14.2",
@@ -41,11 +40,8 @@
     "fastify-plugin": "^3.0.0",
     "fastify-sensible": "^3.1.1",
     "fastify-swagger": "^4.6.0",
-    "knex": "^0.95.4",
     "mocha": "^8.4.0",
-    "pg": "^8.6.0",
     "swagger-jsdoc": "^7.0.0-rc.6",
-    "tap": "^15.0.10",
     "timestamp-to-seconds": "^0.0.2",
     "uuid": "^3.4.0",
     "vast-builder": "^4.0.1",
@@ -55,7 +51,9 @@
   "devDependencies": {
     "@commitlint/cli": "^12.1.1",
     "@commitlint/config-conventional": "^12.1.1",
-    "nodemon": "^2.0.7"
+    "fast-xml-parser": "^3.19.0",
+    "nodemon": "^2.0.7",
+    "tap": "^15.0.4"
   },
   "engines": {
     "node": ">=12.0.0"
