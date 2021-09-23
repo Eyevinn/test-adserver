@@ -44,6 +44,13 @@ class MemoryDBAdapter extends DBAdapter {
     if (sessionList.length === 0) {
       return null;
     }
+    // Sort by newest first
+    sessionList.sort((a, b) => {
+    const dateA = new Date(a["created"]);
+    const dateB = new Date(b["created"]);
+    return dateB - dateA;
+    });
+    
     return sessionList;
   }
 
