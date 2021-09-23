@@ -8,6 +8,8 @@ class DBAdapter {
   async getSession(sessionId) {}
 
   async DeleteSession(sessionId) {}
+
+  async _Paginator(opt) {}
 }
 
 module.exports = DBAdapter;

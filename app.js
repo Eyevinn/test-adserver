@@ -1,16 +1,14 @@
-// IMPORT MODULES
 const Fastify = require("fastify");
 
 function builder() {
   const fastify = Fastify({ ignoreTrailingSlash: true });
-  // Homepage route? Replace later.
+
   fastify.get("/", async () => {
     return {
       Test: "This is working fine",
     };
   });
 
-  // SET UP Swagger
   fastify.register(require("fastify-swagger"), {
     routePrefix: "/api/docs",
     swagger: {
