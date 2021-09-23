@@ -45,7 +45,8 @@ class PsqlDBAdapter extends DBAdapter {
     try {
       let db_reply = await db("sessions_table")
         .select()
-        .where("user_id", userId);
+        .where("user_id", userId)
+        .orderBy("created", "desc");
       // TODO: decide if should respond with 404 || []
       if (db_reply.length === 0) {
         return null;
