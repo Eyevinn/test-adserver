@@ -512,7 +512,7 @@ module.exports = (fastify, opt, next) => {
         const options = {
           page: req.query.page,
           limit: req.query.limit,
-          targetHost: "telenor.adtest.eyevinn.technology"//req.headers['host']
+          targetHost: req.headers['host']
         };
         
         const sessionList = await DBAdapter.getAllSessions(options);
