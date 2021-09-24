@@ -1,7 +1,10 @@
 const DBAdapter = require("../controllers/memory-db-adapter");
 const logger = require("../utils/logger.js");
-const { PaginateMemoryDB, Transform, CloudWatchLog } = require("../utils/utilities");
+const { PaginateMemoryDB, Transform, CloudWatchLog, tenantCache, UpdateCache } = require("../utils/utilities");
 const Session = require("./Session.js");
+
+
+const CACHE_MAX_AGE = process.env.CACHE_MAX_AGE || 5 * 60 * 1000;
 
 /**
  * - First Schemas
@@ -509,7 +512,7 @@ module.exports = (fastify, opt, next) => {
         const options = {
           page: req.query.page,
           limit: req.query.limit,
-          targetHost: req.headers['host']
+          targetHost: "telenor.adtest.eyevinn.technology"//req.headers['host']
         };
         
         const sessionList = await DBAdapter.getAllSessions(options);
@@ -726,8 +729,22 @@ module.exports = (fastify, opt, next) => {
       // Parse browser language, and host from request header
       const acceptLanguage = req.headers['accept-language'] || "Not Found";
       const host = req.headers['host'];
-
       const params = Object.assign(req.query, { acceptLang: acceptLanguage, host: host });
+
+      // Use Ads from mRSS if origin is specified
+      if (process.env.MRSS_ORIGIN) {
+        const tenantId = host.split('.').shift();
+        const feedUri = `${process.env.MRSS_ORIGIN}${tenantId}.mrss`
+        if (!tenantCache[tenantId]) {
+          await UpdateCache(tenantId, feedUri, tenantCache);
+        } else {
+          const age = Date.now() - tenantCache[tenantId].lastUpdated;
+          if (age >= CACHE_MAX_AGE) {
+            await UpdateCache(tenantId, feedUri, tenantCache);
+          }
+        }
+      }
+
       // Create new session, then add to session DB.
       const session = new Session(params);
       const result = await DBAdapter.AddSessionToStorage(session);

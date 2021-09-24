@@ -1,5 +1,6 @@
 const createVast = require("vast-builder");
 const timestampToSeconds = require("timestamp-to-seconds");
+const { tenantCache } = require("./utilities")
 
 const PopulationMethods = Object.freeze({
   GO_BY_MIN: 1,
@@ -7,7 +8,7 @@ const PopulationMethods = Object.freeze({
   GO_BY_SIZE_AND_MAX: 3
 });
 
-const AdList = [
+const DEFAULT_AD_LIST = [
   {
     universalId: "AAA/BBBB123/",
     id: "streamingtech_ad",
@@ -77,8 +78,16 @@ const AdList = [
  */
 function VastBuilder(params) {
   let vastObject = {};
+  let adList = [];
+ // Use Default AdList OR get new List from tenantCache.
+  const tenantId = params.adserverHostname.split('.').shift();
+  if (!tenantCache[tenantId]) {
+    adList = DEFAULT_AD_LIST;
+  } else {
+    adList = tenantCache[tenantId].cachedAdList;
+  }
 
-  let [selectedAds, adsDuration] = GetAdsAndDuration(AdList, params.desiredDuration, params.podSize, params.minPodDuration, params.maxPodDuration);
+  let [selectedAds, adsDuration] = GetAdsAndDuration(adList, params.desiredDuration, params.podSize, params.minPodDuration, params.maxPodDuration);
 
   //selectedAds = selectedAds.standAloneAds;
   const vast4 = createVast.v4();
