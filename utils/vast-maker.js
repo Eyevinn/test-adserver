@@ -82,7 +82,7 @@ function VastBuilder(params) {
   // Use Default AdList OR get new List from TENANT_CACHE.
   let tenantId = null;
   if (params.adserverHostname) {
-    tenantId = params.adserverHostname.split('.').shift();
+    tenantId = params.adserverHostname;
   }
   
   if (!TENANT_CACHE[tenantId]) {

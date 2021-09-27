@@ -512,7 +512,7 @@ module.exports = (fastify, opt, next) => {
         const options = {
           page: req.query.page,
           limit: req.query.limit,
-          targetHost: req.headers['host']
+          targetHost: "telenor.great.test"//req.headers['host']
         };
         
         const sessionList = await DBAdapter.getAllSessions(options);
@@ -728,19 +728,18 @@ module.exports = (fastify, opt, next) => {
       }
       // Parse browser language, and host from request header
       const acceptLanguage = req.headers['accept-language'] || "Not Found";
-      const host = req.headers['host'];
+      const host = "telenor.great.test"//req.headers['host'];
       const params = Object.assign(req.query, { acceptLang: acceptLanguage, host: host });
 
       // Use Ads from mRSS if origin is specified
       if (process.env.MRSS_ORIGIN) {
-        const tenantId = host.split('.').shift();
-        const feedUri = `${process.env.MRSS_ORIGIN}${tenantId}.mrss`
-        if (!TENANT_CACHE[tenantId]) {
-          await UpdateCache(tenantId, feedUri, TENANT_CACHE);
+        const feedUri = `${process.env.MRSS_ORIGIN}${host}.mrss`
+        if (!TENANT_CACHE[host]) {
+          await UpdateCache(host, feedUri, TENANT_CACHE);
         } else {
-          const age = Date.now() - TENANT_CACHE[tenantId].lastUpdated;
+          const age = Date.now() - TENANT_CACHE[host].lastUpdated;
           if (age >= CACHE_MAX_AGE) {
-            await UpdateCache(tenantId, feedUri, TENANT_CACHE);
+            await UpdateCache(host, feedUri, TENANT_CACHE);
           }
         }
       }
