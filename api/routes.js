@@ -1,6 +1,6 @@
 const DBAdapter = require("../controllers/memory-db-adapter");
 const logger = require("../utils/logger.js");
-const { PaginateMemoryDB, Transform, CloudWatchLog, tenantCache, UpdateCache } = require("../utils/utilities");
+const { PaginateMemoryDB, Transform, CloudWatchLog, TENANT_CACHE, UpdateCache } = require("../utils/utilities");
 const Session = require("./Session.js");
 
 
@@ -735,12 +735,12 @@ module.exports = (fastify, opt, next) => {
       if (process.env.MRSS_ORIGIN) {
         const tenantId = host.split('.').shift();
         const feedUri = `${process.env.MRSS_ORIGIN}${tenantId}.mrss`
-        if (!tenantCache[tenantId]) {
-          await UpdateCache(tenantId, feedUri, tenantCache);
+        if (!TENANT_CACHE[tenantId]) {
+          await UpdateCache(tenantId, feedUri, TENANT_CACHE);
         } else {
-          const age = Date.now() - tenantCache[tenantId].lastUpdated;
+          const age = Date.now() - TENANT_CACHE[tenantId].lastUpdated;
           if (age >= CACHE_MAX_AGE) {
-            await UpdateCache(tenantId, feedUri, tenantCache);
+            await UpdateCache(tenantId, feedUri, TENANT_CACHE);
           }
         }
       }

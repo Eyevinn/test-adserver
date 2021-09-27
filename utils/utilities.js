@@ -6,7 +6,7 @@ const fetch = require('node-fetch');
 const xmlparser = require('fast-xml-parser');
 
 // IM MEMORY CACHE, containing specified ad list for each tenant.
-const tenantCache = {};
+const TENANT_CACHE = {};
 
 async function UpdateCache(tenant, feedURI, cache) {
   // Start Over Clean
@@ -113,4 +113,4 @@ function Transform(session) {
   };
 }
 
-module.exports = { PaginateMemoryDB, Transform, CloudWatchLog, tenantCache, UpdateCache };
+module.exports = { PaginateMemoryDB, Transform, CloudWatchLog, TENANT_CACHE, UpdateCache };
