@@ -512,7 +512,7 @@ module.exports = (fastify, opt, next) => {
         const options = {
           page: req.query.page,
           limit: req.query.limit,
-          targetHost: "telenor.great.test"//req.headers['host']
+          targetHost: req.headers['host']
         };
         
         const sessionList = await DBAdapter.getAllSessions(options);
@@ -728,7 +728,7 @@ module.exports = (fastify, opt, next) => {
       }
       // Parse browser language, and host from request header
       const acceptLanguage = req.headers['accept-language'] || "Not Found";
-      const host = "telenor.great.test"//req.headers['host'];
+      const host = req.headers['host'];
       const params = Object.assign(req.query, { acceptLang: acceptLanguage, host: host });
 
       // Use Ads from mRSS if origin is specified
