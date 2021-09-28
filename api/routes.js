@@ -1,7 +1,10 @@
 const DBAdapter = require("../controllers/memory-db-adapter");
 const logger = require("../utils/logger.js");
-const { PaginateMemoryDB, Transform, CloudWatchLog } = require("../utils/utilities");
+const { PaginateMemoryDB, Transform, CloudWatchLog, TENANT_CACHE, UpdateCache } = require("../utils/utilities");
 const Session = require("./Session.js");
+
+
+const CACHE_MAX_AGE = process.env.CACHE_MAX_AGE || 5 * 60 * 1000;
 
 /**
  * - First Schemas
@@ -726,8 +729,21 @@ module.exports = (fastify, opt, next) => {
       // Parse browser language, and host from request header
       const acceptLanguage = req.headers['accept-language'] || "Not Found";
       const host = req.headers['host'];
-
       const params = Object.assign(req.query, { acceptLang: acceptLanguage, host: host });
+
+      // Use Ads from mRSS if origin is specified
+      if (process.env.MRSS_ORIGIN) {
+        const feedUri = `${process.env.MRSS_ORIGIN}${host}.mrss`
+        if (!TENANT_CACHE[host]) {
+          await UpdateCache(host, feedUri, TENANT_CACHE);
+        } else {
+          const age = Date.now() - TENANT_CACHE[host].lastUpdated;
+          if (age >= CACHE_MAX_AGE) {
+            await UpdateCache(host, feedUri, TENANT_CACHE);
+          }
+        }
+      }
+
       // Create new session, then add to session DB.
       const session = new Session(params);
       const result = await DBAdapter.AddSessionToStorage(session);
