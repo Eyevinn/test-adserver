@@ -92,7 +92,7 @@ The test-adserver is expecting an mRSS feed which should include text/xml with t
   </entry> 
 </feed>
 ```
-Simply populate your xml file with `<entry></entry>` tags for each Ad asset with the necessary data (id, title, URI, etc...). 
+Simply populate your xml file with `<entry></entry>` tags for each Ad asset with the necessary data (id, universalId, link, duration, etc...). 
 
 
 ## About Eyevinn Technology
