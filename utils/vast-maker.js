@@ -161,6 +161,9 @@ function AttachStandAloneAds(vast4, ads, params, podSize) {
         { event: 'complete' }
       )
       .and()
+      .attachVideoClicks()
+      .addClickThrough("https://github.com/Eyevinn/test-adserver", { id: "Eyevinn Test AdServer" })
+      .and()
       .addDuration(ads[i].duration)
       .attachMediaFiles()
       .attachMediaFile(ads[i].url, {
@@ -229,6 +232,9 @@ function AttachPodAds(vast4, podAds, params) {
         }/tracking?adId=${podAds[i].id}_${i + 1}&progress=100`,
         { event: 'complete' }
       )
+      .and()
+      .attachVideoClicks()
+      .addClickThrough("https://github.com/Eyevinn/test-adserver", { id: "Eyevinn Test AdServer" })
       .and()
       .addDuration(podAds[i].duration)
       .attachMediaFiles()
