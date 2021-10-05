@@ -518,6 +518,7 @@ module.exports = (fastify, opt, next) => {
         const sessionList = await DBAdapter.getAllSessions(options);
         reply.code(200).send(sessionList);
       } catch (exc) {
+        console.error(exc);
         logger.error(exc, { label: req.headers['host'] });
         reply.code(500).send({ message: exc.message });
       }
@@ -528,9 +529,9 @@ module.exports = (fastify, opt, next) => {
     "/sessions/:sessionId",
     { schema: schemas["GET/sessions/:sessionId"] },
     async (req, reply) => {
+      const sessionId = req.params.sessionId;
       try {
-        const sessionId = req.params.sessionId;
-        const session = await DBAdapter.getSession(sessionId);
+          const session = await DBAdapter.getSession(sessionId);
         if (!session) {
           reply.code(404).send({
             message: `Session with ID: '${sessionId}' was not found`,
@@ -547,6 +548,7 @@ module.exports = (fastify, opt, next) => {
           reply.code(200).send(payload);
         }
       } catch (exc) {
+        console.error(exc);
         logger.error(exc, { label: req.headers['host'], sessionId: sessionId });
         reply.code(500).send({ message: exc.message });
       }
@@ -557,9 +559,9 @@ module.exports = (fastify, opt, next) => {
     "/sessions/:sessionId",
     { schema: schemas["DELETE/sessions/:sessionId"] },
     async (req, reply) => {
+      const sessionId = req.params.sessionId;
       try {
-        const sessionId = req.params.sessionId;
-        const session = await DBAdapter.getSession(sessionId);
+          const session = await DBAdapter.getSession(sessionId);
         if (!session) {
           reply.code(404).send({
             message: `Session with ID: '${sessionId}' was not found`,
@@ -569,6 +571,7 @@ module.exports = (fastify, opt, next) => {
           reply.send(204);
         }
       } catch (exc) {
+        console.error(exc);
         logger.error(exc, { label: req.headers['host'], sessionId: sessionId });
         reply.code(500).send({ message: exc.message });
       }
@@ -579,12 +582,12 @@ module.exports = (fastify, opt, next) => {
     "/sessions/:sessionId/tracking",
     { schema: schemas["GET/sessions/:sessionId/tracking"] },
     async (req, reply) => {
+      const sessionId = req.params.sessionId;
+      const adId = req.query.adId;
+      const viewProgress = req.query.progress;
+      const userAgent = req.headers['user-agent'] || "Not Found";
       try {        
         // Get path parameters and query parameters.
-        const sessionId = req.params.sessionId;
-        const adId = req.query.adId;
-        const viewProgress = req.query.progress;
-        const userAgent = req.headers['user-agent'] || "Not Found";
         const eventNames = {
           0: "start",
           25: "firstQuartile",
@@ -625,6 +628,7 @@ module.exports = (fastify, opt, next) => {
           });
         }
       } catch (exc) {
+        console.error(exc);
         logger.error(exc, { label: req.headers['host'], sessionId: sessionId });
         reply.code(500).send({ message: exc.message });
       }
@@ -635,10 +639,9 @@ module.exports = (fastify, opt, next) => {
     "/sessions/:sessionId/events",
     { schema: schemas["GET/sessions/:sessionId/events"] },
     async (req, reply) => {
+      // Get path parameters and query parameters.
+      const sessionId = req.params.sessionId;
       try {
-        // Get path parameters and query parameters.
-        const sessionId = req.params.sessionId;
-
         // Check if session exists.
         const session = await DBAdapter.getSession(sessionId);
         if (!session) {
@@ -652,6 +655,7 @@ module.exports = (fastify, opt, next) => {
           reply.code(200).send(eventsList);
         }
       } catch (exc) {
+        console.error(exc);
         logger.error(exc, { label: req.headers['host'], sessionId: sessionId });
         reply.code(500).send({ message: exc.message });
       }
@@ -690,6 +694,7 @@ module.exports = (fastify, opt, next) => {
           reply.code(200).send(sessionList);
         }
       } catch (exc) {
+        console.error(exc);
         logger.error(exc, { label: req.headers['host'] });
         reply.code(500).send({ message: exc.message });
       }
@@ -771,11 +776,8 @@ module.exports = (fastify, opt, next) => {
         reply.code(200).send(vast_xml);
       }
     } catch (exc) {
-      if (session) {
-        logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
-      } else {
-        logger.error(exc, { label: req.headers['host'] });
-      }
+      console.error(exc);
+      logger.error(exc, { label: req.headers['host'] });
       reply.code(500).send({ message: exc.message });
     }
   });

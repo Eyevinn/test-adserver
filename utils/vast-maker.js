@@ -161,6 +161,9 @@ function AttachStandAloneAds(vast4, ads, params, podSize) {
         { event: 'complete' }
       )
       .and()
+      .attachVideoClicks()
+      .addClickThrough("https://github.com/Eyevinn/test-adserver", { id: "Eyevinn Test AdServer" })
+      .and()
       .addDuration(ads[i].duration)
       .attachMediaFiles()
       .attachMediaFile(ads[i].url, {
@@ -186,7 +189,7 @@ function AttachPodAds(vast4, podAds, params) {
       .addAdTitle(`Ad That Test-Adserver Wants Player To See #${i + 1}`)
       .attachCreatives()
       .attachCreative({
-        id: `CRETIVE-ID_00${i + 1}`,
+        id: `CREATIVE-ID_00${i + 1}`,
         adId: `${podAds[i].id}_${i + 1}`,
         sequence: `${i + 1}`,
       })
@@ -229,6 +232,9 @@ function AttachPodAds(vast4, podAds, params) {
         }/tracking?adId=${podAds[i].id}_${i + 1}&progress=100`,
         { event: 'complete' }
       )
+      .and()
+      .attachVideoClicks()
+      .addClickThrough("https://github.com/Eyevinn/test-adserver", { id: "Eyevinn Test AdServer" })
       .and()
       .addDuration(podAds[i].duration)
       .attachMediaFiles()
