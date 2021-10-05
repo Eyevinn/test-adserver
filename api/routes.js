@@ -518,6 +518,7 @@ module.exports = (fastify, opt, next) => {
         const sessionList = await DBAdapter.getAllSessions(options);
         reply.code(200).send(sessionList);
       } catch (exc) {
+        console.error(exc);
         logger.error(exc, { label: req.headers['host'] });
         reply.code(500).send({ message: exc.message });
       }
@@ -547,6 +548,7 @@ module.exports = (fastify, opt, next) => {
           reply.code(200).send(payload);
         }
       } catch (exc) {
+        console.error(exc);
         logger.error(exc, { label: req.headers['host'], sessionId: sessionId });
         reply.code(500).send({ message: exc.message });
       }
@@ -569,6 +571,7 @@ module.exports = (fastify, opt, next) => {
           reply.send(204);
         }
       } catch (exc) {
+        console.error(exc);
         logger.error(exc, { label: req.headers['host'], sessionId: sessionId });
         reply.code(500).send({ message: exc.message });
       }
@@ -625,6 +628,7 @@ module.exports = (fastify, opt, next) => {
           });
         }
       } catch (exc) {
+        console.error(exc);
         logger.error(exc, { label: req.headers['host'], sessionId: sessionId });
         reply.code(500).send({ message: exc.message });
       }
@@ -652,6 +656,7 @@ module.exports = (fastify, opt, next) => {
           reply.code(200).send(eventsList);
         }
       } catch (exc) {
+        console.error(exc);
         logger.error(exc, { label: req.headers['host'], sessionId: sessionId });
         reply.code(500).send({ message: exc.message });
       }
@@ -690,6 +695,7 @@ module.exports = (fastify, opt, next) => {
           reply.code(200).send(sessionList);
         }
       } catch (exc) {
+        console.error(exc);
         logger.error(exc, { label: req.headers['host'] });
         reply.code(500).send({ message: exc.message });
       }
@@ -771,11 +777,8 @@ module.exports = (fastify, opt, next) => {
         reply.code(200).send(vast_xml);
       }
     } catch (exc) {
-      if (session) {
-        logger.error(exc, { label: req.headers['host'], sessionId: session.sessionId });
-      } else {
-        logger.error(exc, { label: req.headers['host'] });
-      }
+      console.error(exc);
+      logger.error(exc, { label: req.headers['host'] });
       reply.code(500).send({ message: exc.message });
     }
   });
