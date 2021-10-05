@@ -529,9 +529,9 @@ module.exports = (fastify, opt, next) => {
     "/sessions/:sessionId",
     { schema: schemas["GET/sessions/:sessionId"] },
     async (req, reply) => {
+      const sessionId = req.params.sessionId;
       try {
-        const sessionId = req.params.sessionId;
-        const session = await DBAdapter.getSession(sessionId);
+          const session = await DBAdapter.getSession(sessionId);
         if (!session) {
           reply.code(404).send({
             message: `Session with ID: '${sessionId}' was not found`,
@@ -559,9 +559,9 @@ module.exports = (fastify, opt, next) => {
     "/sessions/:sessionId",
     { schema: schemas["DELETE/sessions/:sessionId"] },
     async (req, reply) => {
+      const sessionId = req.params.sessionId;
       try {
-        const sessionId = req.params.sessionId;
-        const session = await DBAdapter.getSession(sessionId);
+          const session = await DBAdapter.getSession(sessionId);
         if (!session) {
           reply.code(404).send({
             message: `Session with ID: '${sessionId}' was not found`,
@@ -582,12 +582,12 @@ module.exports = (fastify, opt, next) => {
     "/sessions/:sessionId/tracking",
     { schema: schemas["GET/sessions/:sessionId/tracking"] },
     async (req, reply) => {
+      const sessionId = req.params.sessionId;
+      const adId = req.query.adId;
+      const viewProgress = req.query.progress;
+      const userAgent = req.headers['user-agent'] || "Not Found";
       try {        
         // Get path parameters and query parameters.
-        const sessionId = req.params.sessionId;
-        const adId = req.query.adId;
-        const viewProgress = req.query.progress;
-        const userAgent = req.headers['user-agent'] || "Not Found";
         const eventNames = {
           0: "start",
           25: "firstQuartile",
@@ -639,10 +639,9 @@ module.exports = (fastify, opt, next) => {
     "/sessions/:sessionId/events",
     { schema: schemas["GET/sessions/:sessionId/events"] },
     async (req, reply) => {
+      // Get path parameters and query parameters.
+      const sessionId = req.params.sessionId;
       try {
-        // Get path parameters and query parameters.
-        const sessionId = req.params.sessionId;
-
         // Check if session exists.
         const session = await DBAdapter.getSession(sessionId);
         if (!session) {
