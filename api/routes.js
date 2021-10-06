@@ -393,6 +393,25 @@ const schemas = {
     },
     security: [{ apiKey: [] }],
   },
+  "GET/sessions/:sessionId/vast": {
+    description:
+      "Gets the VAST XML created for a specific session",
+    tags: ["sessions"],
+    params: {
+      sessionId: {
+        type: "string",
+        description: "The ID for the session. ",
+      },
+    },
+    response: {
+      200: {
+        description: "VAST XML",
+        type: "string",
+      },
+
+      404: BadRequestSchema("Session with ID: 'xxx-xxx-xxx-xxx' was not found"),
+    },    
+  },
   "DELETE/sessions/:sessionId": {
     description: "Deletes the given session",
     tags: ["sessions"],
@@ -661,6 +680,33 @@ module.exports = (fastify, opt, next) => {
       }
     }
   );
+
+  fastify.get(
+    "/sessions/:sessionId/vast",
+    { schema: schemas["GET/sessions/:sessionId/vast"] },
+    async (req, reply) => {
+      const sessionId = req.params.sessionId;
+      try {
+        // Check if session exists.
+        const session = await DBAdapter.getSession(sessionId);
+        if (!session) {
+          reply.code(404).send({
+            message: `Session with ID: '${sessionId}' was not found`,
+          });
+        } else {
+          vast_xml = session.getVastXml();
+          reply.headers({
+            "Content-Type": "application/xml;charset=UTF-8"
+          })
+          reply.code(200).send(vast_xml);
+        }
+      } catch (exc) {
+        console.error(exc);
+        logger.error(exc, { label: req.headers['host'], sessionId: sessionId });
+        reply.code(500).send({ message: exc.message });
+      }
+    }
+  )
 
   // Users - routes
   fastify.get(
