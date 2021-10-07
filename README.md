@@ -32,8 +32,10 @@ Other databases can be used also, as long as they follow the same implementation
 - GET `/api/v1/sessions` to get list of sessions, newest first.
 - GET `/api/v1/sessions/:sessionId` to get a specific session.
 - DELETE `/api/v1/sessions/:sessionId` to remove a specific session.
-- GET `/api/v1/users/userId` to get all sessions for a specific user, newest first.
 - GET `/api/v1/sessions/:sessionId/tracking` to send tracking data to server through query parameters.
+- GET `/api/v1/sessions/:sessionId/events` to get a list of all tracked events for a session.
+- GET `/api/v1/sessions/:sessionId/vast` to get the VAST XML that was issued for a specific session.
+- GET `/api/v1/users/userId` to get all sessions for a specific user, newest first.
 - GET `/api/v1/vast` to create a session and get a VAST-XML file, may also use query parameters.
 
 ## Environment variables
