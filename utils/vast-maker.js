@@ -1,5 +1,6 @@
-const createVast = require("vast-builder");
-const timestampToSeconds = require("timestamp-to-seconds");
+const createVast = require('vast-builder');
+const timestampToSeconds = require('timestamp-to-seconds');
+const { TENANT_CACHE } = require('./utilities');
 
 const PopulationMethods = Object.freeze({
   GO_BY_MIN: 1,
@@ -7,7 +8,7 @@ const PopulationMethods = Object.freeze({
   GO_BY_SIZE_AND_MAX: 3,
 });
 
-const AdList = [
+const DEFAULT_AD_LIST = [
   {
     universalId: "AAA/BBBB123/",
     id: "streamingtech_ad",
@@ -77,8 +78,26 @@ const AdList = [
  */
 function VastBuilder(params) {
   let vastObject = {};
+  let adList = [];
+  // Use Default AdList OR get new List from TENANT_CACHE.
+  let tenantId = null;
+  if (params.adserverHostname) {
+    tenantId = params.adserverHostname;
+  }
+  
+  if (!TENANT_CACHE[tenantId]) {
+    adList = DEFAULT_AD_LIST;
+  } else {
+    adList = TENANT_CACHE[tenantId].cachedAdList;
+  }
 
-  let [selectedAds, adsDuration] = GetAdsAndDuration(AdList, params.desiredDuration, params.podSize, params.minPodDuration, params.maxPodDuration);
+  let [selectedAds, adsDuration] = GetAdsAndDuration(
+    adList,
+    params.desiredDuration,
+    params.podSize,
+    params.minPodDuration,
+    params.maxPodDuration
+  );
 
   //selectedAds = selectedAds.standAloneAds;
   const vast4 = createVast.v4();
@@ -112,6 +131,13 @@ function AttachStandAloneAds(vast4, ads, params, podSize) {
         idRegistry: "test-ad-id.eyevinn",
         idValue: encodeURIComponent(`${ads[i].universalId}${i + podSize}`),
       })
+      .addUniversalAdId(
+        encodeURIComponent(`${ads[i].universalId}${i + podSize}`),
+        {
+          idRegistry: 'test-ad-id.eyevinn',
+          idValue: encodeURIComponent(`${ads[i].universalId}${i + podSize}`),
+        }
+      )
       .attachLinear()
       .attachTrackingEvents()
       .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${ads[i].id}&progress=0`, { event: "start" })
@@ -120,11 +146,14 @@ function AttachStandAloneAds(vast4, ads, params, podSize) {
       .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${ads[i].id}&progress=75`, { event: "thirdQuartile" })
       .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${ads[i].id}&progress=100`, { event: "complete" })
       .and()
+      .attachVideoClicks()
+      .addClickThrough("https://github.com/Eyevinn/test-adserver", { id: "Eyevinn Test AdServer" })
+      .and()
       .addDuration(ads[i].duration)
       .attachMediaFiles()
       .attachMediaFile(ads[i].url, {
-        delivery: "progressive",
-        type: "video/mp4",
+        delivery: 'progressive',
+        type: 'video/mp4',
         bitrate: ads[i].bitrate,
         width: ads[i].width,
         height: ads[i].height,
@@ -153,6 +182,13 @@ function AttachPodAds(vast4, podAds, params) {
         idRegistry: "test-ad-id.eyevinn",
         idValue: encodeURIComponent(`${podAds[i].universalId}${i + 1}`),
       })
+      .addUniversalAdId(
+        encodeURIComponent(`${podAds[i].universalId}${i + 1}`),
+        {
+          idRegistry: 'test-ad-id.eyevinn',
+          idValue: encodeURIComponent(`${podAds[i].universalId}${i + 1}`),
+        }
+      )
       .attachLinear()
       .attachTrackingEvents()
       .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${podAds[i].id}_${i + 1}&progress=0`, { event: "start" })
@@ -160,6 +196,9 @@ function AttachPodAds(vast4, podAds, params) {
       .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${podAds[i].id}_${i + 1}&progress=50`, { event: "midpoint" })
       .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${podAds[i].id}_${i + 1}&progress=75`, { event: "thirdQuartile" })
       .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${podAds[i].id}_${i + 1}&progress=100`, { event: "complete" })
+      .and()
+      .attachVideoClicks()
+      .addClickThrough("https://github.com/Eyevinn/test-adserver", { id: "Eyevinn Test AdServer" })
       .and()
       .addDuration(podAds[i].duration)
       .attachMediaFiles()
@@ -206,7 +245,15 @@ function GetAdsAndDuration(adList, targetDuration, podSize, podMin, podMax) {
     podMax = podMax ? podMax : targetDuration;
     podTargetDuration = podMax;
     // Populate pod list with adds that follow pod parameters. Append items to 'chosenPodAds'
-    PopulatePod(podSize, podMin, podMax, adList, chosenPodAds, podCase, podTargetDuration);
+    PopulatePod(
+      podSize,
+      podMin,
+      podMax,
+      adList,
+      chosenPodAds,
+      podCase,
+      podTargetDuration
+    );
   }
   // TODO: REMOVE once AD buffet works again...
   else {
