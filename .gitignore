@@ -2,3 +2,4 @@ node_modules/
 .nyc_output/
 test_vast.xml
 commitlint.config.js
+.pgdata
