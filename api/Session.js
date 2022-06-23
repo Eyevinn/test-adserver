@@ -34,12 +34,12 @@ class Session {
     this.#eventTracker = new EventTracker();
 
     if (this.responseFormat === constants.RESPONSE_FORMATS.VMAP) {
-      // Create VMAP object.
+      // Create VMAP object. 
       let vmapObj;
       vmapObj = VmapBuilder({
-        breakpoints: params.bp || null,
-        preroll: params.prr || null,
-        postroll: params.por || null,
+        breakpoints: params.bp || "",
+        preroll: params.prr === "true",
+        postroll: params.por === "true",
         generalVastConfigs: {
           sessionId: this.sessionId,
           desiredDuration: params.dur || "0",

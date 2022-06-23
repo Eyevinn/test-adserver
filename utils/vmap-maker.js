@@ -1,6 +1,7 @@
 const createVast = require("vast-builder");
 const timestampToSeconds = require("timestamp-to-seconds");
 const { VastBuilder } = require("./vast-maker");
+const { EMPTY_VMAP_STR } = require("./constants");
 const { SecondsToTimeFormat } = require("../utils/utilities");
 const xmlParser = require("fast-xml-parser");
 const he = require("he");
@@ -21,7 +22,7 @@ class VMAP {
       </vmap:AdSource>
       <vmap:TrackingEvents>
         <vmap:Tracking event="breakStart">
-          <![CDATA[ ${`http://${opt.adserverHostname}/api/v1/sessions/${opt.sessionId}/tracking?adId=${break_id}&report=vmap`} ]]>
+          <![CDATA[ ${`http://${opt.adserverHostname}/api/v1/sessions/${opt.sessionId}/tracking?adId=${break_id}&progress=vmap`} ]]>
         </vmap:Tracking>
       </vmap:TrackingEvents>
     </vmap:AdBreak>`;
@@ -68,6 +69,12 @@ class VMAP {
  * }
  */
 function VmapBuilder(params) {
+  if (!params.breakpoints && !params.preroll && !params.postroll) {
+    return {
+      xml: EMPTY_VMAP_STR,
+      durations: [],
+    };
+  }
   const vmap = new VMAP();
   const GVC = params.generalVastConfigs;
   const breakDurations = [];
@@ -81,7 +88,7 @@ function VmapBuilder(params) {
     podSize: null,
   };
 
-  const breakpoints = params.breakpoints.split(",").filter((item) => Number(item) !== NaN) || [];
+  const breakpoints = params.breakpoints ? params.breakpoints.split(",").filter((item) => !isNaN(Number(item))) : [];
   if (params.preroll) {
     const preVast = VastBuilder(defaultConfigs);
     vmap.attachAdBreak("preroll.ad", "linear", "start", preVast.xml, {

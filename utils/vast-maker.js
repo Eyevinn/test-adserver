@@ -117,8 +117,8 @@ function AttachStandAloneAds(vast4, ads, params, podSize) {
     vast4
       .attachAd({ id: `AD-ID_00${i + podSize}` })
       .attachInLine()
-      .addImpression(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${ads[i].id}&report=vast`, { id: `IMPRESSION-ID_00${i + podSize}` })
-      .addError(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${ads[i].id}&report=e`)
+      .addImpression(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${ads[i].id}&progress=vast`, { id: `IMPRESSION-ID_00${i + podSize}` })
+      .addError(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${ads[i].id}&progress=e`)
       .addAdSystem(`Test Adserver`)
       .addAdTitle(`Ad That Test-Adserver Wants Player To See #${i + podSize}`)
       .attachCreatives()
@@ -169,7 +169,7 @@ function AttachPodAds(vast4, podAds, params) {
     vast4
       .attachAd({ id: `POD_AD-ID_00${i + 1}`, sequence: `${i + 1}` })
       .attachInLine()
-      .addImpression(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${podAds[i].id}_${i + 1}&report=vast`, { id: `IMPRESSION-ID_00${i + 1}` })
+      .addImpression(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${podAds[i].id}_${i + 1}&progress=vast`, { id: `IMPRESSION-ID_00${i + 1}` })
       .addAdSystem(`Test Adserver`)
       .addAdTitle(`Ad That Test-Adserver Wants Player To See #${i + 1}`)
       .attachCreatives()

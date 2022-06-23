@@ -663,7 +663,6 @@ module.exports = (fastify, opt, next) => {
       const sessionId = req.params.sessionId;
       const adId = req.query.adId;
       const viewProgress = req.query.progress || null;
-      const reportType = req.query.report || null;
       const userAgent = req.headers["user-agent"] || "Not Found";
       const eventNames = {
         0: "start",
@@ -671,9 +670,9 @@ module.exports = (fastify, opt, next) => {
         50: "midpoint",
         75: "thirdQuartile",
         100: "complete",
-        "vmap": "vmap:breakStart",
-        "vast": "vast:adImpression",
-        "e": "error"
+        vmap: "vmap:breakStart",
+        vast: "vast:adImpression",
+        e: "error",
       };
 
       // Check if session exists.
@@ -685,9 +684,7 @@ module.exports = (fastify, opt, next) => {
         // [LOG]: data to console with special format.
         let eventName = "";
         if (viewProgress) {
-          eventName = eventNames[viewProgress]
-        } else {
-          eventName = eventNames[reportType];
+          eventName = eventNames[viewProgress];
         }
         const logMsg = {
           host: req.headers["host"],
@@ -948,6 +945,7 @@ module.exports = (fastify, opt, next) => {
         reply.code(200).send(vmap_xml);
       }
     } catch (exc) {
+      console.error(exc)
       if (session) {
         logger.error(exc, { label: req.headers["host"], sessionId: session.sessionId });
       } else {
