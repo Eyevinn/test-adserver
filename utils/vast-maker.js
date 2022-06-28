@@ -80,11 +80,10 @@ function VastBuilder(params) {
   let vastObject = {};
   let adList = [];
   // Use Default AdList OR get new List from TENANT_CACHE.
-  let tenantId = null;
+  let tenantId;
   if (params.adserverHostname) {
     tenantId = params.adserverHostname;
   }
-  
   if (!TENANT_CACHE[tenantId]) {
     adList = DEFAULT_AD_LIST;
   } else {

@@ -138,4 +138,4 @@ const SecondsToTimeFormat = (seconds, includeFrame) => {
   return h + ":" + m + ":" + s;
 };
 
-module.exports = { PaginateMemoryDB, Transform, CloudWatchLog, SecondsToTimeFormat };
+module.exports = { PaginateMemoryDB, Transform, CloudWatchLog, SecondsToTimeFormat, TENANT_CACHE, UpdateCache };
