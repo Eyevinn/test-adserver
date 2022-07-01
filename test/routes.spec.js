@@ -138,10 +138,27 @@ describe(" MY ROUTES", () => {
     });
 
     let temp_sid;
-    it("should still send xml when there is no 'dur' query", (done) => {
+    it("should still send vast-xml when there is no 'dur' query", (done) => {
       chai
         .request(SERVER_URL)
         .get("/api/v1/vast?uid=dur-parameter-missing")
+        .end((err, res) => {
+          if (err) {
+            done(err);
+          }
+          res.should.have.status(200);
+          res.body.should.be.a("object");
+          res.should.have.header(
+            "content-type",
+            "application/xml; charset=utf-8"
+          );
+          done();
+        });
+    });
+    it("should still send vmap-xml when there is no 'dur' query", (done) => {
+      chai
+        .request(SERVER_URL)
+        .get("/api/v1/vmap?uid=dur-parameter-missing")
         .end((err, res) => {
           if (err) {
             done(err);
