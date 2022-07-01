@@ -433,8 +433,7 @@ const schemas = {
     security: [{ apiKey: [] }],
   },
   "GET/sessions/:sessionId/events": {
-    description:
-      "Gets a collection of all tracking events recieved from a specific session",
+    description: "Gets a collection of all tracking events recieved from a specific session",
     tags: ["sessions"],
     params: {
       sessionId: {
@@ -444,8 +443,7 @@ const schemas = {
     },
     response: {
       200: {
-        description:
-          "JSON object containing a list of items detailing a recieved event.",
+        description: "JSON object containing a list of items detailing a recieved event.",
         type: "object",
         properties: {
           events: {
@@ -545,8 +543,7 @@ const schemas = {
     security: [{ apiKey: [] }],
   },
   "GET/vast": {
-    description:
-      "Send a VAST response, then create a new session for the given User ID",
+    description: "Send a VAST response, then create a new session for the given User ID",
     tags: ["vast"],
     produces: ["application/xml", "application/json"],
     query: {
@@ -731,7 +728,7 @@ module.exports = (fastify, opt, next) => {
         reply.code(500).send({ message: exc.message });
       }
     }
-  );
+  });
 
   fastify.get(
     "/sessions/:sessionId",
@@ -764,8 +761,11 @@ module.exports = (fastify, opt, next) => {
         });
         reply.code(500).send({ message: exc.message });
       }
+    } catch (exc) {
+      logger.error(exc, { label: req.headers["host"], sessionId: sessionId });
+      reply.code(500).send({ message: exc.message });
     }
-  );
+  });
 
   fastify.delete(
     "/sessions/:sessionId",
@@ -791,8 +791,11 @@ module.exports = (fastify, opt, next) => {
         });
         reply.code(500).send({ message: exc.message });
       }
+    } catch (exc) {
+      logger.error(exc, { label: req.headers["host"], sessionId: sessionId });
+      reply.code(500).send({ message: exc.message });
     }
-  );
+  });
 
   fastify.get(
     "/sessions/:sessionId/tracking",
@@ -867,8 +870,11 @@ module.exports = (fastify, opt, next) => {
         });
         reply.code(500).send({ message: exc.message });
       }
+    } catch (exc) {
+      logger.error(exc, { label: req.headers["host"], sessionId: sessionId });
+      reply.code(500).send({ message: exc.message });
     }
-  );
+  });
 
   fastify.get(
     "/sessions/:sessionId/events",
@@ -899,8 +905,11 @@ module.exports = (fastify, opt, next) => {
         });
         reply.code(500).send({ message: exc.message });
       }
+    } catch (exc) {
+      logger.error(exc, { label: req.headers["host"], sessionId: sessionId });
+      reply.code(500).send({ message: exc.message });
     }
-  );
+  });
 
   fastify.get(
     "/sessions/:sessionId/vast",
@@ -974,8 +983,11 @@ module.exports = (fastify, opt, next) => {
         });
         reply.code(500).send({ message: exc.message });
       }
+    } catch (exc) {
+      logger.error(exc, { label: req.headers["host"] });
+      reply.code(500).send({ message: exc.message });
     }
-  );
+  });
 
   /**
    * Planned to do two things:
