@@ -24,8 +24,8 @@
                     "value": "secret-key"
                 },
                 {
-                    "name": "ADSERVER",
-                    "value": "telenor.adtest.eyevinn.technology"
+                    "name": "MRSS_ORIGIN",
+                    "value": "https://d1x7zb515fmkad.cloudfront.net/"
                 }
             ],
             "logConfiguration": {

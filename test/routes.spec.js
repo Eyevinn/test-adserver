@@ -423,8 +423,8 @@ describe(" MY ROUTES", () => {
     });
   });
 
-   // test 7
-   describe("GET->SESSIONS/:sessionId/events", () => {
+  // test 7
+  describe("GET->SESSIONS/:sessionId/events", () => {
     let reply;
     before((done) => {
       chai
@@ -472,5 +472,27 @@ describe(" MY ROUTES", () => {
           done();
         });
     });
+  });
+  // test 8
+  describe("GET->SESSIONS/:sessionId/vast", () => {
+    let reply;
+    before((done) => {
+      chai
+        .request(SERVER_URL)
+        .get("/api/v1/sessions/" + SID + "/vast")
+        .end((err, res) => {
+          if (err) {
+            done(err);
+          }
+          reply = res;
+          done();
+        });
+    });
+    it("should be content-type: application/xml ", () => {
+      reply.should.have.header(
+        "content-type",
+        "application/xml;charset=UTF-8"
+      );
+    });    
   });
 });

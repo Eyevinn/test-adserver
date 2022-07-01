@@ -265,7 +265,7 @@ function GetAdsAndDuration(adList, targetDuration, podSize, podMin, podMax) {
   let standAloneTargetDuration = remainingDuration - actualPodDuration;
   remainingDuration = standAloneTargetDuration;
 
-  //Reverse ORder
+  //Reverse Order
   adList.reverse();
   // Fill-up remaining time with Stand-Alone Ads
   while (adList.length > 0 && remainingDuration >= shortestAdDuration) {
