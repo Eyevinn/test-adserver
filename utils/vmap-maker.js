@@ -1,5 +1,3 @@
-const createVast = require("vast-builder");
-const timestampToSeconds = require("timestamp-to-seconds");
 const { VastBuilder } = require("./vast-maker");
 const { EMPTY_VMAP_STR } = require("./constants");
 const { SecondsToTimeFormat } = require("../utils/utilities");
