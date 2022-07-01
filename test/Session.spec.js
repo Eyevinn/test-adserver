@@ -5,7 +5,7 @@ const chaiMatchPattern = require("chai-match-pattern");
 const _ = chaiMatchPattern.getLodashModule();
 
 mockClientParams1 = {
-  console: true,
+  c: true,
   dur: "25",
   uid: "waitress-456",
   os: "ios",
@@ -14,7 +14,7 @@ mockClientParams1 = {
   uip: "123.23.32.13",
 };
 mockClientParams2 = {
-  console: true,
+  c: true,
   dur: "25",
   uid: "charlie-123",
   os: "ios",
