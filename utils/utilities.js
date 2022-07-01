@@ -109,7 +109,7 @@ function Transform(session) {
     created: session.created,
     adBreakDuration: session.adBreakDuration,
     clientRequest: session.getClientRequest(),
-    response: session.getXmlResponse.toString(),
+    response: session.getXmlResponse().toString(),
   };
 }
 

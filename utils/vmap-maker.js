@@ -100,7 +100,7 @@ function VmapBuilder(params) {
     this.adBreakCount++;
     const time = SecondsToTimeFormat(Number(bp));
     const midVast = VastBuilder(GVC);
-    vmap.attachAdBreak(`midroll.ad#${idx + 1}`, "linear", time, midVast.xml, {
+    vmap.attachAdBreak(`midroll.ad-${idx + 1}`, "linear", time, midVast.xml, {
       sessionId: GVC.sessionId,
       adserverHostname: GVC.adserverHostname,
     });
