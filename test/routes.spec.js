@@ -50,7 +50,7 @@ if (!serverIsUp) {
   });
 }
 
-const queryStr = `?c=YES&dur=15&uid=${UID}&os=android&dt=samsung&ss=1000x200&uip=123.123.123.123`;
+const queryStr = `?c=1&dur=15&uid=${UID}&os=android&dt=samsung&ss=1000x200&uip=123.123.123.123`;
 
 describe(" MY ROUTES", () => {
   after((done) => {
@@ -60,7 +60,7 @@ describe(" MY ROUTES", () => {
     done();
   });
   // test 1
-  describe("GET->VAST", () => {
+  describe("GET->VAST/VMAP", () => {
     let numOfSessions;
     before((done) => {
       chai
@@ -80,7 +80,26 @@ describe(" MY ROUTES", () => {
         });
     });
 
-    it("should have status code 200 and respond with XML", (done) => {
+    it("should have status code 200 and respond with VMAP-XML", (done) => {
+      chai
+        .request(SERVER_URL)
+        .get("/api/v1/vmap" + queryStr + `&bp=60,120,180&prr=1&por=1`)
+        .end((err, res) => {
+          if (err) {
+            console.error(err);
+            done(err);
+          }
+          res.should.have.status(200);
+          res.body.should.be.a("object");
+          res.should.have.header(
+            "content-type",
+            "application/xml; charset=utf-8"
+          );
+          done();
+        });
+    });
+
+    it("should have status code 200 and respond with VAST-XML", (done) => {
       chai
         .request(SERVER_URL)
         .get("/api/v1/vast" + queryStr)
@@ -113,16 +132,33 @@ describe(" MY ROUTES", () => {
             "content-type",
             "application/json; charset=utf-8"
           );
-          res.body["data"].length.should.equal(numOfSessions + 1);
+          res.body["data"].length.should.equal(numOfSessions + 2);
           done();
         });
     });
 
     let temp_sid;
-    it("should still send xml when there is no 'dur' query", (done) => {
+    it("should still send vast-xml when there is no 'dur' query", (done) => {
       chai
         .request(SERVER_URL)
         .get("/api/v1/vast?uid=dur-parameter-missing")
+        .end((err, res) => {
+          if (err) {
+            done(err);
+          }
+          res.should.have.status(200);
+          res.body.should.be.a("object");
+          res.should.have.header(
+            "content-type",
+            "application/xml; charset=utf-8"
+          );
+          done();
+        });
+    });
+    it("should still send vmap-xml when there is no 'dur' query", (done) => {
+      chai
+        .request(SERVER_URL)
+        .get("/api/v1/vmap?uid=dur-parameter-missing")
         .end((err, res) => {
           if (err) {
             done(err);

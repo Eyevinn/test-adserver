@@ -17,12 +17,13 @@ function builder() {
       info: {
         title: "Test Adserver API",
         description: "This is for testing.",
-        version: "0.1.0",
+        version: "0.2.0",
       },
       tags: [
         { name: "sessions", description: "Session related end-points" },
         { name: "users", description: "User related end-points" },
-        { name: "vast", description: "Vast related end-points" },
+        { name: "vast", description: "VAST related end-points" },
+        { name: "vmap", description: "VMAP related end-points" },
       ],
       securityDefinitions: {
         apiKey: {

@@ -8,8 +8,8 @@ env:
   AWS_REGION: eu-north-1
   ECR_REGISTRY: 590877988961.dkr.ecr.eu-north-1.amazonaws.com
   ECR_REPOSITORY: adserver-api
-  ECS_SERVICE: test-adserver-api
-  ECS_CLUSTER: production 
+  ECS_SERVICE: adserver-api
+  ECS_CLUSTER: test-adserver-cluster
   ECS_TASK_DEFINITION: aws/ecs/taskdef.json
   CONTAINER_NAME: test-adserver
 
