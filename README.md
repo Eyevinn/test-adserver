@@ -6,25 +6,24 @@ The Eyevinn Test Adserver is an adserver that can be used in different testing c
 - Verify what query parameters are passed from the client device through the SSAI component as it stores all received query parameters for a request (session).
 - Verify that client devices implement correct tracking as the VAST response contains tracking URLs back to the test ad server. All tracked events for a session is stored and can be obtained by the API.
 
-You can build and run a container in your own hosted environment or Eyevinn can host it for you. It will then be available for you on `<yourdomain>.adtest.eyevinn.technology`. Contact sales@eyevinn.se for pricing and more information.
-
 This component is released under open source and we are happy for contributions!
 
 ## Requirements
 - Node v12+
+
 ## Database
-Right now the test-adserver uses in memory storage for all its data, no external database is required.
-Support for persistent storage is a work in progress.
+Right now the test-adserver uses in-memory storage for all its data, no external database is required.
 
 In a future update, we will add support for persistent storage using PostgreSQL.
 Other databases can be used also, as long as they follow the same implementation steps that of the coming PostgreSQL example. 
+
 ## Usage 
 - `git clone https://github.com/Eyevinn/test-adserver.git`
 - `cd test-adserver`
 - `npm install`, then
 - `npm start` to run the server.
 - `npm run dev` to run the server in dev mode with nodemon listening to updates.
-- `npm run test` to run the unittests with Node-Tap. (To Be Updated)
+- `npm run test` to run the unittests with Node-Tap.
 
 ## Endpoints
 
@@ -65,7 +64,7 @@ Stop the service:
 
 
 ## Using Specific Ads
-If the enviroment variable `MRSS_ORIGIN` has been set, then the test-aderver shall return VAST responses populated with Ads selected from
+If the enviroment variable `MRSS_ORIGIN` has been set, then the test-adserver shall return VAST responses populated with Ads selected from
 the collection of Ads found in the mRSS feed that can be reached through this origin endpoint. The url for the feed should follow this structure
 `${MRSS_ORIGIN}${ADSERVER_HOST}.mrss`. Where `ADSERVER_HOST` is the same as the host data that can be found in the request headers sent to the test-adserver.
 
@@ -96,6 +95,26 @@ The test-adserver is expecting an mRSS feed which should include text/xml with t
 </feed>
 ```
 Simply populate your xml file with `<entry></entry>` tags for each Ad asset with the necessary data (id, universalId, link, duration, etc...). 
+
+## Commercial Options
+
+The Eyevinn Test Adserver is released under open source but we do offer some commercial options in relation to it. Contact sales@eyevinn.se if you are interested for pricing and more information.
+
+### Hosting
+
+We host the service in our environment for a monthly recurring fee. Included is business hours support on a best effort basis.
+
+### Deployment
+
+We help you deploy and integrate the service in your environment on a time-of-material basis. 
+
+### Feature Development
+
+When you need a new feature developed and does not have the capacity or competence of your own to do it, we can on a time-of-material introduce this feature in the current code base and under the current open source license. 
+
+### Professional Services and Development
+
+When you need help with building for example integration adaptors or other development in your code base related to this open source project we can offer a development team from us to help out on a time-of-material basis. 
 
 
 ## About Eyevinn Technology
