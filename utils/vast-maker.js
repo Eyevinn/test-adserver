@@ -149,23 +149,16 @@ function AttachStandAloneAds(vast4, ads, params, podSize) {
       .addClickThrough("https://github.com/Eyevinn/test-adserver", { id: "Eyevinn Test AdServer" })
       .and()
       .addDuration(ads[i].duration)
-      .attachMediaFiles()
-      .attachMediaFile(ads[i].url, {
-        delivery: 'progressive',
-        type: 'video/mp4',
-        bitrate: ads[i].bitrate,
-        width: ads[i].width,
-        height: ads[i].height,
-        codec: ads[i].codec,
-      })
-      .back();
+      .attachMediaFiles();
+
+    AddMediaFiles(vast4, [ads[i].url], ads[i].bitrate, ads[i].width, ads[i].height, ads[i].codec)
   }
 }
 
 // Attaching Pod adds to the VAST object.
 function AttachPodAds(vast4, podAds, params) {
   for (let i = 0; i < podAds.length; i++) {
-    vast4
+    mediaNode = vast4
       .attachAd({ id: `POD_AD-ID_00${i + 1}`, sequence: `${i + 1}` })
       .attachInLine()
       .addImpression(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${podAds[i].id}_${i + 1}&progress=vast`, { id: `IMPRESSION-ID_00${i + 1}` })
@@ -200,16 +193,52 @@ function AttachPodAds(vast4, podAds, params) {
       .addClickThrough("https://github.com/Eyevinn/test-adserver", { id: "Eyevinn Test AdServer" })
       .and()
       .addDuration(podAds[i].duration)
-      .attachMediaFiles()
-      .attachMediaFile(podAds[i].url, {
-        delivery: "progressive",
-        type: "video/mp4",
-        bitrate: "17700",
-        width: "1920",
-        height: "1080",
-        codec: "H.264",
-      })
-      .back();
+      .attachMediaFiles();
+    
+    AddMediaFiles(mediaNode, [podAds[i].url], podAds[i].bitrate, podAds[i].width, podAds[i].height, podAds[i].codec)      
+  }
+}
+
+function AddMediaFiles(vast4MediaFilesNode, urls, bitrate, width, height, codec) {
+  for (let i = 0; i < urls.length; i++) {
+    if (urls[i].endsWith(".mp4")) {
+      vast4MediaFilesNode
+        .attachMediaFile(urls[i], {
+          delivery: 'progressive',
+          type: 'video/mp4',
+          bitrate: bitrate,
+          width: width,
+          height: height,
+          codec: codec,
+        })
+        .back();
+    }
+    if (urls[i].endsWith(".m3u8")) {
+      vast4MediaFilesNode
+        .attachMediaFile(urls[i], {
+          delivery: 'streaming',
+          type: 'application/x-mpegURL',
+          minBitrate: bitrate,
+          maxBitrate: bitrate,
+          width: width,
+          height: height,
+          codec: codec,
+        })
+        .back();
+    }
+    if (urls[i].endsWith(".mpd")) {
+      vast4MediaFilesNode
+        .attachMediaFile(urls[i], {
+          delivery: 'streaming',
+          type: 'application/dash+xml',
+          minBitrate: bitrate,
+          maxBitrate: bitrate,
+          width: width,
+          height: height,
+          codec: codec,
+        })
+        .back();
+    }
   }
 }
 
