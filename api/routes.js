@@ -607,6 +607,11 @@ const schemas = {
           description: "Client's user agent",
           example: "Mozilla/5.0",
         },
+        scope: {
+          type: "string",
+          description: "A way to target the call to a specific set of ads. The ads can be stored in an MRSS file on MRSS_ORIGIN named '{scope}.mrss'",
+          example: "my-mrss-file",
+        }
       },
     },
     response: {
@@ -1022,7 +1027,10 @@ module.exports = (fastify, opt, next) => {
 
       // Use Ads from mRSS if origin is specified
       if (process.env.MRSS_ORIGIN) {
-        const feedUri = `${process.env.MRSS_ORIGIN}${host}.mrss`;
+        const mrssFileBaseName = req.query['scope'] || host
+        
+        const feedUri = `${process.env.MRSS_ORIGIN}${mrssFileBaseName}.mrss`;
+
         if (!TENANT_CACHE[host]) {
           await UpdateCache(host, feedUri, TENANT_CACHE);
         } else {
