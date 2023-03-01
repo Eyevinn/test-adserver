@@ -16,6 +16,12 @@ async function UpdateCache(tenant, feedURI, cache) {
     const xml = await response.text();
     const json = xmlparser.parse(xml);
     let feedEntry = json.feed.entry;
+
+    // Turn to array if only one Ad was in the feed
+    if (!Array.isArray(feedEntry)) {
+      feedEntry = [feedEntry]
+    }
+
     // Transform feed entry into expected Ad Objects, with fallback values.
     feedEntry = feedEntry.map(entry => (
       {
