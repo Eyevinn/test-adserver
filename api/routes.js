@@ -1144,6 +1144,23 @@ module.exports = (fastify, opt, next) => {
         host: host,
         rf: RESPONSE_FORMATS.VMAP,
       });
+
+      // Use Ads from mRSS if origin is specified
+      if (process.env.MRSS_ORIGIN) {
+        const collection = req.query['coll'] || host
+        
+        const feedUri = `${process.env.MRSS_ORIGIN}${collection}.mrss`;
+
+        if (!TENANT_CACHE[collection]) {
+          await UpdateCache(collection, feedUri, TENANT_CACHE);
+        } else {
+          const age = Date.now() - TENANT_CACHE[collection].lastUpdated;
+          if (age >= CACHE_MAX_AGE) {
+            await UpdateCache(collection, feedUri, TENANT_CACHE);
+          }
+        }
+      }
+
       // Create new session, then add to session DB.
       const session = new Session(params);
       const result = await DBAdapter.AddSessionToStorage(session);
