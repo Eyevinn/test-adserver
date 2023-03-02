@@ -702,6 +702,11 @@ const schemas = {
           description: "Client's user agent",
           example: "Mozilla/5.0",
         },
+        coll: {
+          type: "string",
+          description: "A way to target the call to a specific collection of ads. The ads can be stored in an MRSS file on MRSS_ORIGIN named '{coll}.mrss'",
+          example: "my-cat-ads",
+        }
       },
     },
     response: {
