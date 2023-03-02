@@ -607,6 +607,11 @@ const schemas = {
           description: "Client's user agent",
           example: "Mozilla/5.0",
         },
+        coll: {
+          type: "string",
+          description: "A way to target the call to a specific collection of ads. The ads can be stored in an MRSS file on MRSS_ORIGIN named '{coll}.mrss'",
+          example: "my-cat-ads",
+        }
       },
     },
     response: {
@@ -697,6 +702,11 @@ const schemas = {
           description: "Client's user agent",
           example: "Mozilla/5.0",
         },
+        coll: {
+          type: "string",
+          description: "A way to target the call to a specific collection of ads. The ads can be stored in an MRSS file on MRSS_ORIGIN named '{coll}.mrss'",
+          example: "my-cat-ads",
+        }
       },
     },
     response: {
@@ -1022,13 +1032,16 @@ module.exports = (fastify, opt, next) => {
 
       // Use Ads from mRSS if origin is specified
       if (process.env.MRSS_ORIGIN) {
-        const feedUri = `${process.env.MRSS_ORIGIN}${host}.mrss`;
-        if (!TENANT_CACHE[host]) {
-          await UpdateCache(host, feedUri, TENANT_CACHE);
+        const collection = req.query['coll'] || host
+        
+        const feedUri = `${process.env.MRSS_ORIGIN}${collection}.mrss`;
+
+        if (!TENANT_CACHE[collection]) {
+          await UpdateCache(collection, feedUri, TENANT_CACHE);
         } else {
-          const age = Date.now() - TENANT_CACHE[host].lastUpdated;
+          const age = Date.now() - TENANT_CACHE[collection].lastUpdated;
           if (age >= CACHE_MAX_AGE) {
-            await UpdateCache(host, feedUri, TENANT_CACHE);
+            await UpdateCache(collection, feedUri, TENANT_CACHE);
           }
         }
       }
@@ -1136,6 +1149,23 @@ module.exports = (fastify, opt, next) => {
         host: host,
         rf: RESPONSE_FORMATS.VMAP,
       });
+
+      // Use Ads from mRSS if origin is specified
+      if (process.env.MRSS_ORIGIN) {
+        const collection = req.query['coll'] || host
+        
+        const feedUri = `${process.env.MRSS_ORIGIN}${collection}.mrss`;
+
+        if (!TENANT_CACHE[collection]) {
+          await UpdateCache(collection, feedUri, TENANT_CACHE);
+        } else {
+          const age = Date.now() - TENANT_CACHE[collection].lastUpdated;
+          if (age >= CACHE_MAX_AGE) {
+            await UpdateCache(collection, feedUri, TENANT_CACHE);
+          }
+        }
+      }
+
       // Create new session, then add to session DB.
       const session = new Session(params);
       const result = await DBAdapter.AddSessionToStorage(session);

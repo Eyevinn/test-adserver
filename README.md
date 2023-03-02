@@ -74,6 +74,8 @@ Let's say we set `MRSS_ORIGIN=https://mrss.adtest.eyevinn.technology/` and are h
 Knowing the adserver host and `MRSS_ORIGIN`, the test-adserver will then fetch the feed.mrss file from:
 `https://mrss.adtest.eyevinn.technology/your.chosen.host.mrss`. So make sure that an mRSS feed is available on such an URL. If the url becomes unreachable, then the test-adserver will go back to the default ads.
 
+Alternatively, you can specify what file contains the collection of ads through the `coll` parameter on the `/api/v1/vast` or `/api/v1/vmap` request. In this case, the file will be expected to be at `${MRSS_ORIGIN}${coll}.mrss`. This is useful for example if you want to switch easily between different collection of ads without having to host multiple ad servers.
+
 ### MRSS Feed Structure
 The test-adserver is expecting an mRSS feed which should include text/xml with the following structure:
 ```

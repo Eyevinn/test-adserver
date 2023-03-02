@@ -47,6 +47,7 @@ class Session {
           maxPodDuration: params.max || null,
           minPodDuration: params.min || null,
           podSize: params.ps || null,
+          adCollection: params.coll || null,
         },
       });
       this.#vmapXml = vmapObj.xml;
@@ -60,6 +61,7 @@ class Session {
         maxPodDuration: params.max || null,
         minPodDuration: params.min || null,
         podSize: params.ps || null,
+        adCollection: params.coll || null,
       });
       this.#vastXml = vastObj.xml;
       this.adBreakDuration = vastObj.duration;
