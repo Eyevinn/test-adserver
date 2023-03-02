@@ -84,6 +84,9 @@ function VastBuilder(params) {
   if (params.adserverHostname) {
     tenantId = params.adserverHostname;
   }
+  if (params.adCollection) {
+    tenantId = params.adCollection;
+  }
   if (!TENANT_CACHE[tenantId]) {
     adList = DEFAULT_AD_LIST;
   } else {

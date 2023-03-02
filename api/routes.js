@@ -607,10 +607,10 @@ const schemas = {
           description: "Client's user agent",
           example: "Mozilla/5.0",
         },
-        scope: {
+        coll: {
           type: "string",
-          description: "A way to target the call to a specific set of ads. The ads can be stored in an MRSS file on MRSS_ORIGIN named '{scope}.mrss'",
-          example: "my-mrss-file",
+          description: "A way to target the call to a specific collection of ads. The ads can be stored in an MRSS file on MRSS_ORIGIN named '{coll}.mrss'",
+          example: "my-cat-ads",
         }
       },
     },
@@ -1027,16 +1027,16 @@ module.exports = (fastify, opt, next) => {
 
       // Use Ads from mRSS if origin is specified
       if (process.env.MRSS_ORIGIN) {
-        const mrssFileBaseName = req.query['scope'] || host
+        const collection = req.query['coll'] || host
         
-        const feedUri = `${process.env.MRSS_ORIGIN}${mrssFileBaseName}.mrss`;
+        const feedUri = `${process.env.MRSS_ORIGIN}${collection}.mrss`;
 
-        if (!TENANT_CACHE[host]) {
-          await UpdateCache(host, feedUri, TENANT_CACHE);
+        if (!TENANT_CACHE[collection]) {
+          await UpdateCache(collection, feedUri, TENANT_CACHE);
         } else {
-          const age = Date.now() - TENANT_CACHE[host].lastUpdated;
+          const age = Date.now() - TENANT_CACHE[collection].lastUpdated;
           if (age >= CACHE_MAX_AGE) {
-            await UpdateCache(host, feedUri, TENANT_CACHE);
+            await UpdateCache(collection, feedUri, TENANT_CACHE);
           }
         }
       }
