@@ -98,6 +98,8 @@ The test-adserver is expecting an mRSS feed which should include text/xml with t
 ```
 Simply populate your xml file with `<entry></entry>` tags for each Ad asset with the necessary data (id, universalId, link, duration, etc...). 
 
+If you have ads in multiple formats (eg. DASH, HLS, MP4), you can add multiple `<link></link>` for each one.
+
 ## Commercial Options
 
 The Eyevinn Test Adserver is released under open source but we do offer some commercial options in relation to it. Contact sales@eyevinn.se if you are interested for pricing and more information.
