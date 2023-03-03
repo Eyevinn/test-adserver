@@ -27,7 +27,7 @@ async function UpdateCache(tenant, feedURI, cache) {
       {
         universalId: entry.universalId || uuid(),
         id: entry.id || "streamingtech_ad",
-        url: entry.link || "https://testcontent.eyevinn.technology/ads/probably-the-best-10s.mp4",
+        url: Array.isArray(entry.link) ? entry.link : [entry.link || "https://testcontent.eyevinn.technology/ads/probably-the-best-10s.mp4"],
         duration: entry.duration || "00:00:10",
         bitrate: entry.bitrate || "17700",
         width: entry.width || "1920",
