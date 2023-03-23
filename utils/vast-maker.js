@@ -12,7 +12,9 @@ const DEFAULT_AD_LIST = [
   {
     universalId: "AAA/BBBB123/",
     id: "streamingtech_ad",
-    url: "https://testcontent.eyevinn.technology/ads/probably-the-best-10s.mp4",
+    url: [
+      "https://testcontent.eyevinn.technology/ads/probably-the-best-10s.mp4"
+    ],
     duration: "00:00:10",
     bitrate: "17700",
     width: "1920",
@@ -22,7 +24,9 @@ const DEFAULT_AD_LIST = [
   {
     universalId: "AAA/CCCC123/",
     id: "25percent-ad_001",
-    url: "https://static.videezy.com/system/resources/previews/000/019/185/original/25percent-blue.mp4",
+    url: [
+      "https://static.videezy.com/system/resources/previews/000/019/185/original/25percent-blue.mp4"
+    ],
     duration: "00:00:05",
     bitrate: "600",
     width: "630",
@@ -32,7 +36,7 @@ const DEFAULT_AD_LIST = [
   {
     universalId: "AAA/DDDD123/",
     id: "sample-ad_002",
-    url: "https://iab-publicfiles.s3.amazonaws.com/vast/VAST-4.0-Short-Intro.mp4",
+    url: ["https://iab-publicfiles.s3.amazonaws.com/vast/VAST-4.0-Short-Intro.mp4"],
     duration: "00:00:16",
     bitrate: "1000",
     width: "1280",
@@ -42,7 +46,9 @@ const DEFAULT_AD_LIST = [
   {
     universalId: "AAA/EEEE123/",
     id: "sample-ad_003",
-    url: "https://s0.2mdn.net/4253510/google_ddm_animation_480P.mp4",
+    url: [
+      "https://s0.2mdn.net/4253510/google_ddm_animation_480P.mp4"
+    ],
     duration: "00:01:00",
     bitrate: "900",
     width: "854",
@@ -52,7 +58,9 @@ const DEFAULT_AD_LIST = [
   {
     universalId: "AAA/FFFF123/",
     id: "stswe",
-    url: "https://testcontent.eyevinn.technology/ads/stswe-ad-30sec.mp4",
+    url: [
+      "https://testcontent.eyevinn.technology/ads/stswe-ad-30sec.mp4"
+    ],
     duration: "00:00:30",
     bitrate: "10041",
     width: "1920",
@@ -154,7 +162,7 @@ function AttachStandAloneAds(vast4, ads, params, podSize) {
       .addDuration(ads[i].duration)
       .attachMediaFiles();
 
-    AddMediaFiles(vast4, [ads[i].url], ads[i].bitrate, ads[i].width, ads[i].height, ads[i].codec)
+    AddMediaFiles(vast4, ads[i].url, ads[i].bitrate, ads[i].width, ads[i].height, ads[i].codec)
   }
 }
 
@@ -198,48 +206,48 @@ function AttachPodAds(vast4, podAds, params) {
       .addDuration(podAds[i].duration)
       .attachMediaFiles();
     
-    AddMediaFiles(mediaNode, [podAds[i].url], podAds[i].bitrate, podAds[i].width, podAds[i].height, podAds[i].codec)      
+    AddMediaFiles(mediaNode, podAds[i].url, podAds[i].bitrate, podAds[i].width, podAds[i].height, podAds[i].codec)      
   }
 }
 
-function AddMediaFiles(vast4MediaFilesNode, urls, bitrate, width, height, codec) {
+function AddMediaFiles(vast4MediaFilesNode, urls, bitrate, width, height, codec) {  
   for (let i = 0; i < urls.length; i++) {
+    mediaFile = {
+      width: width,
+      height: height,
+      codec: codec,
+    }
+    
     if (urls[i].endsWith(".mp4")) {
       vast4MediaFilesNode
-        .attachMediaFile(urls[i], {
-          delivery: 'progressive',
-          type: 'video/mp4',
-          bitrate: bitrate,
-          width: width,
-          height: height,
-          codec: codec,
-        })
+        .attachMediaFile(urls[i], 
+          Object.assign(mediaFile, {
+            delivery: 'progressive',
+            type: 'video/mp4',
+            bitrate: bitrate,
+          }))
         .back();
     }
     if (urls[i].endsWith(".m3u8")) {
       vast4MediaFilesNode
-        .attachMediaFile(urls[i], {
-          delivery: 'streaming',
-          type: 'application/x-mpegURL',
-          minBitrate: bitrate,
-          maxBitrate: bitrate,
-          width: width,
-          height: height,
-          codec: codec,
-        })
+        .attachMediaFile(urls[i], 
+          Object.assign(mediaFile, {
+            delivery: 'streaming',
+            type: 'application/x-mpegURL',
+            minBitrate: bitrate,
+            maxBitrate: bitrate,
+          }))
         .back();
     }
     if (urls[i].endsWith(".mpd")) {
       vast4MediaFilesNode
-        .attachMediaFile(urls[i], {
-          delivery: 'streaming',
-          type: 'application/dash+xml',
-          minBitrate: bitrate,
-          maxBitrate: bitrate,
-          width: width,
-          height: height,
-          codec: codec,
-        })
+        .attachMediaFile(urls[i], 
+          Object.assign(mediaFile, {
+            delivery: 'streaming',
+            type: 'application/dash+xml',
+            minBitrate: bitrate,
+            maxBitrate: bitrate,
+          }))
         .back();
     }
   }
