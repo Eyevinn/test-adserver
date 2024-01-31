@@ -151,14 +151,9 @@ function AttachStandAloneAds(vast, ads, params, podSize) {
       });
     if (vast.attrs.version === "4.0") {
       mediaNode = mediaNode
-      .addUniversalAdId(encodeURIComponent(`${ads[i].universalId}${i + podSize}`), {
-        idRegistry: "test-ad-id.eyevinn",
-        idValue: encodeURIComponent(`${ads[i].universalId}${i + podSize}`),
-      })
       .addUniversalAdId(
-        encodeURIComponent(`${ads[i].universalId}${i + podSize}`),
-        {
-          idRegistry: 'test-ad-id.eyevinn',
+        encodeURIComponent(`${ads[i].universalId}${i + podSize}`), {
+          idRegistry: "test-ad-id.eyevinn",
           idValue: encodeURIComponent(`${ads[i].universalId}${i + podSize}`),
         }
       );
@@ -206,14 +201,9 @@ function AttachPodAds(vast, podAds, params) {
       });
     if (vast.attrs.version === "4.0") {
       mediaNode = mediaNode
-      .addUniversalAdId(encodeURIComponent(`${podAds[i].universalId}${i + 1}`), {
-        idRegistry: "test-ad-id.eyevinn",
-        idValue: encodeURIComponent(`${podAds[i].universalId}${i + 1}`),
-      })
       .addUniversalAdId(
-        encodeURIComponent(`${podAds[i].universalId}${i + 1}`),
-        {
-          idRegistry: 'test-ad-id.eyevinn',
+        encodeURIComponent(`${podAds[i].universalId}${i + 1}`), {
+          idRegistry: "test-ad-id.eyevinn",
           idValue: encodeURIComponent(`${podAds[i].universalId}${i + 1}`),
         }
       );
