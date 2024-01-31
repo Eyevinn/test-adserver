@@ -85,6 +85,7 @@ function VmapBuilder(params) {
     minPodDuration: null,
     podSize: null,
     adCollection: GVC.adCollection,
+    version: GVC.version,
   };
 
   const breakpoints = params.breakpoints ? params.breakpoints.split(",").filter((item) => !isNaN(Number(item))) : [];
