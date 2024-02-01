@@ -82,11 +82,13 @@ const DEFAULT_AD_LIST = [
  * podSize: "3",
  * podMin: "10",
  * podMax: "40"
- * }
+ * version: "2", "3", "4" (default)
+ * 
  */
 function VastBuilder(params) {
   let vastObject = {};
   let adList = [];
+  let vast = null;
   // Use Default AdList OR get new List from TENANT_CACHE.
   let tenantId;
   if (params.adserverHostname) {
@@ -109,52 +111,61 @@ function VastBuilder(params) {
     params.maxPodDuration
   );
 
+  switch (params.version) {
+    case "2":
+      vast = createVast.v2();
+      break;
+    case "3":
+      vast = createVast.v3();
+      break;
+    default:
+      vast = createVast.v4();
+      break;
+  }
   //selectedAds = selectedAds.standAloneAds;
-  const vast4 = createVast.v4();
+  AttachPodAds(vast, selectedAds.podAds, params);
+  AttachStandAloneAds(vast, selectedAds.standAloneAds, params, selectedAds.podAds.length);
 
-  AttachPodAds(vast4, selectedAds.podAds, params);
-  AttachStandAloneAds(vast4, selectedAds.standAloneAds, params, selectedAds.podAds.length);
-
-  vastObject = { xml: vast4.toXml(), duration: adsDuration };
+  vastObject = { xml: vast.toXml(), duration: adsDuration };
 
   return vastObject;
 }
 
 // Add <Ad>-tags for every ad in the sampleAds list
-function AttachStandAloneAds(vast4, ads, params, podSize) {
+function AttachStandAloneAds(vast, ads, params, podSize) {
   podSize = podSize ? podSize + 1 : 1;
+  const adId = vast.attrs.version === "4.0" ? "adId" : "adID";
   for (let i = 0; i < ads.length; i++) {
-    vast4
+    let mediaNode = vast
       .attachAd({ id: `AD-ID_00${i + podSize}` })
       .attachInLine()
-      .addImpression(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${ads[i].id}&progress=vast`, { id: `IMPRESSION-ID_00${i + podSize}` })
-      .addError(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${ads[i].id}&progress=e`)
+      .addImpression(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?${adId}=${ads[i].id}&progress=vast`, { id: `IMPRESSION-ID_00${i + podSize}` })
+      .addError(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?${adId}=${ads[i].id}&progress=e`)
       .addAdSystem(`Test Adserver`)
       .addAdTitle(`Ad That Test-Adserver Wants Player To See #${i + podSize}`)
       .attachCreatives()
       .attachCreative({
         id: `CREATIVE-ID_00${i + podSize}`,
-        adId: `${ads[i].id}`,
+        [adId]: `${ads[i].id}`,
         sequence: `${i + podSize}`,
-      })
-      .addUniversalAdId(encodeURIComponent(`${ads[i].universalId}${i + podSize}`), {
-        idRegistry: "test-ad-id.eyevinn",
-        idValue: encodeURIComponent(`${ads[i].universalId}${i + podSize}`),
-      })
+      });
+    if (vast.attrs.version === "4.0") {
+      mediaNode = mediaNode
       .addUniversalAdId(
-        encodeURIComponent(`${ads[i].universalId}${i + podSize}`),
-        {
-          idRegistry: 'test-ad-id.eyevinn',
+        encodeURIComponent(`${ads[i].universalId}${i + podSize}`), {
+          idRegistry: "test-ad-id.eyevinn",
           idValue: encodeURIComponent(`${ads[i].universalId}${i + podSize}`),
         }
-      )
+      );
+    }
+    mediaNode = mediaNode
       .attachLinear()
       .attachTrackingEvents()
-      .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${ads[i].id}&progress=0`, { event: "start" })
-      .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${ads[i].id}&progress=25`, { event: "firstQuartile" })
-      .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${ads[i].id}&progress=50`, { event: "midpoint" })
-      .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${ads[i].id}&progress=75`, { event: "thirdQuartile" })
-      .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${ads[i].id}&progress=100`, { event: "complete" })
+      .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?${adId}=${ads[i].id}&progress=0`, { event: "start" })
+      .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?${adId}=${ads[i].id}&progress=25`, { event: "firstQuartile" })
+      .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?${adId}=${ads[i].id}&progress=50`, { event: "midpoint" })
+      .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?${adId}=${ads[i].id}&progress=75`, { event: "thirdQuartile" })
+      .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?${adId}=${ads[i].id}&progress=100`, { event: "complete" })
       .and()
       .attachVideoClicks()
       .addClickThrough("https://github.com/Eyevinn/test-adserver", { id: "Eyevinn Test AdServer" })
@@ -162,64 +173,72 @@ function AttachStandAloneAds(vast4, ads, params, podSize) {
       .addDuration(ads[i].duration)
       .attachMediaFiles();
 
-    AddMediaFiles(vast4, ads[i].url, ads[i].bitrate, ads[i].width, ads[i].height, ads[i].codec)
+    AddMediaFiles(mediaNode, ads[i].url, ads[i].bitrate, ads[i].width, ads[i].height, ads[i].codec)
   }
 }
 
 // Attaching Pod adds to the VAST object.
-function AttachPodAds(vast4, podAds, params) {
+function AttachPodAds(vast, podAds, params) {
+  // ad-id is adID in VAST 2.0 and 3.0, adId in VAST 4.0
+  const adId = vast.attrs.version === "4.0" ? "adId" : "adID";
   for (let i = 0; i < podAds.length; i++) {
-    mediaNode = vast4
-      .attachAd({ id: `POD_AD-ID_00${i + 1}`, sequence: `${i + 1}` })
+    let attachAdParams = { id: `POD_AD-ID_00${i + 1}` };
+    // VAST 2.0 does not support sequence attribute.
+    if (vast.attrs.version !== "2.0") {
+      attachAdParams.sequence = `${i + 1}`;
+    }
+    let mediaNode = vast
+      .attachAd(attachAdParams)
       .attachInLine()
-      .addImpression(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${podAds[i].id}_${i + 1}&progress=vast`, { id: `IMPRESSION-ID_00${i + 1}` })
+      .addImpression(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?${adId}=${podAds[i].id}_${i + 1}&progress=vast`, { id: `IMPRESSION-ID_00${i + 1}` })
       .addAdSystem(`Test Adserver`)
       .addAdTitle(`Ad That Test-Adserver Wants Player To See #${i + 1}`)
       .attachCreatives()
       .attachCreative({
         id: `CRETIVE-ID_00${i + 1}`,
-        adId: `${podAds[i].id}_${i + 1}`,
+        [adId]: `${podAds[i].id}_${i + 1}`,
         sequence: `${i + 1}`,
-      })
-      .addUniversalAdId(encodeURIComponent(`${podAds[i].universalId}${i + 1}`), {
-        idRegistry: "test-ad-id.eyevinn",
-        idValue: encodeURIComponent(`${podAds[i].universalId}${i + 1}`),
-      })
+      });
+    if (vast.attrs.version === "4.0") {
+      mediaNode = mediaNode
       .addUniversalAdId(
-        encodeURIComponent(`${podAds[i].universalId}${i + 1}`),
-        {
-          idRegistry: 'test-ad-id.eyevinn',
+        encodeURIComponent(`${podAds[i].universalId}${i + 1}`), {
+          idRegistry: "test-ad-id.eyevinn",
           idValue: encodeURIComponent(`${podAds[i].universalId}${i + 1}`),
         }
-      )
+      );
+    }
+    mediaNode = mediaNode
       .attachLinear()
       .attachTrackingEvents()
-      .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${podAds[i].id}_${i + 1}&progress=0`, { event: "start" })
-      .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${podAds[i].id}_${i + 1}&progress=25`, { event: "firstQuartile" })
-      .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${podAds[i].id}_${i + 1}&progress=50`, { event: "midpoint" })
-      .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${podAds[i].id}_${i + 1}&progress=75`, { event: "thirdQuartile" })
-      .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?adId=${podAds[i].id}_${i + 1}&progress=100`, { event: "complete" })
+      .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?${adId}=${podAds[i].id}_${i + 1}&progress=0`, { event: "start" })
+      .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?${adId}=${podAds[i].id}_${i + 1}&progress=25`, { event: "firstQuartile" })
+      .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?${adId}=${podAds[i].id}_${i + 1}&progress=50`, { event: "midpoint" })
+      .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?${adId}=${podAds[i].id}_${i + 1}&progress=75`, { event: "thirdQuartile" })
+      .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?${adId}=${podAds[i].id}_${i + 1}&progress=100`, { event: "complete" })
       .and()
       .attachVideoClicks()
       .addClickThrough("https://github.com/Eyevinn/test-adserver", { id: "Eyevinn Test AdServer" })
       .and()
       .addDuration(podAds[i].duration)
       .attachMediaFiles();
-    
-    AddMediaFiles(mediaNode, podAds[i].url, podAds[i].bitrate, podAds[i].width, podAds[i].height, podAds[i].codec)      
+
+    AddMediaFiles(mediaNode, podAds[i].url, podAds[i].bitrate, podAds[i].width, podAds[i].height, podAds[i].codec, vast.attrs.version)
   }
 }
 
-function AddMediaFiles(vast4MediaFilesNode, urls, bitrate, width, height, codec) {  
+function AddMediaFiles(vastMediaFilesNode, urls, bitrate, width, height, codec, version) {
+  const mediaFile = {
+    width: width,
+    height: height,
+  }
+  // VAST 2.0 does not support codec attribute.
+  if (version !== "2.0") {
+    mediaFile.codec = codec;
+  }
   for (let i = 0; i < urls.length; i++) {
-    mediaFile = {
-      width: width,
-      height: height,
-      codec: codec,
-    }
-    
     if (urls[i].endsWith(".mp4")) {
-      vast4MediaFilesNode
+      vastMediaFilesNode
         .attachMediaFile(urls[i], 
           Object.assign(mediaFile, {
             delivery: 'progressive',
@@ -229,7 +248,7 @@ function AddMediaFiles(vast4MediaFilesNode, urls, bitrate, width, height, codec)
         .back();
     }
     if (urls[i].endsWith(".m3u8")) {
-      vast4MediaFilesNode
+      vastMediaFilesNode
         .attachMediaFile(urls[i], 
           Object.assign(mediaFile, {
             delivery: 'streaming',
@@ -240,7 +259,7 @@ function AddMediaFiles(vast4MediaFilesNode, urls, bitrate, width, height, codec)
         .back();
     }
     if (urls[i].endsWith(".mpd")) {
-      vast4MediaFilesNode
+      vastMediaFilesNode
         .attachMediaFile(urls[i], 
           Object.assign(mediaFile, {
             delivery: 'streaming',

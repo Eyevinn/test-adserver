@@ -12,6 +12,7 @@ mockClientParams1 = {
   dt: "mobile",
   ss: "1920x1080",
   uip: "123.23.32.13",
+  v: "3",
 };
 mockClientParams2 = {
   c: true,
@@ -55,7 +56,7 @@ describe("SESSION CLASS", () => {
     session1.AddTrackedEvent(mockTrackedEvent1);
     session1.AddTrackedEvent(mockTrackedEvent2);
     session1.AddTrackedEvent(mockTrackedEvent3);
-    
+
     const eventsObj = session1.getTrackedEvents();
 
     eventsObj.should.be.a("object");
@@ -69,7 +70,7 @@ describe("SESSION CLASS", () => {
     session1.AddTrackedEvent(mockTrackedEvent1);
     session1.AddTrackedEvent(mockTrackedEvent2);
     session1.AddTrackedEvent(mockTrackedEvent3);
-    
+
     const eventsObj = session1.getTrackedEvents();
 
     eventsObj.should.be.a("object");

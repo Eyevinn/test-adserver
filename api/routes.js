@@ -282,6 +282,7 @@ const SessionSchema = () => ({
       min: "10",
       max: "45",
       ps: "4",
+      v: "4",
     },
     response: "<VAST XML>",
   },
@@ -602,6 +603,12 @@ const schemas = {
           description: "Desired Pod size in numbers of Ads.",
           example: "3",
         },
+        v: {
+          type: "string",
+          description:
+            "VAST version to use. Default is 4. Supported values are 2, 3 and 4",
+          example: "3",
+        },
         userAgent: {
           type: "string",
           description: "Client's user agent",
@@ -695,6 +702,12 @@ const schemas = {
           type: "string",
           description:
             "Desired Pod size in midroll adbreak, in numbers of Ads.",
+          example: "3",
+        },
+        v: {
+          type: "string",
+          description:
+            "VAST version to use. Default is 4. Supported values are 2, 3 and 4.",
           example: "3",
         },
         userAgent: {
