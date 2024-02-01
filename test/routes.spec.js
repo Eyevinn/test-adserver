@@ -370,7 +370,7 @@ describe(" MY ROUTES", () => {
     });
   });
   // test 6
-  describe("GET->SESSIONS/:sessionId/tracking", () => {
+  describe("GET->SESSIONS/:sessionId/tracking VAST v4.0", () => {
     let reply;
     before((done) => {
       const queryParams = "?adId=mockAd1&progress=100";
@@ -405,6 +405,38 @@ describe(" MY ROUTES", () => {
 
     });
   });
+  describe("GET->SESSIONS/:sessionId/tracking VAST v2.0/v3.0", () => {
+    let reply;
+    before((done) => {
+      const queryParams = "?adID=mockAd1&progress=100";
+      chai
+        .request(SERVER_URL)
+        .get("/api/v1/sessions/" + SID + "/tracking" + queryParams)
+        .end((err, res) => {
+          if (err) {
+            done(err);
+          }
+          reply = res;
+          done();
+        });
+    });
+    it("should have status 200", () => {
+      reply.should.have.status(200);
+    });
+    it("should send an object", () => {
+      reply.body.should.be.a("object");
+    });
+    it("should be content-type: application/json ", () => {
+      reply.should.have.header(
+        "content-type",
+        "application/json; charset=utf-8"
+      );
+    });
+
+    it("should return a confirmation message", () => {
+      reply.body.should.matchPattern({message: _.isString});
+    });
+  });
   describe("GET->SESSIONS/DONT_EXIST/tracking", () => {
     it("should 404 when sessionID is unknown", (done) => {
       const queryParams = "?adId=mockAd1&progress=100";
@@ -416,6 +448,23 @@ describe(" MY ROUTES", () => {
           done(err);
         }
         res.should.have.status(404);
+        res.body.should.be.a("object");
+        res.body.should.matchPattern({ message: _.isString });
+        done();
+      });
+    });
+  });
+  describe("GET->SESSIONS/:sessionId/tracking wrong adId param", () => {
+    it("should 400 when adId/adID param is set to adid", (done) => {
+      const queryParams = "?adid=mockAd1&progress=100";
+      chai
+      .request(SERVER_URL)
+      .get("/api/v1/sessions/" + SID + "/tracking" + queryParams)
+      .end((err, res) => {
+        if (err) {
+          done(err);
+        }
+        res.should.have.status(400);
         res.body.should.be.a("object");
         res.body.should.matchPattern({ message: _.isString });
         done();
