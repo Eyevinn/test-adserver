@@ -391,7 +391,12 @@ const schemas = {
       properties: {
         adId: {
           type: "string",
-          description: "The ID for the Ad. ",
+          description: "The ID for the Ad (if VAST v4.0)",
+          example: "adid-123",
+        },
+        adID: {
+          type: "string",
+          description: "The ID for the Ad (if VAST v2.0 or v3.0)",
           example: "adid-123",
         },
         progress: {
@@ -400,7 +405,14 @@ const schemas = {
           example: "75",
         },
       },
-      required: ["adId", "progress"],
+      oneOf: [
+        {
+          required: ["adId", "progress"],
+        },
+        {
+          required: ["adID", "progress"],
+        },
+      ],
     },
     response: {
       200: {
@@ -826,7 +838,7 @@ module.exports = (fastify, opt, next) => {
       try {
         // Get path parameters and query parameters.
         const sessionId = req.params.sessionId;
-        const adId = req.query.adId;
+        const adId = req.query.adId || req.query.adID;
         const viewProgress = req.query.progress || null;
         const userAgent = req.headers["user-agent"] || "Not Found";
         const eventNames = {
