@@ -969,6 +969,39 @@ module.exports = (fastify, opt, next) => {
     }
   );
 
+  fastify.get(
+    "/sessions/:sessionId/vmap",
+    {
+      schema: schemas["GET/sessions/:sessionId/vmap"],
+      tags: ["sessions/:sessionId"],
+    },
+    async (req, reply) => {
+      const sessionId = req.params.sessionId;
+      try {
+        // Check if session exists.
+        const session = await DBAdapter.getSession(sessionId);
+        if (!session) {
+          reply.code(404).send({
+            message: `Session with ID: '${sessionId}' was not found`,
+          });
+        } else {
+          vmap_xml = session.getVmapXml();
+          reply.headers({
+            "Content-Type": "application/xml;charset=UTF-8",
+          });
+          reply.code(200).send(vmap_xml);
+        }
+      } catch (exc) {
+        console.error(exc);
+        logger.error(exc, {
+          label: req.headers["host"],
+          sessionId: sessionId,
+        });
+        reply.code(500).send({ message: exc.message });
+      }
+    }
+  );
+
   // Users - routes
   fastify.get(
     "/users/:userId",
