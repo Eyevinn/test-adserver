@@ -523,6 +523,24 @@ const schemas = {
       404: BadRequestSchema("Session with ID: 'xxx-xxx-xxx-xxx' was not found"),
     },
   },
+  "GET/sessions/:sessionId/vmap": {
+    description: "Gets the VMAP XML created for a specific session",
+    tags: ["sessions"],
+    params: {
+      sessionId: {
+        type: "string",
+        description: "The ID for the session. ",
+      },
+    },
+    response: {
+      200: {
+        description: "VMAP XML",
+        type: "string",
+      },
+
+      404: BadRequestSchema("Session with ID: 'xxx-xxx-xxx-xxx' was not found"),
+    },
+  },
   "DELETE/sessions/:sessionId": {
     description: "Deletes the given session",
     tags: ["sessions"],
@@ -973,7 +991,6 @@ module.exports = (fastify, opt, next) => {
     "/sessions/:sessionId/vmap",
     {
       schema: schemas["GET/sessions/:sessionId/vmap"],
-      tags: ["sessions/:sessionId"],
     },
     async (req, reply) => {
       const sessionId = req.params.sessionId;
