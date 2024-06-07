@@ -209,7 +209,7 @@ function AttachPodAds(vast, podAds, params) {
       );
     }
     mediaNode = mediaNode
-      .attachLinear()
+      .attachLinear({ skipoffset: "00:00:05" }) // skipoffset does not seem to exist on VAST 2.0 and lower, you could also have skipoffset in percentage
       .attachTrackingEvents()
       .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?${adId}=${podAds[i].id}_${i + 1}&progress=0`, { event: "start" })
       .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?${adId}=${podAds[i].id}_${i + 1}&progress=25`, { event: "firstQuartile" })
