@@ -523,6 +523,24 @@ const schemas = {
       404: BadRequestSchema("Session with ID: 'xxx-xxx-xxx-xxx' was not found"),
     },
   },
+  "GET/sessions/:sessionId/vmap": {
+    description: "Gets the VMAP XML created for a specific session",
+    tags: ["sessions"],
+    params: {
+      sessionId: {
+        type: "string",
+        description: "The ID for the session. ",
+      },
+    },
+    response: {
+      200: {
+        description: "VMAP XML",
+        type: "string",
+      },
+
+      404: BadRequestSchema("Session with ID: 'xxx-xxx-xxx-xxx' was not found"),
+    },
+  },
   "DELETE/sessions/:sessionId": {
     description: "Deletes the given session",
     tags: ["sessions"],
@@ -957,6 +975,38 @@ module.exports = (fastify, opt, next) => {
             "Content-Type": "application/xml;charset=UTF-8",
           });
           reply.code(200).send(vast_xml);
+        }
+      } catch (exc) {
+        console.error(exc);
+        logger.error(exc, {
+          label: req.headers["host"],
+          sessionId: sessionId,
+        });
+        reply.code(500).send({ message: exc.message });
+      }
+    }
+  );
+
+  fastify.get(
+    "/sessions/:sessionId/vmap",
+    {
+      schema: schemas["GET/sessions/:sessionId/vmap"],
+    },
+    async (req, reply) => {
+      const sessionId = req.params.sessionId;
+      try {
+        // Check if session exists.
+        const session = await DBAdapter.getSession(sessionId);
+        if (!session) {
+          reply.code(404).send({
+            message: `Session with ID: '${sessionId}' was not found`,
+          });
+        } else {
+          vmap_xml = session.getVmapXml();
+          reply.headers({
+            "Content-Type": "application/xml;charset=UTF-8",
+          });
+          reply.code(200).send(vmap_xml);
         }
       } catch (exc) {
         console.error(exc);
