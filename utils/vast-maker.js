@@ -208,8 +208,9 @@ function AttachPodAds(vast, podAds, params) {
         }
       );
     }
+    console.log("VAST params: ", params);
     mediaNode = mediaNode
-      .attachLinear({ skipoffset: "00:00:05" }) // skipoffset does not seem to exist on VAST 2.0 and lower, you could also have skipoffset in percentage
+      .attachLinear({skipoffset: isValidSkipOffset(params.skipoffset)}) // skipoffset does not seem to exist on VAST 2.0 and lower, you could also have skipoffset in percentage
       .attachTrackingEvents()
       .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?${adId}=${podAds[i].id}_${i + 1}&progress=0`, { event: "start" })
       .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?${adId}=${podAds[i].id}_${i + 1}&progress=25`, { event: "firstQuartile" })
@@ -349,6 +350,15 @@ function indexOfSmallest(a) {
     if (a[i] < a[lowest]) lowest = i;
   }
   return lowest;
+}
+
+// Validate params.skipoffset is a valid VAST skipoffset value ("x%" or "hh:mm:ss").
+function isValidSkipOffset(skipoffset) {
+  // "hh:mm:ss"
+  const timeFormatRegex = /^(\d{2}):([0-5][0-9]):([0-5][0-9])$/;
+  // "x%"
+  const percentageFormatRegex = /^(100|[1-9]?[0-9])%$/;
+  return timeFormatRegex.test(skipoffset) || percentageFormatRegex.test(skipoffset) ? skipoffset: null;
 }
 
 function PopulatePod(_size, _min, _max, _ads, _chosenAds, _method, _targetDur) {
