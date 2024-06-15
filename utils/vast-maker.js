@@ -86,6 +86,7 @@ const DEFAULT_AD_LIST = [
  * 
  */
 function VastBuilder(params) {
+  console.log("VastBuilder params: ", params);
   let vastObject = {};
   let adList = [];
   let vast = null;
@@ -208,9 +209,8 @@ function AttachPodAds(vast, podAds, params) {
         }
       );
     }
-    console.log("VAST params: ", params);
     mediaNode = mediaNode
-      .attachLinear({skipoffset: isValidSkipOffset(params.skipoffset)}) // skipoffset does not seem to exist on VAST 2.0 and lower, you could also have skipoffset in percentage
+      .attachLinear({skipoffset: getSkipOffsetValue(params.skipoffset)}) // skipoffset does not seem to exist on VAST 2.0 and lower, you could also have skipoffset in percentage
       .attachTrackingEvents()
       .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?${adId}=${podAds[i].id}_${i + 1}&progress=0`, { event: "start" })
       .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?${adId}=${podAds[i].id}_${i + 1}&progress=25`, { event: "firstQuartile" })
@@ -352,13 +352,28 @@ function indexOfSmallest(a) {
   return lowest;
 }
 
-// Validate params.skipoffset is a valid VAST skipoffset value ("x%" or "hh:mm:ss").
-function isValidSkipOffset(skipoffset) {
+// Validate that params.skipoffset is a valid VAST skipoffset value ("x%" or "hh:mm:ss").
+function getSkipOffsetValue(skipoffset) {
   // "hh:mm:ss"
   const timeFormatRegex = /^(\d{2}):([0-5][0-9]):([0-5][0-9])$/;
   // "x%"
   const percentageFormatRegex = /^(100|[1-9]?[0-9])%$/;
-  return timeFormatRegex.test(skipoffset) || percentageFormatRegex.test(skipoffset) ? skipoffset: null;
+  // "seconds"
+  const integerSecondsRegex = /^\d+$/;
+
+  if (timeFormatRegex.test(skipoffset) || percentageFormatRegex.test(skipoffset)){
+    return skipoffset;
+  } 
+  // convert seconds to "hh:mm:ss" format
+  if (integerSecondsRegex.test(skipoffset)) {
+    const totalSeconds = parseInt(skipoffset, 10);
+    const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+    const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+    const seconds = String(totalSeconds % 60).padStart(2, '0');
+
+    return `${hours}:${minutes}:${seconds}`;
+  }
+  return null;
 }
 
 function PopulatePod(_size, _min, _max, _ads, _chosenAds, _method, _targetDur) {

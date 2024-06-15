@@ -583,7 +583,7 @@ const schemas = {
         skip: {
           type: "string",
           description: "Skipoffset in seconds or percentage.",
-          example: "00:00:05 or 25%",
+          example: "5 or 25%",
         },
         uid: {
           type: "string",
@@ -682,6 +682,11 @@ const schemas = {
           type: "string",
           description: "Desired duration for midroll ad break, in seconds.",
           example: "60",
+        },
+        skip: {
+          type: "string",
+          description: "Skipoffset in seconds or percentage.",
+          example: "5 or 25%",
         },
         uid: {
           type: "string",

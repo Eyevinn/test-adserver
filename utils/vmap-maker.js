@@ -80,6 +80,7 @@ function VmapBuilder(params) {
   const defaultConfigs = {
     sessionId: GVC.sessionId,
     desiredDuration: "15",
+    skipoffset: GVC.skipoffset,
     adserverHostname: GVC.adserverHostname,
     maxPodDuration: null,
     minPodDuration: null,
@@ -90,6 +91,7 @@ function VmapBuilder(params) {
 
   const breakpoints = params.breakpoints ? params.breakpoints.split(",").filter((item) => !isNaN(Number(item))) : [];
   if (params.preroll) {
+    //console.log("PARAMS: ",params.generalVastConfigs);
     const preVast = VastBuilder(defaultConfigs);
     vmap.attachAdBreak("preroll.ad", "linear", "start", preVast.xml, {
       sessionId: GVC.sessionId,

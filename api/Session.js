@@ -43,6 +43,7 @@ class Session {
         generalVastConfigs: {
           sessionId: this.sessionId,
           desiredDuration: params.dur || "0",
+          skipoffset: params.skip || null,
           adserverHostname: this.host,
           maxPodDuration: params.max || null,
           minPodDuration: params.min || null,
