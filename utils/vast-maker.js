@@ -86,7 +86,6 @@ const DEFAULT_AD_LIST = [
  * 
  */
 function VastBuilder(params) {
-  console.log("VastBuilder params: ", params);
   let vastObject = {};
   let adList = [];
   let vast = null;
@@ -352,16 +351,13 @@ function indexOfSmallest(a) {
   return lowest;
 }
 
-// Validate that params.skipoffset is a valid VAST skipoffset value ("x%" or "hh:mm:ss").
 function getSkipOffsetValue(skipoffset) {
-  // "hh:mm:ss"
-  const timeFormatRegex = /^(\d{2}):([0-5][0-9]):([0-5][0-9])$/;
   // "x%"
   const percentageFormatRegex = /^(100|[1-9]?[0-9])%$/;
   // "seconds"
   const integerSecondsRegex = /^\d+$/;
 
-  if (timeFormatRegex.test(skipoffset) || percentageFormatRegex.test(skipoffset)){
+  if (percentageFormatRegex.test(skipoffset)){
     return skipoffset;
   } 
   // convert seconds to "hh:mm:ss" format

@@ -91,7 +91,6 @@ function VmapBuilder(params) {
 
   const breakpoints = params.breakpoints ? params.breakpoints.split(",").filter((item) => !isNaN(Number(item))) : [];
   if (params.preroll) {
-    //console.log("PARAMS: ",params.generalVastConfigs);
     const preVast = VastBuilder(defaultConfigs);
     vmap.attachAdBreak("preroll.ad", "linear", "start", preVast.xml, {
       sessionId: GVC.sessionId,
