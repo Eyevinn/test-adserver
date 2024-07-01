@@ -44,11 +44,10 @@ function PauseAdVastBuilder(params) {
       minSuggestedDuration: "00:00:05",
       apiFramework: "static",
     })
-    .addStaticResource("https://testcontent.eyevinn.technology/ads/STSWE_AD_001.jpg", "image/jpeg")
+    .addStaticResource("https://testcontent.eyevinn.technology/ads/STSWE_AD_001.jpg", {creativeType:"image/jpeg"})
     .addNonLinearClickThrough("https://github.com/Eyevinn/test-adserver");
 
   const vastXml = vast.toXml();
-  console.log('Generated VAST XML:', vastXml);
   return { xml: vastXml };
 }
 
