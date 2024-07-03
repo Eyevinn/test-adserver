@@ -80,6 +80,7 @@ function VmapBuilder(params) {
   const defaultConfigs = {
     sessionId: GVC.sessionId,
     desiredDuration: "15",
+    skipoffset: GVC.skipoffset,
     adserverHostname: GVC.adserverHostname,
     maxPodDuration: null,
     minPodDuration: null,

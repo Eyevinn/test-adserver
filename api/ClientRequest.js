@@ -2,6 +2,7 @@ class ClientRequest {
   // Private fields
   #consent;
   #requestedDuration;
+  #skipoffset;
   #userId;
   #operatingSystem;
   #deviceType;
@@ -18,6 +19,7 @@ class ClientRequest {
   constructor(params) {
     this.#consent = params.c || null;
     this.#requestedDuration = params.dur || null;
+    this.#skipoffset = params.skip || null;
     this.#userId = params.uid || null;
     this.#operatingSystem = params.os || null;
     this.#deviceType = params.dt || null;
@@ -41,6 +43,7 @@ class ClientRequest {
     const properties = {
       Consent: this.#consent,
       RequestedDuration: this.#requestedDuration,
+      Skipoffset: this.#skipoffset,
       UserId: this.#userId,
       OperatingSystem: this.#operatingSystem,
       DeviceType: this.#deviceType,

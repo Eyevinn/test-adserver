@@ -209,7 +209,7 @@ function AttachPodAds(vast, podAds, params) {
       );
     }
     mediaNode = mediaNode
-      .attachLinear()
+      .attachLinear({skipoffset: getSkipOffsetValue(params.skipoffset)}) // skipoffset does not seem to exist on VAST 2.0 and lower, you could also have skipoffset in percentage
       .attachTrackingEvents()
       .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?${adId}=${podAds[i].id}_${i + 1}&progress=0`, { event: "start" })
       .addTracking(`http://${params.adserverHostname}/api/v1/sessions/${params.sessionId}/tracking?${adId}=${podAds[i].id}_${i + 1}&progress=25`, { event: "firstQuartile" })
@@ -349,6 +349,27 @@ function indexOfSmallest(a) {
     if (a[i] < a[lowest]) lowest = i;
   }
   return lowest;
+}
+
+function getSkipOffsetValue(skipoffset) {
+  // "x%"
+  const percentageFormatRegex = /^(100|[1-9]?[0-9])%$/;
+  // "seconds"
+  const integerSecondsRegex = /^\d+$/;
+
+  if (percentageFormatRegex.test(skipoffset)){
+    return skipoffset;
+  } 
+  // convert seconds to "hh:mm:ss" format
+  if (integerSecondsRegex.test(skipoffset)) {
+    const totalSeconds = parseInt(skipoffset, 10);
+    const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+    const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+    const seconds = String(totalSeconds % 60).padStart(2, '0');
+
+    return `${hours}:${minutes}:${seconds}`;
+  }
+  return null;
 }
 
 function PopulatePod(_size, _min, _max, _ads, _chosenAds, _method, _targetDur) {

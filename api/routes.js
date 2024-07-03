@@ -140,6 +140,11 @@ const vastSchema = () => ({
                   Linear: {
                     type: "object",
                     properties: {
+                      skipoffset: {
+                        type: "string",
+                        example: "00:00:05",
+                        xml: { attribute: true },
+                      },
                       Duration: {
                         type: "string",
                         example: "00:00:30",
@@ -593,6 +598,11 @@ const schemas = {
           description: "Desired duration in seconds.",
           example: "60",
         },
+        skip: {
+          type: "string",
+          description: "Skipoffset in seconds or percentage.",
+          example: "5 or 25%",
+        },
         uid: {
           type: "string",
           description: "User ID.",
@@ -690,6 +700,11 @@ const schemas = {
           type: "string",
           description: "Desired duration for midroll ad break, in seconds.",
           example: "60",
+        },
+        skip: {
+          type: "string",
+          description: "Skipoffset in seconds or percentage.",
+          example: "5 or 25%",
         },
         uid: {
           type: "string",
