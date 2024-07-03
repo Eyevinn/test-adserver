@@ -667,6 +667,41 @@ const schemas = {
     },
     security: [{ apiKey: [] }],
   },
+  "GET/pause-ad": {
+    description: "Send a VAST response for a Pause Ad and create a new session for the given User ID",
+    tags: ["vast"],
+    produces: ["application/xml"],
+    query: {
+      type: "object",
+      properties: {
+        uid: {
+          type: "string",
+          description: "User ID.",
+          example: "asbc-242-fsdv-123",
+        },
+        v: {
+          type: "string",
+          description: "VAST version to use. Default is 4. Supported values are 2, 3 and 4",
+          example: "4",
+        },
+        width: {
+          type: "integer",
+          description: "Width of the pause ad image. Default is 300.",
+          example: 400,
+        },
+        height: {
+          type: "integer",
+          description: "Height of the pause ad image. Default is 167.",
+          example: 225,
+        },
+      },
+    },
+    response: {
+      200: XmlResponseSchema("VAST"),
+      404: BadRequestSchema("Error creating VAST response for Pause Ad"),
+    },
+    security: [{ apiKey: [] }],
+  },
   "GET/vmap": {
     description:
       "Send a VMAP response, then create a new session for the given User ID",
@@ -1192,6 +1227,69 @@ module.exports = (fastify, opt, next) => {
           label: req.headers["host"],
         });
       }
+      reply.code(500).send({ message: exc.message });
+    }
+  });
+
+  /**
+  * GET endpoint to retrieve VAST XML for Pause Ads.
+  */
+  fastify.get("/pause-ad", { schema: schemas["GET/pause-ad"] }, async (req, reply) => {
+    try {
+      logger.info(req.query, {
+        label: req.headers["host"],
+      });
+      CloudWatchLog("PAUSE_AD_REQUESTED", req.headers["host"], {});
+  
+      const params = Object.assign(req.query, {
+        acceptLang: req.headers["accept-language"] || "Not Found",
+        host: req.headers["host"],
+        userAgent: req.headers["user-agent"] || "Not Found",
+        uip: req.headers["x-forwarded-for"] || req.socket.remoteAddress || "Not Found",
+        rf: RESPONSE_FORMATS.PAUSE_AD,
+        width: req.query.width ? parseInt(req.query.width) : undefined,
+        height: req.query.height ? parseInt(req.query.height) : undefined,
+      });
+
+      const session = new Session(params);
+      const result = await DBAdapter.AddSessionToStorage(session);
+      if (!result) {
+        logger.error("Could not store new session", {
+          label: params.host,
+          sessionId: session.sessionId,
+        });
+        reply.code(404).send({
+          message: "Could not store new session",
+        });
+        return;
+      }
+  
+      const pauseAdVast = session.getPauseAdVast();
+      if (!pauseAdVast) {
+        logger.error("Pause Ad VAST not found", {
+          label: params.host,
+          sessionId: session.sessionId,
+        });
+        reply.code(404).send({
+          message: "Pause Ad VAST not found",
+        });
+        return;
+      }
+  
+      logger.info("Returned Pause Ad VAST and created a session", {
+        label: req.headers["host"],
+        sessionId: session.sessionId,
+      });
+      CloudWatchLog("PAUSE_AD_RETURNED", req.headers["host"], {
+        session: session.sessionId,
+      });
+  
+      reply.header("Content-Type", "application/xml; charset=utf-8");
+      reply.code(200).send(pauseAdVast);
+    } catch (exc) {
+      logger.error(exc, {
+        label: req.headers["host"],
+      });
       reply.code(500).send({ message: exc.message });
     }
   });

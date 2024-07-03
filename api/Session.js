@@ -5,6 +5,7 @@ const { VastBuilder } = require("../utils/vast-maker");
 const { VmapBuilder } = require("../utils/vmap-maker");
 const { v4: uuid } = require("uuid");
 const constants = require("../utils/constants");
+const { PauseAdVastBuilder } = require("../utils/pause-ad-vast-maker");
 
 class Session {
   // Public Fields
@@ -18,6 +19,7 @@ class Session {
   #user;
   #vastXml;
   #vmapXml;
+  #pauseAdVast;
   #eventTracker;
 
   constructor(params) {
@@ -33,7 +35,16 @@ class Session {
     this.#clientRequest = new ClientRequest(params);
     this.#eventTracker = new EventTracker();
 
-    if (this.responseFormat === constants.RESPONSE_FORMATS.VMAP) {
+    if (this.responseFormat === constants.RESPONSE_FORMATS.PAUSE_AD) {
+      const pauseAdObj = PauseAdVastBuilder({
+        sessionId: this.sessionId,
+        adserverHostname: this.host,
+        width: params.width,
+        height: params.height,
+        version: params.v || null,
+      });
+      this.#pauseAdVast = pauseAdObj.xml;
+    } else if (this.responseFormat === constants.RESPONSE_FORMATS.VMAP) {
       // Create VMAP object. 
       let vmapObj;
       vmapObj = VmapBuilder({
@@ -74,6 +85,10 @@ class Session {
 
   getUser() {
     return this.#user.getUserId();
+  }
+
+  getPauseAdVast() {
+    return this.#pauseAdVast;
   }
 
   getXmlResponse() {
