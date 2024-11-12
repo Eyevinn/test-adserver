@@ -11,14 +11,14 @@ const PopulationMethods = Object.freeze({
 const DEFAULT_AD_LIST = [
   {
     universalId: "AAA/BBBB123/",
-    id: "streamingtech_ad",
+    id: "50percent",
     url: [
-      "https://testcontent.eyevinn.technology/ads/probably-the-best-10s.mp4"
+      "https://static.videezy.com/system/resources/previews/000/019/172/original/50percent-blue.mp4"
     ],
-    duration: "00:00:10",
-    bitrate: "17700",
-    width: "1920",
-    height: "1080",
+    duration: "00:00:05",
+    bitrate: "600",
+    width: "630",
+    height: "354",
     codec: "H.264",
   },
   {
@@ -36,11 +36,11 @@ const DEFAULT_AD_LIST = [
   {
     universalId: "AAA/DDDD123/",
     id: "sample-ad_002",
-    url: ["https://iab-publicfiles.s3.amazonaws.com/vast/VAST-4.0-Short-Intro.mp4"],
-    duration: "00:00:16",
-    bitrate: "1000",
-    width: "1280",
-    height: "720",
+    url: ["https://static.videezy.com/system/resources/previews/000/017/924/original/Sale1_2.mp4"],
+    duration: "00:00:20",
+    bitrate: "600",
+    width: "630",
+    height: "354",
     codec: "H.264",
   },
   {
@@ -57,14 +57,14 @@ const DEFAULT_AD_LIST = [
   },
   {
     universalId: "AAA/FFFF123/",
-    id: "stswe",
+    id: "black-friday",
     url: [
-      "https://testcontent.eyevinn.technology/ads/stswe-ad-30sec.mp4"
+      "https://static.videezy.com/system/resources/previews/000/054/133/original/87.mp4"
     ],
-    duration: "00:00:30",
-    bitrate: "10041",
-    width: "1920",
-    height: "1080",
+    duration: "00:00:10",
+    bitrate: "600",
+    width: "799",
+    height: "394",
     codec: "H.264",
   },
 ];
