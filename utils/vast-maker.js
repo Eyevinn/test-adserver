@@ -202,9 +202,9 @@ function AttachPodAds(vast, podAds, params) {
     if (vast.attrs.version === "4.0") {
       mediaNode = mediaNode
       .addUniversalAdId(
-        encodeURIComponent(`${podAds[i].universalId}`), {
+        encodeURIComponent(`${podAds[i].universalId}${i + 1}`), {
           idRegistry: "test-ad-id.eyevinn",
-          idValue: encodeURIComponent(`${podAds[i].universalId}`),
+          idValue: encodeURIComponent(`${podAds[i].universalId}${i + 1}`),
         }
       );
     }
