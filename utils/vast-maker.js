@@ -196,15 +196,15 @@ function AttachPodAds(vast, podAds, params) {
       .attachCreatives()
       .attachCreative({
         id: `CRETIVE-ID_00${i + 1}`,
-        [adId]: `${podAds[i].id}_${i + 1}`,
+        [adId]: `${podAds[i].id}`,
         sequence: `${i + 1}`,
       });
     if (vast.attrs.version === "4.0") {
       mediaNode = mediaNode
       .addUniversalAdId(
-        encodeURIComponent(`${podAds[i].universalId}${i + 1}`), {
+        encodeURIComponent(`${podAds[i].universalId}`), {
           idRegistry: "test-ad-id.eyevinn",
-          idValue: encodeURIComponent(`${podAds[i].universalId}${i + 1}`),
+          idValue: encodeURIComponent(`${podAds[i].universalId}`),
         }
       );
     }
