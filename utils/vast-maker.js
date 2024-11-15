@@ -196,7 +196,7 @@ function AttachPodAds(vast, podAds, params) {
       .attachCreatives()
       .attachCreative({
         id: `CRETIVE-ID_00${i + 1}`,
-        [adId]: `${podAds[i].id}_${i + 1}`,
+        [adId]: `${podAds[i].id}`,
         sequence: `${i + 1}`,
       });
     if (vast.attrs.version === "4.0") {
