@@ -11,57 +11,57 @@ const PopulationMethods = Object.freeze({
 const DEFAULT_AD_LIST = [
   {
     universalId: "AAA/BBBB123/",
-    id: "50percent",
+    id: "alvedon-10s",
     url: [
-      "https://static.videezy.com/system/resources/previews/000/019/172/original/50percent-blue.mp4"
+      "https://testcontent.eyevinn.technology/ads/alvedon-10s.mp4"
     ],
-    duration: "00:00:05",
-    bitrate: "600",
-    width: "630",
-    height: "354",
+    duration: "00:00:10",
+    bitrate: "1300",
+    width: "718",
+    height: "404",
     codec: "H.264",
   },
   {
     universalId: "AAA/CCCC123/",
-    id: "25percent-ad_001",
+    id: "apotea-15s",
     url: [
-      "https://static.videezy.com/system/resources/previews/000/019/185/original/25percent-blue.mp4"
+      "https://testcontent.eyevinn.technology/ads/apotea-15s.mp4"
     ],
-    duration: "00:00:05",
-    bitrate: "600",
-    width: "630",
-    height: "354",
+    duration: "00:00:15",
+    bitrate: "2000",
+    width: "1280",
+    height: "720",
     codec: "H.264",
   },
   {
     universalId: "AAA/DDDD123/",
-    id: "sample-ad_002",
-    url: ["https://static.videezy.com/system/resources/previews/000/017/924/original/Sale1_2.mp4"],
-    duration: "00:00:20",
-    bitrate: "600",
-    width: "630",
-    height: "354",
+    id: "bromwel-15s",
+    url: ["https://testcontent.eyevinn.technology/ads/bromwel-15s.mp4"],
+    duration: "00:00:15",
+    bitrate: "1000",
+    width: "718",
+    height: "404",
     codec: "H.264",
   },
   {
     universalId: "AAA/EEEE123/",
-    id: "sample-ad_003",
+    id: "stswe-ad-30sec",
     url: [
-      "https://s0.2mdn.net/4253510/google_ddm_animation_480P.mp4"
+      "https://testcontent.eyevinn.technology/ads/stswe-ad-30sec.mp4"
     ],
-    duration: "00:01:00",
-    bitrate: "900",
-    width: "854",
-    height: "480",
+    duration: "00:00:30",
+    bitrate: "10000",
+    width: "1920",
+    height: "1080",
     codec: "H.264",
   },
   {
     universalId: "AAA/FFFF123/",
-    id: "black-friday",
+    id: "willys-20s",
     url: [
-      "https://static.videezy.com/system/resources/previews/000/054/133/original/87.mp4"
+      "https://testcontent.eyevinn.technology/ads/willys-20s.mp4"
     ],
-    duration: "00:00:10",
+    duration: "00:00:20",
     bitrate: "600",
     width: "799",
     height: "394",
