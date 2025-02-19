@@ -48,6 +48,7 @@ Other databases can be used also, as long as they follow the same implementation
 - GET `/api/v1/users/userId` to get all sessions for a specific user, newest first.
 - GET `/api/v1/vast` to create a session and get a VAST-XML file, may also use query parameters.
 - GET `/api/v1/vmap` to create a session and get a VMAP-XML file, may also use query parameters.
+- GET `/api/v1/ads` to create a session and get either a VAST or VMAP response based on rt parameter. Accepts all query parameters from both /vast and /vmap endpoints.
 
 ## Environment variables
 

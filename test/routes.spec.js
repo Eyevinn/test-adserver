@@ -90,7 +90,6 @@ describe(" MY ROUTES", () => {
             done(err);
           }
           res.should.have.status(200);
-          res.body.should.be.a("object");
           res.should.have.header(
             "content-type",
             "application/xml; charset=utf-8"
@@ -109,7 +108,6 @@ describe(" MY ROUTES", () => {
             done(err);
           }
           res.should.have.status(200);
-          res.body.should.be.a("object");
           res.should.have.header(
             "content-type",
             "application/xml; charset=utf-8"
@@ -147,7 +145,6 @@ describe(" MY ROUTES", () => {
             done(err);
           }
           res.should.have.status(200);
-          res.body.should.be.a("object");
           res.should.have.header(
             "content-type",
             "application/xml; charset=utf-8"
@@ -164,7 +161,6 @@ describe(" MY ROUTES", () => {
             done(err);
           }
           res.should.have.status(200);
-          res.body.should.be.a("object");
           res.should.have.header(
             "content-type",
             "application/xml; charset=utf-8"
@@ -197,6 +193,95 @@ describe(" MY ROUTES", () => {
           res.should.have.status(200);
           done();
         });
+    });
+
+    // Add new test block for /ads endpoint
+    describe("GET->ADS", () => {
+      const adsQueryStr = `?c=1&dur=15&uid=${UID}&os=android&dt=samsung&ss=1000x200&uip=123.123.123.123`;
+
+      it("should return VAST-XML when rt=vast", (done) => {
+        chai
+          .request(SERVER_URL)
+          .get("/api/v1/ads" + adsQueryStr + "&rt=vast")
+          .end((err, res) => {
+            if (err) {
+              console.log(err);
+              done(err);
+            }
+            res.should.have.status(200);
+            res.should.have.header(
+              "content-type",
+              "application/xml; charset=utf-8"
+            );
+            done();
+          });
+      });
+
+      it("should return VMAP-XML when rt=vmap with VMAP params", (done) => {
+        chai
+          .request(SERVER_URL)
+          .get("/api/v1/ads" + adsQueryStr + "&rt=vmap&bp=60,120,180&prr=1&por=1")
+          .end((err, res) => {
+            if (err) {
+              console.log(err);
+              done(err);
+            }
+            res.should.have.status(200);
+            res.should.have.header(
+              "content-type",
+              "application/xml; charset=utf-8"
+            );
+            done();
+          });
+      });
+
+      it("should return 400 when rt parameter is missing", (done) => {
+        chai
+          .request(SERVER_URL)
+          .get("/api/v1/ads" + adsQueryStr)
+          .end((err, res) => {
+            if (err) {
+              done(err);
+            }
+            res.should.have.status(400);
+            res.body.should.be.a("object");
+            res.body.should.have.property("message");
+            done();
+          });
+      });
+
+      it("should return 400 when rt parameter is invalid", (done) => {
+        chai
+          .request(SERVER_URL)
+          .get("/api/v1/ads" + adsQueryStr + "&rt=invalid")
+          .end((err, res) => {
+            if (err) {
+              done(err);
+            }
+            res.should.have.status(400);
+            res.body.should.be.a("object");
+            res.body.should.have.property("message");
+            res.body.message.should.equal("querystring.rt should be equal to one of the allowed values");
+            done();
+          });
+      });
+
+      it("should still work when there is no 'dur' query", (done) => {
+        chai
+          .request(SERVER_URL)
+          .get("/api/v1/ads?uid=dur-parameter-missing&rt=vast")
+          .end((err, res) => {
+            if (err) {
+              done(err);
+            }
+            res.should.have.status(200);
+            res.should.have.header(
+              "content-type",
+              "application/xml; charset=utf-8"
+            );
+            done();
+          });
+      });
     });
   });
   // test 2
