@@ -773,6 +773,116 @@ const schemas = {
     },
     security: [{ apiKey: [] }],
   },
+  "GET/ads": {
+    description: "Send either a VAST or VMAP response based on rt parameter",
+    tags: ["ads"],
+    produces: ["application/xml", "application/json"],
+    query: {
+      type: "object",
+      properties: {
+        // Common parameters
+        c: {
+          type: "string",
+          description: "Consent check.",
+          example: "true",
+        },
+        dur: {
+          type: "string", 
+          description: "Desired duration in seconds.",
+          example: "60",
+        },
+        skip: {
+          type: "string",
+          description: "Skipoffset in seconds or percentage.",
+          example: "5 or 25%",
+        },
+        uid: {
+          type: "string",
+          description: "User ID.",
+          example: "asbc-242-fsdv-123",
+        },
+        os: {
+          type: "string",
+          description: "User OS.",
+          example: "ios", 
+        },
+        dt: {
+          type: "string",
+          description: "Device type.",
+          example: "mobile",
+        },
+        ss: {
+          type: "string",
+          description: "Screen size.",
+          example: "1920x1080",
+        },
+        uip: {
+          type: "string",
+          description: "Client IP.",
+          example: "192.168.1.200",
+        },
+        min: {
+          type: "string",
+          description: "Minimum Ad Pod duration in seconds.",
+          example: "10",
+        },
+        max: {
+          type: "string",
+          description: "Maximum Ad Pod duration in seconds.",
+          example: "30",
+        },
+        ps: {
+          type: "string",
+          description: "Desired Pod size in numbers of Ads.",
+          example: "3",
+        },
+        v: {
+          type: "string",
+          description: "VAST version to use. Default is 4. Supported values are 2, 3 and 4",
+          example: "3",
+        },
+        userAgent: {
+          type: "string",
+          description: "Client's user agent",
+          example: "Mozilla/5.0",
+        },
+        coll: {
+          type: "string",
+          description: "A way to target the call to a specific collection of ads.",
+          example: "my-cat-ads",
+        },
+        // VMAP specific parameters
+        bp: {
+          type: "string",
+          description: "Comma seperated string representing VMAP Ad breakpoints",
+          example: "300,900,1500",
+        },
+        prr: {
+          type: "string",
+          description: "To include 15s preroll ad break",
+          example: "true",
+        },
+        por: {
+          type: "string",
+          description: "To include 15s postroll ad break",
+          example: "true",
+        },
+        rt: {
+          type: "string",
+          description: "Type of response to return (vast or vmap)",
+          enum: ["vast", "vmap"],
+          example: "vast",
+        },
+      },
+      required: ["rt"],
+    },
+    response: {
+      200: XmlResponseSchema("VAST"),
+      400: BadRequestSchema("Invalid rt (return type) specified"),
+      404: BadRequestSchema("Error creating response object"),
+    },
+    security: [{ apiKey: [] }],
+  },
 }; // End of dict
 
 // ======================
@@ -1077,13 +1187,7 @@ module.exports = (fastify, opt, next) => {
     }
   );
 
-  /**
-   * Planned to do two things:
-   * 1) Create and Send a VAST response.
-   * 2) Create new Session with query params & time stamp.
-   */
-  // Vast - routes
-  fastify.get("/vast", { schema: schemas["GET/vast"] }, async (req, reply) => {
+  const handleAdRequest = async (req, reply, type) => {
     try {
       // [LOG]: requested query parameters with a timestamp.
       logger.info(req.query, {
@@ -1111,6 +1215,7 @@ module.exports = (fastify, opt, next) => {
       if (!req.query["userAgent"]) {
         req.query["userAgent"] = req.headers["user-agent"] || "Not Found";
       }
+      
       // Parse browser language, and host from request header
       const acceptLanguage = req.headers["accept-language"] || "Not Found";
       const host = req.headers["host"];
@@ -1118,12 +1223,12 @@ module.exports = (fastify, opt, next) => {
       const params = Object.assign(req.query, {
         acceptLang: acceptLanguage,
         host: host,
+        ...(type === "vmap" && { rf: RESPONSE_FORMATS.VMAP }),
       });
 
       // Use Ads from mRSS if origin is specified
       if (process.env.MRSS_ORIGIN) {
         const collection = req.query['coll'] || host
-        
         const feedUri = `${process.env.MRSS_ORIGIN}${collection}.mrss`;
 
         if (!TENANT_CACHE[collection]) {
@@ -1147,40 +1252,47 @@ module.exports = (fastify, opt, next) => {
         reply.code(404).send({
           message: "Could not store new session",
         });
+        return;
       }
-      // Respond with session's VAST
-      vast_xml = session.getVastXml();
-      if (!vast_xml) {
-        logger.error("VAST not found", {
+
+      // Get appropriate XML response based on type
+      const xml = type === "vmap" ? session.getVmapXml() : session.getVastXml();
+      const emptyStr = type === "vmap" ? EMPTY_VMAP_STR : EMPTY_VAST_STR;
+      
+      if (!xml) {
+        logger.error(`${type.toUpperCase()} not found`, {
           label: host,
           sessionId: session.sessionId,
         });
         reply.code(404).send({
-          message: `VAST not found`,
+          message: `${type.toUpperCase()} not found`,
+        });
+        return;
+      }
+
+      logger.debug(xml.toString(), {
+        label: host,
+        sessionId: session.sessionId,
+      });
+
+      if (xml.toString() === emptyStr) {
+        logger.info(`Empty ${type.toUpperCase()} returned`, {
+          label: host,
         });
       } else {
-        logger.debug(vast_xml.toString(), {
-          label: host,
+        logger.info(`Returned ${type.toUpperCase()} and created a session`, {
+          label: req.headers["host"],
           sessionId: session.sessionId,
         });
-        if (vast_xml.toString() === EMPTY_VAST_STR) {
-          logger.info("Empty VAST returned", {
-            label: host,
-          });
-        } else {
-          logger.info("Returned VAST and created a session", {
-            label: req.headers["host"],
-            sessionId: session.sessionId,
-          });
-          CloudWatchLog("ADS_RETURNED", req.headers["host"], {
-            dur: session.adBreakDuration,
-            session: session.sessionId,
-          });
-        }
-
-        reply.header("Content-Type", "application/xml; charset=utf-8");
-        reply.code(200).send(vast_xml);
+        CloudWatchLog("ADS_RETURNED", req.headers["host"], {
+          dur: type === "vmap" ? session.adBreakDurations : session.adBreakDuration,
+          session: session.sessionId,
+        });
       }
+
+      reply.header("Content-Type", "application/xml; charset=utf-8");
+      reply.code(200).send(xml);
+
     } catch (exc) {
       if (session) {
         logger.error(exc, {
@@ -1194,127 +1306,23 @@ module.exports = (fastify, opt, next) => {
       }
       reply.code(500).send({ message: exc.message });
     }
-  });
+  };
 
-  /**
-   * Planned to do two things:
-   * 1) Create and Send a VMAP response.
-   * 2) Create new Session with query params & time stamp.
-   */
-  // VMAP - routes
-  fastify.get("/vmap", { schema: schemas["GET/vmap"] }, async (req, reply) => {
-    try {
-      // [LOG]: requested query parameters with a timestamp.
-      logger.info(req.query, {
-        label: req.headers["host"],
+  fastify.get("/vast", { schema: schemas["GET/vast"] }, (req, reply) => 
+    handleAdRequest(req, reply, "vast"));
+
+  fastify.get("/vmap", { schema: schemas["GET/vmap"] }, (req, reply) => 
+    handleAdRequest(req, reply, "vmap"));
+
+  fastify.get("/ads", { schema: schemas["GET/ads"] }, async (req, reply) => {
+    const type = req.query.rt.toLowerCase();
+    if (type !== "vast" && type !== "vmap") {
+      reply.code(400).send({
+        message: "rt must be either 'vast' or 'vmap'"
       });
-      CloudWatchLog("ADS_REQUESTED", req.headers["host"], {
-        dur: req.query["dur"],
-      });
-
-      // If client didn't send IP as query, then use IP in header
-      if (!req.query["uip"]) {
-        const parseIp = (req) => {
-          if (req.headers["x-forwarded-for"]) {
-            return req.headers["x-forwarded-for"].split(",").shift();
-          } else if (req.socket) {
-            return req.socket.remoteAddress;
-          } else {
-            return "Not found";
-          }
-        };
-        req.query["uip"] = parseIp(req);
-      }
-
-      // If client didn't send user-agent as query, then read from header
-      if (!req.query["userAgent"]) {
-        req.query["userAgent"] = req.headers["user-agent"] || "Not Found";
-      }
-      // Parse browser language, and host from request header
-      const acceptLanguage = req.headers["accept-language"] || "Not Found";
-      const host = req.headers["host"];
-
-      const params = Object.assign(req.query, {
-        acceptLang: acceptLanguage,
-        host: host,
-        rf: RESPONSE_FORMATS.VMAP,
-      });
-
-      // Use Ads from mRSS if origin is specified
-      if (process.env.MRSS_ORIGIN) {
-        const collection = req.query['coll'] || host
-        
-        const feedUri = `${process.env.MRSS_ORIGIN}${collection}.mrss`;
-
-        if (!TENANT_CACHE[collection]) {
-          await UpdateCache(collection, feedUri, TENANT_CACHE);
-        } else {
-          const age = Date.now() - TENANT_CACHE[collection].lastUpdated;
-          if (age >= CACHE_MAX_AGE) {
-            await UpdateCache(collection, feedUri, TENANT_CACHE);
-          }
-        }
-      }
-
-      // Create new session, then add to session DB.
-      const session = new Session(params);
-      const result = await DBAdapter.AddSessionToStorage(session);
-      if (!result) {
-        logger.error("Could not store new session", {
-          label: host,
-          sessionId: session.sessionId,
-        });
-        reply.code(404).send({
-          message: "Could not store new session",
-        });
-      }
-      // Respond with session's VMAP
-      vmap_xml = session.getVmapXml();
-      if (!vmap_xml) {
-        logger.error("VMAP not found", {
-          label: host,
-          sessionId: session.sessionId,
-        });
-        reply.code(404).send({
-          message: `VMAP not found`,
-        });
-      } else {
-        logger.debug(vmap_xml.toString(), {
-          label: host,
-          sessionId: session.sessionId,
-        });
-        if (vmap_xml.toString() === EMPTY_VMAP_STR) {
-          logger.info("Empty VMAP returned", {
-            label: host,
-          });
-        } else {
-          logger.info("Returned VMAP and created a session", {
-            label: req.headers["host"],
-            sessionId: session.sessionId,
-          });
-          CloudWatchLog("ADS_RETURNED", req.headers["host"], {
-            dur: session.adBreakDurations,
-            session: session.sessionId,
-          });
-        }
-
-        reply.header("Content-Type", "application/xml; charset=utf-8");
-        reply.code(200).send(vmap_xml);
-      }
-    } catch (exc) {
-      console.error(exc);
-      if (session) {
-        logger.error(exc, {
-          label: req.headers["host"],
-          sessionId: session.sessionId,
-        });
-      } else {
-        logger.error(exc, {
-          label: req.headers["host"],
-        });
-      }
-      reply.code(500).send({ message: exc.message });
+      return;
     }
+    return handleAdRequest(req, reply, type);
   });
 
   next();
