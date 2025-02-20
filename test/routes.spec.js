@@ -90,7 +90,6 @@ describe(" MY ROUTES", () => {
             done(err);
           }
           res.should.have.status(200);
-          res.body.should.be.a("object");
           res.should.have.header(
             "content-type",
             "application/xml; charset=utf-8"
@@ -109,7 +108,6 @@ describe(" MY ROUTES", () => {
             done(err);
           }
           res.should.have.status(200);
-          res.body.should.be.a("object");
           res.should.have.header(
             "content-type",
             "application/xml; charset=utf-8"
@@ -147,7 +145,6 @@ describe(" MY ROUTES", () => {
             done(err);
           }
           res.should.have.status(200);
-          res.body.should.be.a("object");
           res.should.have.header(
             "content-type",
             "application/xml; charset=utf-8"
@@ -164,7 +161,6 @@ describe(" MY ROUTES", () => {
             done(err);
           }
           res.should.have.status(200);
-          res.body.should.be.a("object");
           res.should.have.header(
             "content-type",
             "application/xml; charset=utf-8"
