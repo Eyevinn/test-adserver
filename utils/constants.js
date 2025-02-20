@@ -1,7 +1,8 @@
 
 const RESPONSE_FORMATS = {
     VMAP: "vmap1",
-    VAST: "vast4"
+    VAST: "vast4",
+    PAUSE_AD: "pause_ad"
   }
   
   const EMPTY_VAST_MSG = `.--------------- WARNING ---------------.

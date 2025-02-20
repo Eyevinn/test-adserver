@@ -667,6 +667,41 @@ const schemas = {
     },
     security: [{ apiKey: [] }],
   },
+  "GET/pause-ad": {
+    description: "Send a VAST response for a Pause Ad and create a new session for the given User ID",
+    tags: ["vast"],
+    produces: ["application/xml"],
+    query: {
+      type: "object",
+      properties: {
+        uid: {
+          type: "string",
+          description: "User ID.",
+          example: "asbc-242-fsdv-123",
+        },
+        v: {
+          type: "string",
+          description: "VAST version to use. Default is 4. Supported values are 2, 3 and 4",
+          example: "4",
+        },
+        width: {
+          type: "integer",
+          description: "Width of the pause ad image. Default is 300.",
+          example: 400,
+        },
+        height: {
+          type: "integer",
+          description: "Height of the pause ad image. Default is 167.",
+          example: 225,
+        },
+      },
+    },
+    response: {
+      200: XmlResponseSchema("VAST"),
+      404: BadRequestSchema("Error creating VAST response for Pause Ad"),
+    },
+    security: [{ apiKey: [] }],
+  },
   "GET/vmap": {
     description:
       "Send a VMAP response, then create a new session for the given User ID",
@@ -1266,7 +1301,6 @@ module.exports = (fastify, opt, next) => {
         reply.code(404).send({
           message: `${type.toUpperCase()} not found`,
         });
-        return;
       }
 
       logger.debug(xml.toString(), {
