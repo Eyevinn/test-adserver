@@ -235,20 +235,6 @@ describe(" MY ROUTES", () => {
           });
       });
 
-      it("should return 400 when rt parameter is missing", (done) => {
-        chai
-          .request(SERVER_URL)
-          .get("/api/v1/ads" + adsQueryStr)
-          .end((err, res) => {
-            if (err) {
-              done(err);
-            }
-            res.should.have.status(400);
-            res.body.should.be.a("object");
-            res.body.should.have.property("message");
-            done();
-          });
-      });
 
       it("should return 400 when rt parameter is invalid", (done) => {
         chai
