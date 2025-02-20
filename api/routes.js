@@ -869,12 +869,11 @@ const schemas = {
         },
         rt: {
           type: "string",
-          description: "Type of response to return (vast or vmap)",
+          description: "Type of response to return (vast or vmap). Defaults to vast if not specified",
           enum: ["vast", "vmap"],
           example: "vast",
         },
       },
-      required: ["rt"],
     },
     response: {
       200: XmlResponseSchema("VAST"),
@@ -1315,7 +1314,7 @@ module.exports = (fastify, opt, next) => {
     handleAdRequest(req, reply, "vmap"));
 
   fastify.get("/ads", { schema: schemas["GET/ads"] }, async (req, reply) => {
-    const type = req.query.rt.toLowerCase();
+    const type = (req.query.rt || 'vast').toLowerCase();
     if (type !== "vast" && type !== "vmap") {
       reply.code(400).send({
         message: "rt must be either 'vast' or 'vmap'"

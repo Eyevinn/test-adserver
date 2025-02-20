@@ -266,10 +266,10 @@ describe(" MY ROUTES", () => {
           });
       });
 
-      it("should still work when there is no 'dur' query", (done) => {
+      it("should return VAST-XML when rt parameter is missing", (done) => {
         chai
           .request(SERVER_URL)
-          .get("/api/v1/ads?uid=dur-parameter-missing&rt=vast")
+          .get("/api/v1/ads" + adsQueryStr)
           .end((err, res) => {
             if (err) {
               done(err);
