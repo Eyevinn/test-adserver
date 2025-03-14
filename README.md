@@ -101,7 +101,7 @@ The test-adserver is expecting an mRSS feed which should include text/xml with t
   <entry>                                                   
     <id>hotdog_ad_2021</id>                                 //ID for the ad
     <universalId>AAAA</universalId>                         //The ad's Universal ADID 
-    <link>https://server.hotdog_ad_1.mp4</link>             //URL to the ad resource
+    <url>https://server.hotdog_ad_1.mp4</url>               //URL to the ad resource
     <duration>00:00:16</duration>                           //Duration of ad in format-> HH:MM:SS
     <bitrate>17700</bitrate>                                //The ad's video bitrate
     <width>1920</width>                                     //The ad's video width
@@ -113,7 +113,7 @@ The test-adserver is expecting an mRSS feed which should include text/xml with t
 
 Simply populate your xml file with `<entry></entry>` tags for each Ad asset with the necessary data (id, universalId, link, duration, etc...).
 
-If you have ads in multiple formats (eg. DASH, HLS, MP4), you can add multiple `<link></link>` for each one.
+If you have ads in multiple formats (eg. DASH, HLS, MP4), you can add multiple `<url></url>` for each one.
 
 ## Commercial Options
 
