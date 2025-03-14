@@ -14,7 +14,16 @@ async function UpdateCache(tenant, feedURI, cache) {
   try {
     const response = await fetch(feedURI);
     const xml = await response.text();
-    const json = xmlparser.parse(xml);
+    
+    const xmlOptions = {
+      ignoreAttributes: false, 
+      attributeNamePrefix: "", 
+      removeNSPrefix: true, 
+      isArray: (name, jPath, isLeafNode, isAttribute) => name === "url", 
+    };
+    
+    const json = xmlparser.parse(xml, xmlOptions);
+    
     let feedEntry = json.feed.entry;
 
     // Turn to array if only one Ad was in the feed
