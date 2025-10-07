@@ -1,12 +1,13 @@
 // IMPORT MODULES
 const Fastify = require("fastify");
+const { version } = require("./package.json");
 
 function builder() {
   const fastify = Fastify({ ignoreTrailingSlash: true });
   // Homepage route? Replace later.
   fastify.get("/", async () => {
     return {
-      Test: "This is working fine",
+      Test: "This is working fine. Try Endpoint '/api/docs/static/index.html' ;-) ",
     };
   });
 
@@ -16,8 +17,8 @@ function builder() {
     swagger: {
       info: {
         title: "Test Adserver API",
-        description: "This is for testing.",
-        version: "0.2.0",
+        description: "Lightweight test ad server to validate ad tracking.",
+        version: version,
       },
       tags: [
         { name: "sessions", description: "Session related end-points" },
