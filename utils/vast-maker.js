@@ -10,7 +10,7 @@ const PopulationMethods = Object.freeze({
 
 const DEFAULT_AD_LIST = [
   {
-    universalId: "AAA/BBBB123/",
+    universalId: "AAA001",
     id: "alvedon-10s",
     url: [
       "https://testcontent.eyevinn.technology/ads/alvedon-10s.mp4"
@@ -22,7 +22,7 @@ const DEFAULT_AD_LIST = [
     codec: "H.264",
   },
   {
-    universalId: "AAA/CCCC123/",
+    universalId: "AAA002",
     id: "apotea-15s",
     url: [
       "https://testcontent.eyevinn.technology/ads/apotea-15s.mp4"
@@ -34,7 +34,7 @@ const DEFAULT_AD_LIST = [
     codec: "H.264",
   },
   {
-    universalId: "AAA/DDDD123/",
+    universalId: "AAA003",
     id: "bromwel-15s",
     url: ["https://testcontent.eyevinn.technology/ads/bromwel-15s.mp4"],
     duration: "00:00:15",
@@ -44,7 +44,7 @@ const DEFAULT_AD_LIST = [
     codec: "H.264",
   },
   {
-    universalId: "AAA/EEEE123/",
+    universalId: "AAA004",
     id: "stswe-ad-30sec",
     url: [
       "https://testcontent.eyevinn.technology/ads/stswe-ad-30sec.mp4"
@@ -56,7 +56,7 @@ const DEFAULT_AD_LIST = [
     codec: "H.264",
   },
   {
-    universalId: "AAA/FFFF123/",
+    universalId: "AAA005",
     id: "willys-20s",
     url: [
       "https://testcontent.eyevinn.technology/ads/willys-20s.mp4"
