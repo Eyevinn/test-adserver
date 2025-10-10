@@ -3,7 +3,15 @@ const Fastify = require("fastify");
 const { version } = require("./package.json");
 
 function builder() {
-  const fastify = Fastify({ ignoreTrailingSlash: true });
+  const fastify = Fastify({ 
+    ignoreTrailingSlash: true,
+    ajv: {
+      customOptions: {
+        strict: false,
+        validateFormats: false
+      }
+    }
+  });
   // Homepage route? Replace later.
   fastify.get("/", async () => {
     return {
@@ -12,7 +20,7 @@ function builder() {
   });
 
   // SET UP Swagger
-  fastify.register(require("fastify-swagger"), {
+  fastify.register(require("@fastify/swagger"), {
     routePrefix: "/api/docs",
     swagger: {
       info: {
@@ -41,7 +49,7 @@ function builder() {
     prefix: "/api/v1",
   });
 
-  fastify.register(require("fastify-cors"), {});
+  fastify.register(require("@fastify/cors"), {});
 
   fastify.ready((err) => {
     if (err) throw err;

@@ -1,7 +1,7 @@
 const { VastBuilder } = require("./vast-maker");
 const { EMPTY_VMAP_STR } = require("./constants");
 const { SecondsToTimeFormat } = require("../utils/utilities");
-const xmlParser = require("fast-xml-parser");
+const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 const he = require("he");
 
 class VMAP {
@@ -44,9 +44,10 @@ class VMAP {
       attrValueProcessor: (a) => he.encode(a, { isAttributeValue: true }),
     };
     // Parse it pretty...
-    const jsonVmap = xmlParser.parse(vmapXml, options);
-    const xml_parser = new xmlParser.j2xParser(options);
-    const prettyVmapXml = xml_parser.parse(jsonVmap);
+    const parser = new XMLParser(options);
+    const jsonVmap = parser.parse(vmapXml);
+    const builder = new XMLBuilder(options);
+    const prettyVmapXml = builder.build(jsonVmap);
     return prettyVmapXml;
   }
 }

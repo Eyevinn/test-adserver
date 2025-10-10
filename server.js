@@ -9,11 +9,10 @@ if (process.env.NODE_ENV !== "production") {
 // MAKE IT LISTEN
 const start = async () => {
   try {
-    const address = await fastifyServer.listen(
-      process.env.PORT || 8080,
-
-      process.env.HOST || "0.0.0.0"
-    );
+    const address = await fastifyServer.listen({
+      port: process.env.PORT || 8080,
+      host: process.env.HOST || "0.0.0.0"
+    });
 
     console.log(`Test Adserver API is listening at ${address}`);
   } catch (err) {

@@ -5,6 +5,7 @@ const chaiMatchPattern = require("chai-match-pattern");
 const { default: fastify } = require("fastify");
 const builder = require("../app");
 const _ = chaiMatchPattern.getLodashModule();
+const fetch = require("node-fetch");
 
 let SERVER_URL = process.env.APP_URL || "http://localhost:8080";
 
@@ -30,25 +31,26 @@ let SID;
 chai.use(chaiHttp);
 chai.use(chaiMatchPattern);
 
-let serverIsUp;
+let serverIsUp = false;
+let fastifyServer;
 
-chai
-  .request(SERVER_URL)
-  .get("/")
-  .end((err, res) => {
-    if (err) {
-      serverIsUp = false;
-    } else {
-      serverIsUp = true;
-    }
-  });
-
-if (!serverIsUp) {
-  fastifyServer = builder();
-  fastifyServer.listen("8080").then((server) => {
-    SERVER_URL = server;
-  });
+async function checkServer() {
+  try {
+    const response = await fetch(SERVER_URL);
+    serverIsUp = true;
+  } catch (err) {
+    serverIsUp = false;
+    fastifyServer = builder();
+    await fastifyServer.listen({ port: 8080, host: '0.0.0.0' });
+    SERVER_URL = "http://localhost:8080";
+  }
 }
+
+// Initialize server before tests
+before(async function() {
+  this.timeout(5000);
+  await checkServer();
+});
 
 const queryStr = `?c=1&dur=15&uid=${UID}&os=android&dt=samsung&ss=1000x200&uip=123.123.123.123`;
 
@@ -247,7 +249,7 @@ describe(" MY ROUTES", () => {
             res.should.have.status(400);
             res.body.should.be.a("object");
             res.body.should.have.property("message");
-            res.body.message.should.equal("querystring.rt should be equal to one of the allowed values");
+            res.body.message.should.equal("querystring/rt must be equal to one of the allowed values");
             done();
           });
       });

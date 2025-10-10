@@ -3,7 +3,7 @@
 const { v4: uuid } = require("uuid");
 const logger = require("./logger.js");
 const fetch = require('node-fetch');
-const xmlparser = require('fast-xml-parser');
+const { XMLParser } = require('fast-xml-parser');
 
 // IM MEMORY CACHE, containing specified ad list for each tenant.
 const TENANT_CACHE = {};
@@ -14,7 +14,8 @@ async function UpdateCache(tenant, feedURI, cache) {
   try {
     const response = await fetch(feedURI);
     const xml = await response.text();
-    const json = xmlparser.parse(xml);
+    const parser = new XMLParser();
+    const json = parser.parse(xml);
     let feedEntry = json.feed.entry;
 
     // Turn to array if only one Ad was in the feed
