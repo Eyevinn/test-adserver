@@ -1,20 +1,52 @@
 # Eyevinn Test Adserver
 
-The Eyevinn Test Adserver is an adserver that can be used in different testing contexts. Examples of use cases:
+The Eyevinn Test Adserver is a specialized testing service for ad insertion workflows in video streaming platforms. This service generates predictable VAST responses with mock ad creatives and simulates real ad server behavior for comprehensive testing purposes.
 
-- Ad server for testing server-side ad-insertion (SSAI) stitching as the VAST response always contains ads and creatives.
-- Verify what query parameters are passed from the client device through the SSAI component as it stores all received query parameters for a request (session).
-- Verify that client devices implement correct tracking as the VAST response contains tracking URLs back to the test ad server. All tracked events for a session is stored and can be obtained by the API.
+## Key Features & Benefits
+
+- **Always Returns Ads**: Standardized VAST format ensures consistent, reliable testing
+- **Comprehensive Tracking**: Stores all received query parameters and tracks all playback events
+- **Custom Ad Support**: Configure custom ad videos via MRSS feed
+- **API-First Design**: Complete Swagger documentation for easy integration
+- **Debugging Capabilities**: Debug query parameter transmission across the entire ad workflow
+
+## Primary Use Cases
+
+- **Server-Side Ad Insertion (SSAI)**: Test stitching workflows with guaranteed ad responses
+- **Client-Side Ad Insertion (CSAI)**: Validate client-side ad implementations
+- **Parameter Verification**: Ensure query parameters pass correctly from client devices through SSAI components
+- **Tracking Validation**: Verify client devices implement correct tracking with comprehensive event logging
+- **Integration Testing**: Test ad workflows across different platforms and devices
 
 This component is released under open source and we are happy for contributions!
 
 <br/>
 
+## 🚀 Get Started Instantly with Open Source Cloud
+
+Deploy and run the Test Adserver without any setup using **Open Source Cloud (OSC)** - the fastest way to get started:
+
 <div align="center">
 
-[![Badge OSC](https://img.shields.io/badge/Evaluate-24243B?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9InVybCgjcGFpbnQwX2xpbmVhcl8yODIxXzMxNjcyKSIvPgo8Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSI3IiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KPGRlZnM%2BCjxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQwX2xpbmVhcl8yODIxXzMxNjcyIiB4MT0iMTIiIHkxPSIwIiB4Mj0iMTIiIHkyPSIyNCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSIjQzE4M0ZGIi8%2BCjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzREQzlGRiIvPgo8L2xpbmVhckdyYWRpZW50Pgo8L2RlZnM%2BCjwvc3ZnPgo%3D)](https://app.osaas.io/browse/eyevinn-test-adserver)
+[![Deploy on OSC](https://img.shields.io/badge/Deploy%20on%20OSC-24243B?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9InVybCgjcGFpbnQwX2xpbmVhcl8yODIxXzMxNjcyKSIvPgo8Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSI3IiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KPGRlZnM%2BCjxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQwX2xpbmVhcl8yODIxXzMxNjcyIiB4MT0iMTIiIHkxPSIwIiB4Mj0iMTIiIHkyPSIyNCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSIjQzE4M0ZGIi8%2BCjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzREQzlGRiIvPgo8L2xpbmVhckdyYWRpZW50Pgo8L2RlZnM%2BCjwvc3ZnPgo%3D)](https://app.osaas.io/browse/eyevinn-test-adserver)
 
 </div>
+
+### Why Choose Open Source Cloud?
+
+✅ **Zero Setup Required** - Deploy instantly without local configuration  
+✅ **Managed Infrastructure** - No need to worry about servers, scaling, or maintenance  
+✅ **Built-in Monitoring** - Real-time service health and performance metrics  
+✅ **Automatic Updates** - Always run the latest version with security patches  
+✅ **Cost-Effective** - Pay only for what you use with transparent pricing  
+
+**Perfect for:**
+- QA teams needing reliable testing environments
+- Developers validating ad integration implementations  
+- Organizations requiring consistent ad testing workflows
+- Teams wanting to focus on development, not infrastructure management
+
+[**Get started with OSC →**](https://app.osaas.io/browse/eyevinn-test-adserver)
 
 ## Requirements
 
@@ -115,25 +147,35 @@ Simply populate your xml file with `<entry></entry>` tags for each Ad asset with
 
 If you have ads in multiple formats (eg. DASH, HLS, MP4), you can add multiple `<link></link>` for each one.
 
-## Commercial Options
+## Deployment Options
 
-The Eyevinn Test Adserver is released under open source but we do offer some commercial options in relation to it. Contact <sales@eyevinn.se> if you are interested for pricing and more information.
+### 🌟 Open Source Cloud (Recommended)
 
-### Hosting
+The fastest and most convenient way to deploy the Test Adserver is through **Open Source Cloud**:
 
-We host the service in our environment for a monthly recurring fee. Included is business hours support on a best effort basis.
+- **Instant Deployment**: Get up and running in minutes, not hours
+- **Zero DevOps Overhead**: Managed infrastructure, monitoring, and maintenance
+- **Scalable**: Automatically scales based on your testing needs
+- **Always Updated**: Latest features and security patches applied automatically
+- **Cost-Efficient**: Pay-per-use pricing model
 
-### Deployment
+[**Deploy on Open Source Cloud →**](https://app.osaas.io/browse/eyevinn-test-adserver)
 
-We help you deploy and integrate the service in your environment on a time-of-material basis.
+### Self-Hosting Options
 
-### Feature Development
+For organizations requiring on-premises deployment, we offer commercial support:
 
-When you need a new feature developed and does not have the capacity or competence of your own to do it, we can on a time-of-material introduce this feature in the current code base and under the current open source license. 
+**Managed Hosting**: We host the service in our environment for a monthly recurring fee, including business hours support on a best effort basis.
 
-### Professional Services and Development
+**Deployment Assistance**: We help you deploy and integrate the service in your environment on a time-of-material basis.
 
-When you need help with building for example integration adaptors or other development in your code base related to this open source project we can offer a development team from us to help out on a time-of-material basis. 
+### Professional Services
+
+**Feature Development**: When you need custom features developed, we can introduce them in the current codebase under the open source license on a time-of-material basis.
+
+**Integration Support**: Need help building integration adapters or other development related to this project? Our development team can assist on a time-of-material basis.
+
+Contact <sales@eyevinn.se> for pricing and more information on commercial options. 
 
 ## About Eyevinn Technology
 
