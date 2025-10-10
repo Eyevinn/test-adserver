@@ -41,7 +41,7 @@ async function checkServer() {
   } catch (err) {
     serverIsUp = false;
     fastifyServer = builder();
-    await fastifyServer.listen({ port: 8080, host: '127.0.0.1' });
+    await fastifyServer.listen({ port: 8080, host: '0.0.0.0' });
     SERVER_URL = "http://localhost:8080";
   }
 }
