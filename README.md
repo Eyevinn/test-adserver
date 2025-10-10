@@ -50,7 +50,7 @@ Deploy and run the Test Adserver without any setup using **Open Source Cloud (OS
 
 ## Requirements
 
-- Node v12+
+- Node.js v18+ (LTS recommended: Node.js 20 or 22)
 
 ## Database
 
