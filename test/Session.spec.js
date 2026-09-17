@@ -1,4 +1,5 @@
 const Session = require("../api/Session");
+const constants = require("../utils/constants");
 const chai = require("chai");
 const should = chai.should();
 const chaiMatchPattern = require("chai-match-pattern");
@@ -83,4 +84,54 @@ describe("SESSION CLASS", () => {
   });
 
 
+});
+
+describe("PAUSE AD VAST", () => {
+  const pauseParams = (extra) =>
+    Object.assign(
+      {
+        uid: "pauser-1",
+        host: "adserver.local",
+        rf: constants.RESPONSE_FORMATS.PAUSE_AD,
+      },
+      extra || {}
+    );
+
+  it("defaults to the non-linear pause ad shape", (done) => {
+    const session = new Session(pauseParams());
+    const xml = session.getPauseAdVast();
+    xml.should.be.a("string");
+    xml.should.contain("<NonLinearAds>");
+    xml.should.contain("<NonLinear");
+    xml.should.not.contain("<Linear>");
+    xml.should.not.contain("<MediaFile");
+    done();
+  });
+
+  it("returns a linear image pause ad when format=linear", (done) => {
+    const session = new Session(pauseParams({ format: "linear" }));
+    const xml = session.getPauseAdVast();
+    xml.should.be.a("string");
+    // Linear creative with a Duration in HH:MM:SS.
+    xml.should.contain("<Linear>");
+    xml.should.match(/<Duration>(<!\[CDATA\[)?\d{2}:\d{2}:\d{2}/);
+    // MediaFile carries the required attributes and an image MIME type.
+    xml.should.match(/<MediaFile[^>]*\bdelivery="progressive"/);
+    xml.should.match(/<MediaFile[^>]*\btype="image\/[a-z]+"/);
+    xml.should.match(/<MediaFile[^>]*\bwidth="\d+"/);
+    xml.should.match(/<MediaFile[^>]*\bheight="\d+"/);
+    // Labelled as a deliberate non-conformant emulation.
+    xml.should.contain("<CreativeExtension");
+    xml.should.contain("emulation");
+    // Not the non-linear shape.
+    xml.should.not.contain("<NonLinear");
+    done();
+  });
+
+  it("honours a custom duration for the linear pause ad", (done) => {
+    const session = new Session(pauseParams({ format: "linear", dur: "00:00:30" }));
+    const xml = session.getPauseAdVast();
+    xml.should.contain("00:00:30");
+    done();
+  });
 });
