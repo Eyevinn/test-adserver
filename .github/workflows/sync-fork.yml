@@ -1,0 +1,52 @@
+name: Sync OSC Fork
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        default: "prod"
+        type: choice
+        options:
+          - prod
+          - dev
+          - stage
+
+jobs:
+  sync-fork:
+    name: Sync fork (${{ inputs.environment }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: sync-fork-${{ inputs.environment }}
+      cancel-in-progress: false
+    steps:
+      - name: Validate environment
+        run: |
+          case "${{ inputs.environment }}" in
+            prod|dev|stage) ;;
+            *) echo "Invalid environment: ${{ inputs.environment }}"; exit 1 ;;
+          esac
+
+      - name: Install OSC CLI
+        run: npm install -g @osaas/cli@4.33.2
+
+      - name: Trigger sync fork
+        env:
+          OSC_ACCESS_TOKEN: unused
+          OSC_API_KEY: ${{ secrets.OSC_API_KEY }}
+        run: osc --env "${{ inputs.environment }}" admin sync-fork --wait eyevinn-test-adserver
+
+      - name: Restart sgaidev beta instance
+        if: inputs.environment == 'prod'
+        env:
+          OSC_ACCESS_TOKEN: unused
+          OSC_API_KEY: ${{ secrets.OSC_SGAIDEV_PAT }}
+        run: osc --env prod restart eyevinn-test-adserver sgaidev
