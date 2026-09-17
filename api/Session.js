@@ -42,6 +42,8 @@ class Session {
         width: params.width,
         height: params.height,
         version: params.v || null,
+        format: params.format || null,
+        duration: params.dur || null,
       });
       this.#pauseAdVast = pauseAdObj.xml;
     } else if (this.responseFormat === constants.RESPONSE_FORMATS.VMAP) {

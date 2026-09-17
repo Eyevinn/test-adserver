@@ -694,6 +694,23 @@ const schemas = {
           description: "Height of the pause ad image. Default is 167.",
           example: 225,
         },
+        format: {
+          type: "string",
+          description:
+            "Pause ad format. Default is non-linear (a <NonLinear> static image). " +
+            "Set to 'linear' to emulate ad servers that serve a pause ad as a linear " +
+            "ad: a <Linear> creative whose <MediaFile> points at an image instead of a " +
+            "video. The linear shape is a deliberate, tolerated non-conformant emulation.",
+          enum: ["linear", "non-linear"],
+          example: "linear",
+        },
+        dur: {
+          type: "string",
+          description:
+            "Duration (HH:MM:SS) for the <Linear> pause ad. Only used when format=linear. " +
+            "Default is 00:00:20. Ignored for the non-linear format.",
+          example: "00:00:20",
+        },
       },
     },
     response: {
