@@ -36,13 +36,13 @@ jobs:
           esac
 
       - name: Install OSC CLI
-        run: npm install -g @osaas/cli@4.33.2
+        run: npm install -g @osaas/cli@4.35.0
 
       - name: Trigger sync fork
         env:
           OSC_ACCESS_TOKEN: unused
           OSC_API_KEY: ${{ secrets.OSC_API_KEY }}
-        run: osc --env "${{ inputs.environment }}" admin sync-fork --wait eyevinn-test-adserver
+        run: osc --env "${{ inputs.environment }}" admin sync-fork --repository-url https://github.com/Eyevinn/test-adserver --wait
 
       - name: Restart sgaidev beta instance
         if: inputs.environment == 'prod'
